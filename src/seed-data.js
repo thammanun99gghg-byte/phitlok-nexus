@@ -323,8 +323,14 @@ const RAW_LANDMARKS = [
       ko: '핏사눌록 시청 및 태국 예술청 건축부',
       fr: 'Municipalité de Phitsanulok et Département des Beaux-Arts'
     },
-    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Phra_Phuttha_Chinnarat_%28II%29.jpg/960px-Phra_Phuttha_Chinnarat_%28II%29.jpg',
+    imageUrl: '/assets/photos/city-pillar.jpg',
     fallbackImage: '/assets/photos/city-pillar.jpg',
+    // Verified byte-for-byte against the Commons 960px thumbnail of this file.
+    photoCredit: {
+      author: 'Christophe95',
+      license: 'CC BY-SA 4.0',
+      source_url: 'https://commons.wikimedia.org/wiki/File:Phitsanulok_City_Pillar_Shrine_1.jpg'
+    },
     keywords: ['ศาลหลักเมือง', 'หลักเมืองพิษณุโลก', 'สวนชมน่าน', 'city pillar', 'suan chom nan'],
     name: {
       th: 'ศาลหลักเมืองพิษณุโลก & สวนชมน่านเฉลิมพระเกียรติ',
