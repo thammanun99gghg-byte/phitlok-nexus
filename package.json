@@ -8,7 +8,8 @@
     "start": "node --disable-warning=ExperimentalWarning server.js",
     "dev": "node --disable-warning=ExperimentalWarning --watch server.js",
     "reset-db": "node --disable-warning=ExperimentalWarning scripts/reset-db.js",
-    "test": "node --disable-warning=ExperimentalWarning scripts/smoke-test.js"
+    "test": "node --disable-warning=ExperimentalWarning scripts/smoke-test.js",
+    "qa:ui": "node docs/qa/qa-ui.mjs"
   },
   "engines": {
     "node": ">=22.13.0"
@@ -19,5 +20,8 @@
     "helmet": "^8.0.0",
     "multer": "^2.0.2",
     "qrcode": "^1.5.4"
+  },
+  "devDependencies": {
+    "playwright": "^1.64.1"
   }
 }
