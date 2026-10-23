@@ -154,7 +154,7 @@ function renderMapCard(ent) {
       </div>
       <div class="map-card__header-row">
         <a class="kicker kicker--link" href="/credits#sources" title="คลิกดูรายละเอียดแหล่งอ้างอิงทะเบียนโบราณสถาน กรมศิลปากร">
-          <i data-lucide="shield-check"></i> Verified by Fine Arts Dept. · ${esc(tr(lm.fineArtsRef) || 'กรมศิลปากร')} ↗
+          <i data-lucide="shield-check"></i> อ้างอิงข้อมูล: กรมศิลปากร ↗
         </a>
         ${langSwitcher(lang, 'card-lang')}
       </div>
@@ -294,7 +294,7 @@ function renderDirectoryCards() {
         <h3 lang="${lang}">${esc(tr(lm.name, lang))}</h3>
         <p class="muted small" lang="${lang}">${esc(tr(lm.summary, lang))}</p>
         <a class="dir-card__ref dir-card__ref--link" href="/credits#sources" title="คลิกดูรายละเอียดทะเบียนโบราณสถาน กรมศิลปากร">
-          <i data-lucide="book-open-check"></i> Verified by Fine Arts Dept. · ${esc(tr(lm.fineArtsRef) || 'กรมศิลปากร')} ↗
+          <i data-lucide="book-open-check"></i> อ้างอิงข้อมูล: กรมศิลปากร ↗
         </a>
         <div class="dir-card__actions">
           <button class="btn btn--primary btn--sm" type="button" data-dir-scan="${lm.id}">

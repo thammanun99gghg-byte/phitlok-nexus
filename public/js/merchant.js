@@ -180,9 +180,8 @@ function renderTab2GpsChecker(d) {
     <div class="gps-checker-grid">
       <div class="card gps-map-visual">
         <div class="gps-map-visual__header">
-          <span class="badge badge--ok"><i data-lucide="shield-check"></i> Verified on Google Maps &amp; 3D Nexus</span>
-          <span class="badge badge--gold"><i data-lucide="navigation"></i> พิกัดจริง 100%</span>
-        </div>
+          <span class="badge badge--warn"><i data-lucide="info"></i> ข้อมูลสาธิต · รอทีมตรวจพิกัด</span>
+                  </div>
         <div class="gps-radar">
           <img class="gps-radar__bg" src="${esc(m.imageUrl || m.fallbackImage)}"
                onerror="this.onerror=null;this.src='${esc(m.fallbackImage || '/assets/photos/noodles-tomyum.jpg')}'"

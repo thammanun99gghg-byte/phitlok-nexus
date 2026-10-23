@@ -100,7 +100,7 @@ function sourceBadge(source, latency) {
     gemini: '<span class="badge badge--ok">AI: Gemini Vision OCR</span>',
     fallback: '<span class="badge badge--warn">โหมดสำรอง</span>'
   }[source] || '';
-  return `${label}<span class="badge">ตอบกลับ ${latency} ms</span><a class="badge badge--ok" href="/credits#sources" title="คลิกดูหลักฐานทะเบียนโบราณสถาน กรมศิลปากร">Verified by Fine Arts Dept. ↗</a>`;
+  return `${label}<span class="badge">ตอบกลับ ${latency} ms</span><a class="badge badge--ok" href="/credits#sources" title="คลิกดูหลักฐานทะเบียนโบราณสถาน กรมศิลปากร">อ้างอิงข้อมูล: กรมศิลปากร ↗</a>`;
 }
 
 // ------------------------------------------------------------------ Mode A
@@ -177,7 +177,7 @@ function renderHeritage() {
           <i data-lucide="map-pin"></i> GPS: <code>${lm.lat.toFixed(4)}, ${lm.lng.toFixed(4)}</code> ↗
         </a>
         <a class="badge badge--gold" href="/credits#sources" title="ดูรายละเอียดทะเบียนโบราณสถาน กรมศิลปากร">
-          <i data-lucide="shield-check"></i> Verified by Fine Arts Dept. · พ.ศ. ${esc(lm.builtYearBe || '-')} ↗
+          <i data-lucide="shield-check"></i> อ้างอิงข้อมูล: กรมศิลปากร · พ.ศ. ${esc(lm.builtYearBe || '-')} ↗
         </a>
         <a class="btn btn--outline btn--sm" href="${esc(gmapsUrl)}" target="_blank" rel="noopener">
           <i data-lucide="globe"></i> เปิดดูสถานที่จริงบน Google Maps / Google Earth 3D

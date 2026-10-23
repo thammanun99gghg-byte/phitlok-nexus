@@ -1,6 +1,6 @@
 // Shared behaviour for every page (/, /app, /credits):
 // 1. Persistent Light / Dark Theme Switcher (localStorage.getItem('phitlok_theme'))
-// 2. Global SVG Image Fallback protection (100% zero broken images)
+// 2. Global SVG image fallback for broken images
 // 3. Mobile navigation menu
 
 const THEME_KEY = 'phitlok_theme';
@@ -55,7 +55,7 @@ if (document.readyState === 'loading') {
   bindThemeToggle();
 }
 
-// Global 100% SVG fallback for any image error across all pages
+// Global SVG fallback for any image error across all pages
 export function makeSvgFallback(label = 'PHITLOK NEXUS') {
   const safe = String(label || 'PHITLOK NEXUS').replace(/[<>&"']/g, '').slice(0, 36);
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500">
@@ -69,7 +69,7 @@ export function makeSvgFallback(label = 'PHITLOK NEXUS') {
     <circle cx="400" cy="210" r="56" fill="rgba(184,134,11,0.25)" stroke="#B8860B" stroke-width="3"/>
     <path d="M400 168 L422 212 H378 Z M370 220 H430 V232 H370 Z M360 238 H440 V252 H360 Z" fill="#E6B422"/>
     <text x="400" y="320" text-anchor="middle" fill="#FFFFFF" font-family="sans-serif" font-size="24" font-weight="bold">${safe}</text>
-    <text x="400" y="355" text-anchor="middle" fill="#FFD97D" font-family="sans-serif" font-size="16">PHITLOK NEXUS · Verified Real-World Location</text>
+    <text x="400" y="355" text-anchor="middle" fill="#FFD97D" font-family="sans-serif" font-size="16">ภาพแทนชั่วคราว · รูปจริงโหลดไม่สำเร็จ</text>
   </svg>`;
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
 }
