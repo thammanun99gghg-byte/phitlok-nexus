@@ -26,86 +26,40 @@
 <body class="page-app">
   <a class="skip-link" href="#main">ข้ามไปยังเนื้อหาหลัก</a>
 
-  <header class="topbar">
-    <div class="topbar__inner">
+  <header class="appbar">
+    <div class="appbar__inner">
       <a class="brand" href="/" aria-label="PHITLOK NEXUS — หน้าแรก">
         <svg class="brand__mark" viewBox="0 0 40 40" aria-hidden="true">
           <rect width="40" height="40" rx="10" fill="#0F3D3E"/>
           <path d="M20 6 L25 16 H15 Z M13 18 H27 V21 H13 Z M11 23 H29 V26 H11 Z M9 28 H31 V33 H9 Z" fill="#B8860B"/>
         </svg>
-        <span class="brand__text">PHITLOK <b>NEXUS</b> <small class="version-tag">v2.2</small></span>
+        <span class="brand__text">PHITLOK <b>NEXUS</b></span>
       </a>
-      <nav class="sitenav" aria-label="หน้าหลักของเว็บไซต์">
-        <a href="/"><span class="sitenav__no">01</span>หน้าแรก</a>
-        <a href="/app" aria-current="page"><span class="sitenav__no">02</span>แอปพลิเคชัน</a>
-        <a href="/credits"><span class="sitenav__no">03</span>เครดิต</a>
-      </nav>
-      <div class="topbar__actions">
-        <button class="btn btn--outline btn--sm theme-toggle" type="button" id="theme-toggle" data-theme-toggle aria-pressed="false" aria-label="สลับโหมดหน้าจอสว่างและมืด">
-          <span class="theme-toggle__label">☀️ สว่าง / 🌙 มืด</span>
-        </button>
-        <div class="topbar__role-actions" id="tourist-top-actions">
-          <button class="btn btn--outline btn--sm" type="button" id="open-wallet" aria-haspopup="dialog">
-            <i data-lucide="ticket"></i> คูปอง <span class="pill" id="wallet-count">0</span>
-          </button>
-          <button class="btn btn--primary btn--sm" type="button" id="open-cart" aria-haspopup="dialog">
-            <i data-lucide="shopping-bag"></i> ตะกร้า <span class="pill pill--gold" id="cart-count">0</span>
-          </button>
-        </div>
-        <button class="btn btn--icon btn--ghost menu-toggle" type="button" id="menu-toggle" aria-expanded="false" aria-controls="mobile-nav" aria-label="เปิดเมนูหน้าเว็บ">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
-        </button>
+      <div class="modeswitch modeswitch--top" role="group" aria-label="เลือกโหมด">
+        <button class="modeswitch__btn" type="button" data-role="tourist" aria-pressed="true"><i data-lucide="compass"></i><span>นักท่องเที่ยว</span></button>
+        <button class="modeswitch__btn" type="button" data-role="merchant" aria-pressed="false"><i data-lucide="store"></i><span>ร้านและโรงแรม</span></button>
+        <button class="modeswitch__btn" type="button" data-role="admin" aria-pressed="false"><i data-lucide="bar-chart-3"></i><span>ผู้บริหาร</span></button>
+      </div>
+      <div class="appbar__actions">
+        <button class="icon-btn" type="button" id="open-cart" aria-haspopup="dialog" aria-label="ตะกร้า"><i data-lucide="shopping-bag"></i><span class="icon-btn__count" id="cart-count" hidden>0</span></button>
+        <button class="icon-btn hide-mobile" type="button" id="open-wallet" aria-haspopup="dialog" aria-label="คูปองของฉัน"><i data-lucide="ticket"></i><span class="icon-btn__count" id="wallet-count" hidden>0</span></button>
+        <button class="icon-btn hide-mobile" type="button" id="theme-toggle" data-theme-toggle aria-pressed="false" aria-label="สลับธีมสว่างหรือมืด"><i data-lucide="moon" class="ico-moon"></i><i data-lucide="sun" class="ico-sun"></i></button>
+        <button class="icon-btn menu-toggle" type="button" id="menu-toggle" aria-expanded="false" aria-controls="mobile-nav" aria-label="เปิดเมนู"><i data-lucide="menu"></i></button>
       </div>
     </div>
-    <nav class="mobile-nav" id="mobile-nav" aria-label="เมนูหน้าเว็บ" hidden>
-      <a href="/"><span class="sitenav__no">01</span><b>หน้าแรก</b><small>รู้จัก PHITLOK NEXUS v2.2</small></a>
-      <a href="/app" aria-current="page"><span class="sitenav__no">02</span><b>แอปพลิเคชัน</b><small>แยก 3 บทบาท: นักท่องเที่ยว · เจ้าของร้าน · ผู้บริหาร</small></a>
-      <a href="/credits"><span class="sitenav__no">03</span><b>เครดิต</b><small>ทีม แหล่งอ้างอิงกรมศิลปากร และเทคโนโลยี</small></a>
+    <nav class="menu-panel" id="mobile-nav" aria-label="เมนู" hidden>
+      <a href="/"><i data-lucide="house"></i> หน้าแรก</a>
+      <a href="/app" aria-current="page"><i data-lucide="layout-grid"></i> แอป</a>
+      <a href="/credits"><i data-lucide="book-open"></i> เครดิต</a>
+      <button class="menu-panel__item show-mobile" type="button" data-open-wallet-menu><i data-lucide="ticket"></i> คูปองของฉัน</button>
+      <button class="menu-panel__item show-mobile" type="button" data-theme-toggle aria-pressed="false"><i data-lucide="moon" class="ico-moon"></i><i data-lucide="sun" class="ico-sun"></i> สลับธีมสว่าง/มืด</button>
     </nav>
-
-    <!-- Role Switcher Bar & Role-Specific Navigation -->
-    <div class="role-bar">
-      <div class="container role-bar__inner">
-        <div class="role-bar__switcher" role="group" aria-label="สลับโหมดผู้ใช้งาน 3 ฝั่ง">
-          <span class="role-bar__title"><i data-lucide="layers"></i> โหมดผู้ใช้งาน:</span>
-          <button class="role-btn" type="button" data-role="tourist" aria-pressed="true">
-            <i data-lucide="compass"></i>
-            <span>1. ฝั่งนักท่องเที่ยว <small>(Tourist View)</small></span>
-          </button>
-          <button class="role-btn" type="button" data-role="merchant" aria-pressed="false">
-            <i data-lucide="store"></i>
-            <span>2. ฝั่งเจ้าของร้าน &amp; โรงแรม <small>(Merchant Portal)</small></span>
-          </button>
-          <button class="role-btn" type="button" data-role="admin" aria-pressed="false">
-            <i data-lucide="bar-chart-3"></i>
-            <span>3. ฝั่งผู้บริหารแพลตฟอร์ม <small>(Executive Admin)</small></span>
-          </button>
-        </div>
-
-        <!-- Role 1 Navigation: Tourist -->
-        <nav class="role-subnav" data-role-nav="tourist" aria-label="เมนูนำทางฝั่งนักท่องเที่ยว">
-          <a href="#map"><i data-lucide="map"></i> แผนที่ 3D พิกัดจริง (13 หมุด)</a>
-          <a href="#directory"><i data-lucide="grid"></i> 5 โบราณสถาน · 5 ร้านดัง · 3 โรงแรม</a>
-          <a href="#lens"><i data-lucide="headphones"></i> AI Audio Guide &amp; สั่งอาหาร 6 ภาษา</a>
-          <a href="#vip"><i data-lucide="crown"></i> VIP Pass 99฿</a>
-        </nav>
-
-        <!-- Role 2 Navigation: Merchant -->
-        <nav class="role-subnav" data-role-nav="merchant" aria-label="เมนูนำทางฝั่งเจ้าของร้านและโรงแรม" hidden>
-          <button type="button" class="subnav-btn" data-jump-m-tab="kitchen"><i data-lucide="utensils-crossed"></i> 1. หน้าจอรับออเดอร์หน้าร้าน</button>
-          <button type="button" class="subnav-btn" data-jump-m-tab="gps"><i data-lucide="map-pin"></i> 2. ตรวจสอบหมุด GPS &amp; สถานะร้าน</button>
-          <button type="button" class="subnav-btn" data-jump-m-tab="menu"><i data-lucide="sparkles"></i> 3. จัดการเมนู &amp; สแกนแปล 6 ภาษา</button>
-        </nav>
-
-        <!-- Role 3 Navigation: Executive Admin -->
-        <nav class="role-subnav" data-role-nav="admin" aria-label="เมนูนำทางฝั่งผู้บริหารแพลตฟอร์ม" hidden>
-          <a href="#admin-revenue"><i data-lucide="trending-up"></i> รายได้ 4 ช่องทาง</a>
-          <a href="#admin-monitor"><i data-lucide="radar"></i> ตรวจสอบ 13 หมุด &amp; พาร์ทเนอร์</a>
-          <a href="#calculator"><i data-lucide="calculator"></i> คำนวณจุดคุ้มทุน (Unit Economics)</a>
-        </nav>
-      </div>
-    </div>
   </header>
+  <nav class="modeswitch modeswitch--tabbar" aria-label="เลือกโหมด">
+        <button class="modeswitch__btn" type="button" data-role="tourist" aria-pressed="true"><i data-lucide="compass"></i><span>นักท่องเที่ยว</span></button>
+        <button class="modeswitch__btn" type="button" data-role="merchant" aria-pressed="false"><i data-lucide="store"></i><span>ร้านและโรงแรม</span></button>
+        <button class="modeswitch__btn" type="button" data-role="admin" aria-pressed="false"><i data-lucide="bar-chart-3"></i><span>ผู้บริหาร</span></button>
+  </nav>
 
   <main id="main">
     <!-- =====================================================================

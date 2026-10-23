@@ -4,7 +4,7 @@ import { initMap, focusEntity, syncMerchants, refreshLabels, setMapFilter } from
 import { initLens, runHeritage, runMenuPreset, openMerchantMenu, speakGuide, selectTab } from './js/lens.js';
 import { openCart, cartCount } from './js/menu.js';
 import { startCheckout } from './js/payment.js';
-import { initMerchant, populateMerchantSelect, startMerchantView, stopMerchantView, selectMerchantTab, refreshMerchantData } from './js/merchant.js';
+import { initMerchant, populateMerchantSelect, startMerchantView, stopMerchantView, refreshMerchantData } from './js/merchant.js';
 import { initAdmin, startAdminView, stopAdminView, fetchMetrics, refreshAdminData } from './js/admin.js';
 
 const CATEGORY_TH = {
@@ -110,13 +110,22 @@ function applyHash({ initial = false } = {}) {
   }
 }
 
+// Count badges on the icon buttons stay hidden at zero so the bar is not cluttered with "0".
+function setCount(el, n) {
+  if (!el) return;
+  el.textContent = n;
+  el.hidden = !n;
+  const btn = el.closest('button');
+  if (btn) btn.setAttribute('aria-label', `${btn.id === 'open-cart' ? 'ตะกร้า' : 'คูปองของฉัน'} (${n})`);
+}
+
 function renderVisitorBits() {
   const v = state.data.visitor;
   const active = v.coupons.filter((c) => c.status === 'active').length;
   const wc = document.getElementById('wallet-count');
   const cc = document.getElementById('cart-count');
-  if (wc) wc.textContent = active;
-  if (cc) cc.textContent = cartCount();
+  setCount(wc, active);
+  setCount(cc, cartCount());
   const box = document.getElementById('vip-action');
   if (!box) return;
   if (v.vip.active) {
@@ -366,10 +375,6 @@ function setRole(role, { skipDataLoad = false } = {}) {
   state.role = role;
   document.querySelectorAll('[data-role]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.role === role)));
   document.querySelectorAll('.view').forEach((v) => { v.hidden = v.dataset.view !== role; });
-  document.querySelectorAll('[data-role-nav]').forEach((nav) => { nav.hidden = nav.dataset.roleNav !== role; });
-
-  const touristActions = document.getElementById('tourist-top-actions');
-  if (touristActions) touristActions.hidden = role !== 'tourist';
 
   if (skipDataLoad) return;
   stopMerchantView();
@@ -431,14 +436,6 @@ async function reloadData() {
 function bindGlobal() {
   document.querySelectorAll('[data-role]').forEach((b) => b.addEventListener('click', () => setRole(b.dataset.role)));
 
-  // Role-specific sub-nav shortcuts for Merchant Portal
-  document.querySelectorAll('[data-jump-m-tab]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      setRoleIfNeeded('merchant');
-      selectMerchantTab(btn.dataset.jumpMTab);
-    });
-  });
-
   // Map Category Filter Buttons ([ทั้งหมด], [5 โบราณสถาน], [5 ร้านอาหารดัง], [3 โรงแรมที่พัก])
   document.querySelectorAll('[data-map-filter]').forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -484,7 +481,7 @@ function bindGlobal() {
     }
   });
 
-  document.getElementById('open-wallet')?.addEventListener('click', openWallet);
+  document.querySelectorAll('#open-wallet, [data-open-wallet-menu]').forEach((b) => b.addEventListener('click', openWallet));
   document.getElementById('open-cart')?.addEventListener('click', openCart);
   document.getElementById('vip-card')?.addEventListener('click', (e) => {
     if (e.target.closest('[data-buy-vip]')) startCheckout({ type: 'vip_pass' });
@@ -532,8 +529,7 @@ function bindGlobal() {
     document.getElementById('vip')?.scrollIntoView({ behavior: 'smooth' });
   });
   on('cart:changed', () => {
-    const cc = document.getElementById('cart-count');
-    if (cc) cc.textContent = cartCount();
+    setCount(document.getElementById('cart-count'), cartCount());
   });
   on('visitor:updated', (v) => {
     state.data.visitor = v;

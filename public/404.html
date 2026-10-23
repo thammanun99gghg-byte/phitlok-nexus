@@ -13,29 +13,31 @@
 </head>
 <body class="page-404">
   <a class="skip-link" href="#main">ข้ามไปยังเนื้อหาหลัก</a>
-  <header class="topbar">
-    <div class="topbar__inner">
+  <header class="appbar appbar--site">
+    <div class="appbar__inner">
       <a class="brand" href="/" aria-label="PHITLOK NEXUS — หน้าแรก">
         <svg class="brand__mark" viewBox="0 0 40 40" aria-hidden="true">
-          <rect width="40" height="40" rx="10" fill="#1B2528"/>
-          <path d="M20 6 L25 16 H15 Z M13 18 H27 V21 H13 Z M11 23 H29 V26 H11 Z M9 28 H31 V33 H9 Z" fill="#F2C14E"/>
+          <rect width="40" height="40" rx="10" fill="#0F3D3E"/>
+          <path d="M20 6 L25 16 H15 Z M13 18 H27 V21 H13 Z M11 23 H29 V26 H11 Z M9 28 H31 V33 H9 Z" fill="#B8860B"/>
         </svg>
         <span class="brand__text">PHITLOK <b>NEXUS</b></span>
       </a>
       <nav class="sitenav" aria-label="หน้าหลักของเว็บไซต์">
-        <a href="/"><span class="sitenav__no">01</span>หน้าแรก</a>
-        <a href="/app"><span class="sitenav__no">02</span>แอปพลิเคชัน</a>
-        <a href="/credits"><span class="sitenav__no">03</span>เครดิต</a>
+        <a href="/">หน้าแรก</a>
+        <a href="/app">แอป</a>
+        <a href="/credits">เครดิต</a>
       </nav>
-      <div class="topbar__actions">
-        <a class="btn btn--primary btn--sm" href="/app">เปิดแอป <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 12h16m-6-6 6 6-6 6"/></svg></a>
-        <button class="btn btn--icon btn--ghost menu-toggle" type="button" id="menu-toggle" aria-expanded="false" aria-controls="mobile-nav" aria-label="เปิดเมนูหน้าเว็บ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+      <div class="appbar__actions">
+        <button class="icon-btn hide-mobile" type="button" id="theme-toggle" data-theme-toggle aria-pressed="false" aria-label="สลับธีมสว่างหรือมืด"><i data-lucide="moon" class="ico-moon"></i><i data-lucide="sun" class="ico-sun"></i></button>
+        <a class="btn btn--primary btn--sm" href="/app#tourist">เปิดแอป</a>
+        <button class="icon-btn menu-toggle show-mobile-grid" type="button" id="menu-toggle" aria-expanded="false" aria-controls="mobile-nav" aria-label="เปิดเมนู"><i data-lucide="menu"></i></button>
       </div>
     </div>
-    <nav class="mobile-nav" id="mobile-nav" aria-label="เมนูหน้าเว็บ" hidden>
-      <a href="/"><span class="sitenav__no">01</span><b>หน้าแรก</b><small>รู้จัก PHITLOK NEXUS</small></a>
-      <a href="/app"><span class="sitenav__no">02</span><b>แอปพลิเคชัน</b><small>แผนที่ 3D · AI Lens · สั่งอาหาร · แดชบอร์ด</small></a>
-      <a href="/credits"><span class="sitenav__no">03</span><b>เครดิต</b><small>ทีม แหล่งข้อมูล และเทคโนโลยี</small></a>
+    <nav class="menu-panel" id="mobile-nav" aria-label="เมนู" hidden>
+      <a href="/"><i data-lucide="house"></i> หน้าแรก</a>
+      <a href="/app"><i data-lucide="layout-grid"></i> แอป</a>
+      <a href="/credits"><i data-lucide="book-open"></i> เครดิต</a>
+      <button class="menu-panel__item" type="button" data-theme-toggle aria-pressed="false"><i data-lucide="moon" class="ico-moon"></i><i data-lucide="sun" class="ico-sun"></i> สลับธีมสว่าง/มืด</button>
     </nav>
   </header>
   <main id="main">
