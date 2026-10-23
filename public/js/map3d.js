@@ -116,10 +116,19 @@ export async function initMap({ onSelect }) {
   start();
 }
 
-export function setMapFilter(filter) {
-  state.mapFilter = filter || 'all';
+/** Map category of a merchant: hotel, souvenir shop or restaurant. */
+export function merchantLayer(m) {
+  if (m.kind === 'hotel' || m.category === 'stay') return 'hotel';
+  if (m.category === 'souvenir') return 'souvenir';
+  return 'restaurant';
+}
+
+/** Show only the given categories (heritage | restaurant | souvenir | hotel). */
+export function setMapLayers(layers) {
+  state.mapLayers = new Set(layers);
+  const on = (layer) => state.mapLayers.has(layer);
   for (const ent of entities.values()) {
-    const show = state.mapFilter === 'all' || ent.subKind === state.mapFilter;
+    const show = on(ent.subKind);
     if (ent.group) ent.group.visible = show;
     if (ent.halo) ent.halo.visible = show;
     if (ent.label) {
@@ -128,7 +137,7 @@ export function setMapFilter(filter) {
     }
   }
   for (const trObj of trails) {
-    const show = state.mapFilter === 'all' || state.mapFilter === trObj.targetSubKind;
+    const show = on(trObj.targetSubKind);
     if (trObj.tube) trObj.tube.visible = show;
     trObj.pulses.forEach((p) => { p.visible = show; });
   }
@@ -165,7 +174,7 @@ export function syncMerchants(merchants, highlightId) {
       continue;
     }
     if (THREE) addMerchant(m, true);
-    else entities.set(key, { kind: 'merchant', subKind: m.kind === 'hotel' ? 'hotel' : 'restaurant', data: m, anchor: null });
+    else entities.set(key, { kind: 'merchant', subKind: merchantLayer(m), data: m, anchor: null });
     if (m.id === highlightId) {
       const ent = entities.get(key);
       if (ent && ent.label) ent.label.classList.add('map-label--new');
@@ -564,8 +573,8 @@ function addHalo(x, z, radius, colorHex) {
 // Distinct 3D Models for Restaurants (#0F3D3E) vs Hotels (#1E3A8A)
 function addMerchant(m, isNew) {
   const key = `merchant:${m.slug}`;
-  const isHotel = m.kind === 'hotel' || m.category === 'stay';
-  const subKind = isHotel ? 'hotel' : 'restaurant';
+  const subKind = merchantLayer(m);
+  const isHotel = subKind === 'hotel';
   const coords = (typeof m.x === 'number' && typeof m.z === 'number') ? { x: m.x, z: m.z } : gpsTo3D(m.lat, m.lng);
 
   const g = new THREE.Group();
@@ -678,7 +687,7 @@ function fallbackEntity(key) {
     return lm ? { kind: 'landmark', subKind: 'heritage', data: lm } : null;
   }
   const m = state.data.merchants.find((x) => x.slug === id);
-  return m ? { kind: 'merchant', subKind: m.kind === 'hotel' ? 'hotel' : 'restaurant', data: m } : null;
+  return m ? { kind: 'merchant', subKind: merchantLayer(m), data: m } : null;
 }
 
 function renderFallbackLabels() {
@@ -692,8 +701,8 @@ function renderFallbackLabels() {
   labelsEl.style.alignContent = 'flex-start';
   const items = [
     ...state.data.landmarks.map((l) => ({ key: `landmark:${l.id}`, kind: 'landmark', subKind: 'heritage', data: l })),
-    ...state.data.merchants.map((m) => ({ key: `merchant:${m.slug}`, kind: 'merchant', subKind: m.kind === 'hotel' ? 'hotel' : 'restaurant', data: m }))
-  ].filter((it) => state.mapFilter === 'all' || it.subKind === state.mapFilter);
+    ...state.data.merchants.map((m) => ({ key: `merchant:${m.slug}`, kind: 'merchant', subKind: merchantLayer(m), data: m }))
+  ].filter((it) => state.mapLayers.has(it.subKind));
 
   for (const it of items) {
     const b = document.createElement('button');

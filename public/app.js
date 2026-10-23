@@ -1,6 +1,6 @@
 // PHITLOK NEXUS v2.2 — Application Entry (Real-World Geospatial & Strict 3-Role Edition)
 import { state, api, esc, tr, baht, num, on, emit, toast, openDialog, closeDialog, LANGS, langSwitcher, refreshIcons, svgFallbackUrl, shortLabel } from './js/core.js';
-import { initMap, focusEntity, syncMerchants, refreshLabels, setMapFilter } from './js/map3d.js';
+import { initMap, focusEntity, syncMerchants, refreshLabels, setMapLayers, merchantLayer } from './js/map3d.js';
 import { initLens, runHeritage, runMenuPreset, openMerchantMenu, speakGuide, selectTab } from './js/lens.js';
 import { openCart, cartCount } from './js/menu.js';
 import { startCheckout } from './js/payment.js';
@@ -326,7 +326,7 @@ function renderDirectoryCards() {
     const minPrice = items.length ? Math.min(...items.map((i) => i.priceSatang)) : m.roomRateSatang || 5000;
     const svgFb = svgFallbackUrl(shortLabel(m, lang));
     const isDemoPartner = m.partnerStatus !== 'confirmed';
-    return `<article class="dir-card dir-card--${isHotel ? 'hotel' : 'restaurant'}" data-dir-cat="${isHotel ? 'hotel' : 'restaurant'}">
+    return `<article class="dir-card dir-card--${isHotel ? 'hotel' : 'restaurant'}" data-dir-cat="${merchantLayer(m)}">
       <div class="dir-card__img-wrap">
         <img src="${esc(m.imageUrl || m.fallbackImage)}"
              data-fallback="${esc(m.fallbackImage)}"
@@ -427,6 +427,7 @@ async function reloadData() {
   populateMerchantSelect();
   renderVisitorBits();
   renderDirectoryCards();
+  updateLayerCounts();
   return fresh;
 }
 
@@ -434,23 +435,7 @@ async function reloadData() {
 function bindGlobal() {
   document.querySelectorAll('[data-role]').forEach((b) => b.addEventListener('click', () => setRole(b.dataset.role)));
 
-  // Map Category Filter Buttons ([ทั้งหมด], [5 โบราณสถาน], [5 ร้านอาหารดัง], [3 โรงแรมที่พัก])
-  document.querySelectorAll('[data-map-filter]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const f = btn.dataset.mapFilter;
-      document.querySelectorAll('[data-map-filter]').forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
-      setMapFilter(f);
-      // Also filter directory cards if user scrolls down
-      document.querySelectorAll('[data-dir-cat]').forEach((card) => {
-        card.hidden = f !== 'all' && card.dataset.dirCat !== f;
-      });
-    });
-  });
-
-  document.querySelector('.map-shortcuts')?.addEventListener('click', (e) => {
-    const b = e.target.closest('[data-focus]');
-    if (b) focusEntity(b.dataset.focus);
-  });
+  bindMapTools();
 
   document.getElementById('map-card')?.addEventListener('click', (e) => {
     const langBtn = e.target.closest('[data-card-lang]');
@@ -575,6 +560,76 @@ function bindGlobal() {
         if (result.merchant.id) openMerchantMenu(result.merchant.id);
       }, 350);
     }
+  });
+}
+
+// ------------------------------------------------------------------ map toolbar (layers · legend · reset · fullscreen)
+function updateLayerCounts() {
+  const counts = { heritage: state.data.landmarks.length, restaurant: 0, souvenir: 0, hotel: 0 };
+  for (const m of state.data.merchants) counts[merchantLayer(m)] += 1;
+  document.querySelectorAll('[data-layer-count]').forEach((el) => {
+    const layer = el.dataset.layerCount;
+    el.textContent = counts[layer];
+    const chip = el.closest('.map-chip');
+    chip.setAttribute('aria-label', `${chip.querySelector('.map-chip__name').textContent} ${counts[layer]} แห่ง`);
+  });
+}
+
+function applyLayerFilter() {
+  const layers = [...document.querySelectorAll('[data-map-layer][aria-pressed="true"]')].map((b) => b.dataset.mapLayer);
+  setMapLayers(layers);
+  document.querySelectorAll('[data-dir-cat]').forEach((card) => { card.hidden = !layers.includes(card.dataset.dirCat); });
+}
+
+function bindMapTools() {
+  updateLayerCounts();
+  document.querySelectorAll('[data-map-layer]').forEach((chip) => chip.addEventListener('click', () => {
+    chip.setAttribute('aria-pressed', String(chip.getAttribute('aria-pressed') !== 'true'));
+    applyLayerFilter();
+  }));
+
+  const legend = document.getElementById('map-legend');
+  const legendBtn = document.getElementById('map-legend-toggle');
+  legendBtn?.addEventListener('click', () => {
+    legend.hidden = !legend.hidden;
+    legendBtn.setAttribute('aria-expanded', String(!legend.hidden));
+  });
+
+  document.getElementById('map-reset')?.addEventListener('click', () => focusEntity('overview', { silent: true }));
+
+  // Fullscreen covers map + place card so filters and the card stay usable.
+  // iPhone Safari has no element fullscreen, so it falls back to a fixed full-viewport layer.
+  const layout = document.querySelector('.map-layout');
+  const fsBtn = document.getElementById('map-fullscreen');
+  if (!layout || !fsBtn) return;
+  const nativeEl = () => document.fullscreenElement || document.webkitFullscreenElement || null;
+  const isOn = () => nativeEl() === layout || layout.classList.contains('is-pseudo-fullscreen');
+  const sync = () => {
+    const on = isOn();
+    layout.classList.toggle('is-fullscreen', on);
+    document.documentElement.classList.toggle('map-fs-lock', layout.classList.contains('is-pseudo-fullscreen'));
+    const label = on ? 'ออกจากเต็มจอ' : 'เปิดเต็มจอ';
+    fsBtn.setAttribute('aria-label', label);
+    fsBtn.title = label;
+  };
+  const exitPseudo = () => { layout.classList.remove('is-pseudo-fullscreen'); sync(); fsBtn.focus(); };
+  fsBtn.addEventListener('click', async () => {
+    if (isOn()) {
+      if (nativeEl()) await (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+      else exitPseudo();
+      return;
+    }
+    const request = layout.requestFullscreen || layout.webkitRequestFullscreen;
+    if (request && (document.fullscreenEnabled || document.webkitFullscreenEnabled)) {
+      try { await request.call(layout); return; } catch { /* fall through to the fixed layer */ }
+    }
+    layout.classList.add('is-pseudo-fullscreen');
+    sync();
+  });
+  document.addEventListener('fullscreenchange', sync);
+  document.addEventListener('webkitfullscreenchange', sync);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && layout.classList.contains('is-pseudo-fullscreen') && !document.querySelector('dialog[open]')) exitPseudo();
   });
 }
 

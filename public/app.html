@@ -75,21 +75,6 @@
               <h1 id="map-title">แผนที่ท่องเที่ยว 3 มิติ อ้างอิงพิกัด GPS จริงจังหวัดพิษณุโลก</h1>
               <p class="section__lead">แปลงค่าพิกัดดาวเทียม <code>(Lat, Lng)</code> จริงของทั้ง 13 สถานที่ริมแม่น้ำน่านเป็นระนาบ 3 มิติ พร้อมลิงก์ตรวจสอบสถานที่จริงบน Google Maps / Google Earth 3D</p>
             </div>
-            <!-- Category Filter Buttons -->
-            <div class="map-filters" role="group" aria-label="สลับหมวดหมุดบนแผนที่ 3 มิติ">
-              <button class="btn btn--filter" type="button" data-map-filter="all" aria-pressed="true">
-                <i data-lucide="layers"></i> [ทั้งหมด 13 หมุด]
-              </button>
-              <button class="btn btn--filter btn--filter-gold" type="button" data-map-filter="heritage" aria-pressed="false">
-                <i data-lucide="landmark"></i> [5 โบราณสถาน]
-              </button>
-              <button class="btn btn--filter btn--filter-emerald" type="button" data-map-filter="restaurant" aria-pressed="false">
-                <i data-lucide="utensils"></i> [5 ร้านอาหารดัง]
-              </button>
-              <button class="btn btn--filter btn--filter-blue" type="button" data-map-filter="hotel" aria-pressed="false">
-                <i data-lucide="building-2"></i> [3 โรงแรมที่พัก]
-              </button>
-            </div>
           </div>
 
           <div class="map-layout">
@@ -97,28 +82,32 @@
               <canvas id="map-canvas" aria-label="แผนที่ 3 มิติ อ้างอิงพิกัด GPS จริงของจังหวัดพิษณุโลก" role="img"></canvas>
               <div class="map-labels" id="map-labels"></div>
               <div class="map-status" id="map-status" role="status">กำลังโหลดแผนที่ 3 มิติพิกัดจริง…</div>
-              <ul class="map-legend" aria-label="คำอธิบายสัญลักษณ์โมเดล 3 มิติ">
-                <li><span class="sw sw--gold" aria-hidden="true"></span>5 โบราณสถาน (#B8860B ทองโบราณ)</li>
-                <li><span class="sw sw--emerald" aria-hidden="true"></span>5 ร้านอาหารดัง (#0F3D3E เขียวมรกต)</li>
-                <li><span class="sw sw--blue" aria-hidden="true"></span>3 โรงแรมที่พัก (#1E3A8A น้ำเงินคราม)</li>
-                <li><span class="sw sw--trail" aria-hidden="true"></span>Golden Revenue Trail (เส้นทางกระจายรายได้)</li>
-              </ul>
+              <div class="map-toolbar" role="toolbar" aria-label="เครื่องมือแผนที่">
+                <div class="map-toolbar__chips" role="group" aria-label="เลือกหมวดที่แสดงบนแผนที่">
+                  <button class="map-chip map-chip--heritage" type="button" data-map-layer="heritage" aria-pressed="true"><i data-lucide="landmark"></i><span class="map-chip__name">โบราณสถาน</span><b class="map-chip__count" data-layer-count="heritage"></b></button>
+                  <button class="map-chip map-chip--restaurant" type="button" data-map-layer="restaurant" aria-pressed="true"><i data-lucide="utensils"></i><span class="map-chip__name">ร้านอาหาร</span><b class="map-chip__count" data-layer-count="restaurant"></b></button>
+                  <button class="map-chip map-chip--souvenir" type="button" data-map-layer="souvenir" aria-pressed="true"><i data-lucide="gift"></i><span class="map-chip__name">ของฝาก</span><b class="map-chip__count" data-layer-count="souvenir"></b></button>
+                  <button class="map-chip map-chip--hotel" type="button" data-map-layer="hotel" aria-pressed="true"><i data-lucide="bed-double"></i><span class="map-chip__name">ที่พัก</span><b class="map-chip__count" data-layer-count="hotel"></b></button>
+                </div>
+                <button class="map-tool" type="button" id="map-legend-toggle" aria-expanded="false" aria-controls="map-legend"><i data-lucide="info"></i><span>สัญลักษณ์</span></button>
+                <button class="map-tool" type="button" id="map-reset" aria-label="กลับมุมมองเริ่มต้น" title="กลับมุมมองเริ่มต้น"><i data-lucide="rotate-ccw"></i></button>
+                <button class="map-tool" type="button" id="map-fullscreen" aria-label="เปิดเต็มจอ" title="เปิดเต็มจอ"><i data-lucide="maximize" class="ico-enter"></i><i data-lucide="minimize" class="ico-exit"></i></button>
+              </div>
+              <div class="map-legend" id="map-legend" hidden>
+                <ul aria-label="ความหมายของสัญลักษณ์">
+                  <li><span class="sw sw--heritage" aria-hidden="true"></span>โบราณสถาน</li>
+                  <li><span class="sw sw--restaurant" aria-hidden="true"></span>ร้านอาหาร</li>
+                  <li><span class="sw sw--souvenir" aria-hidden="true"></span>ของฝาก</li>
+                  <li><span class="sw sw--hotel" aria-hidden="true"></span>ที่พัก</li>
+                  <li><span class="sw sw--trail" aria-hidden="true"></span>เส้นทางจากวัดไปร้านใกล้ ๆ</li>
+                </ul>
+              </div>
             </div>
             <aside class="map-card card" id="map-card" aria-live="polite" tabindex="-1">
               <p class="muted">คลิกหมุดบนแผนที่ 3 มิติเพื่อดูรูปภาพจริง พิกัด GPS และลิงก์ Google Maps</p>
             </aside>
           </div>
 
-          <div class="map-shortcuts" role="group" aria-label="ปุ่มลัดซูมไปยังพิกัดจริง">
-            <button class="btn btn--outline btn--sm" type="button" data-focus="landmark:wat-yai"><i data-lucide="landmark"></i> วัดใหญ่ (16.8239, 100.2624)</button>
-            <button class="btn btn--outline btn--sm" type="button" data-focus="landmark:chan-palace"><i data-lucide="landmark"></i> พระราชวังจันทน์ (16.8286, 100.2581)</button>
-            <button class="btn btn--outline btn--sm" type="button" data-focus="landmark:wat-nang-phaya"><i data-lucide="landmark"></i> วัดนางพญา (16.8221, 100.2631)</button>
-            <button class="btn btn--outline btn--sm" type="button" data-focus="landmark:wat-ratchaburana"><i data-lucide="landmark"></i> วัดราชบูรณะ (16.8208, 100.2635)</button>
-            <button class="btn btn--outline btn--sm" type="button" data-focus="landmark:city-pillar"><i data-lucide="landmark"></i> ศาลหลักเมือง (16.8262, 100.2595)</button>
-            <button class="btn btn--outline btn--sm" type="button" data-focus="merchant:hoi-kha-noodles"><i data-lucide="utensils"></i> ก๋วยเตี๋ยวห้อยขาริมน่าน</button>
-            <button class="btn btn--outline btn--sm" type="button" data-focus="merchant:yodia-heritage"><i data-lucide="building-2"></i> โรงแรมโยเดีย เฮอริเทจ</button>
-            <button class="btn btn--ghost btn--sm" type="button" data-focus="overview"><i data-lucide="maximize-2"></i> มุมมองภาพรวมสะพานนเรศวร</button>
-          </div>
         </div>
       </section>
 

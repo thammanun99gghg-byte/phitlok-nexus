@@ -60,7 +60,7 @@ export const state = {
   data: null,          // /api/init-data payload
   lang: 'th',          // content language for heritage + menu (th | en | zh | ja | ko | fr)
   role: 'tourist',
-  mapFilter: 'all',    // all | heritage | restaurant | hotel
+  mapLayers: new Set(['heritage', 'restaurant', 'souvenir', 'hotel']),  // categories shown on the map
   cart: loadCart()     // { merchantId, items: [{ id, qty, item }], flags, couponCode, tableTh }
 };
 
