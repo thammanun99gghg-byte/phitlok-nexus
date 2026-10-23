@@ -57,6 +57,35 @@ const PNG_1PX = Buffer.from('89504e470d0a1a0a0000000d494844520000000100000001080
     assert.equal(crc16(p.slice(0, -4)), p.slice(-4));
   });
 
+  await test('Every data-lucide icon name exists in the pinned lucide 0.460.0', () => {
+    // Mirrors lucide's own toPascalCase: it lowercases everything after the first letter of each part,
+    // so "TrendingUp" becomes "Trendingup" and is not found — kebab-case ("trending-up") is required.
+    const known = new Set(require('./data/lucide-0.460.0-icons.json').icons);
+    const toPascal = (s) => s.replace(/(\w)(\w*)(_|-|\s*)/g, (g0, g1, g2) => g1.toUpperCase() + g2.toLowerCase());
+    const files = [];
+    (function walk(dir) {
+      for (const f of fs.readdirSync(dir)) {
+        const p = path.join(dir, f);
+        if (fs.statSync(p).isDirectory()) { if (f !== 'assets') walk(p); } else if (/\.(html|js)$/.test(f)) files.push(p);
+      }
+    })(path.join(__dirname, '..', 'public'));
+    const bad = [];
+    let checked = 0;
+    for (const f of files) {
+      const src = fs.readFileSync(f, 'utf8');
+      for (const [, value] of src.matchAll(/data-lucide="([^"]+)"/g)) {
+        // Template expressions such as ${isHotel ? 'bed' : 'utensils'} contribute each quoted literal.
+        const names = value.includes('${') ? [...value.matchAll(/'([a-z0-9-]+)'/g)].map((m) => m[1]) : [value];
+        for (const n of names) {
+          checked++;
+          if (!known.has(toPascal(n))) bad.push(`${path.relative(process.cwd(), f)}: ${n}`);
+        }
+      }
+    }
+    assert.ok(checked > 0, 'found no data-lucide attributes to check');
+    assert.deepEqual(bad, [], `unknown lucide icons: ${bad.join(', ')}`);
+  });
+
   await test('GET / serves the app with security headers', async () => {
     const r = await fetch(base + '/');
     assert.equal(r.status, 200);
