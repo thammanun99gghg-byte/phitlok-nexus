@@ -1,5 +1,5 @@
 // PHITLOK NEXUS v2.2 — Application Entry (Real-World Geospatial & Strict 3-Role Edition)
-import { state, api, esc, tr, baht, num, on, emit, toast, openDialog, closeDialog, LANGS, langSwitcher, refreshIcons, svgFallbackUrl } from './js/core.js';
+import { state, api, esc, tr, baht, num, on, emit, toast, openDialog, closeDialog, LANGS, langSwitcher, refreshIcons, svgFallbackUrl, shortLabel } from './js/core.js';
 import { initMap, focusEntity, syncMerchants, refreshLabels, setMapFilter } from './js/map3d.js';
 import { initLens, runHeritage, runMenuPreset, openMerchantMenu, speakGuide, selectTab } from './js/lens.js';
 import { openCart, cartCount } from './js/menu.js';
@@ -142,7 +142,7 @@ function renderMapCard(ent) {
     const gearthUrl = lm.googleEarthUrl || `https://earth.google.com/web/search/${lm.lat},${lm.lng}`;
     const imgUrl = lm.imageUrl || lm.fallbackImage || '/assets/photos/wat-yai.jpg';
     const fallback = lm.fallbackImage || '/assets/photos/wat-yai.jpg';
-    const svgFb = svgFallbackUrl(tr(lm.name, lang));
+    const svgFb = svgFallbackUrl(shortLabel(lm, lang));
 
     card.innerHTML = `
       <div class="map-card__media">
@@ -202,9 +202,9 @@ function renderMapCard(ent) {
     const gmapsUrl = m.googleMapsUrl || `https://www.google.com/maps/search/?api=1&query=${m.lat},${m.lng}`;
     const satUrl = `https://www.google.com/maps/@?api=1&map_action=map&center=${m.lat},${m.lng}&zoom=18&basemap=satellite`;
     const gearthUrl = m.googleEarthUrl || `https://earth.google.com/web/search/${m.lat},${m.lng}`;
-    const imgUrl = m.imageUrl || m.fallbackImage || '/assets/photos/noodles-tomyum.jpg';
-    const fallback = m.fallbackImage || '/assets/photos/noodles-tomyum.jpg';
-    const svgFb = svgFallbackUrl(tr(m.name, lang));
+    const imgUrl = m.imageUrl || m.fallbackImage || '/assets/photos/hoi-kha-noodles.jpg';
+    const fallback = m.fallbackImage || '/assets/photos/hoi-kha-noodles.jpg';
+    const svgFb = svgFallbackUrl(shortLabel(m, lang));
 
     const isDemoPartner = m.partnerStatus !== 'confirmed';
     const partnerBadgeText = isDemoPartner ? 'ยังไม่ใช่พาร์ทเนอร์ · ข้อมูลสาธิต' : 'พาร์ทเนอร์ที่ยืนยันแล้ว';
@@ -278,7 +278,7 @@ function renderDirectoryCards() {
   const heritageCards = state.data.landmarks.map((lm) => {
     const gmaps = lm.googleMapsUrl || `https://www.google.com/maps/search/?api=1&query=${lm.lat},${lm.lng}`;
     const satUrl = `https://www.google.com/maps/@?api=1&map_action=map&center=${lm.lat},${lm.lng}&zoom=18&basemap=satellite`;
-    const svgFb = svgFallbackUrl(tr(lm.name, lang));
+    const svgFb = svgFallbackUrl(shortLabel(lm, lang));
     return `<article class="dir-card dir-card--heritage" data-dir-cat="heritage">
       <div class="dir-card__img-wrap">
         <img src="${esc(lm.imageUrl || lm.fallbackImage)}"
@@ -317,7 +317,7 @@ function renderDirectoryCards() {
     const satUrl = `https://www.google.com/maps/@?api=1&map_action=map&center=${m.lat},${m.lng}&zoom=18&basemap=satellite`;
     const items = state.data.menuItems.filter((i) => i.merchantId === m.id);
     const minPrice = items.length ? Math.min(...items.map((i) => i.priceSatang)) : m.roomRateSatang || 5000;
-    const svgFb = svgFallbackUrl(tr(m.name, lang));
+    const svgFb = svgFallbackUrl(shortLabel(m, lang));
     const isDemoPartner = m.partnerStatus !== 'confirmed';
     return `<article class="dir-card dir-card--${isHotel ? 'hotel' : 'restaurant'}" data-dir-cat="${isHotel ? 'hotel' : 'restaurant'}">
       <div class="dir-card__img-wrap">

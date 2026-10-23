@@ -57,7 +57,7 @@ if (document.readyState === 'loading') {
 
 // Global SVG fallback for any image error across all pages
 export function makeSvgFallback(label = 'PHITLOK NEXUS') {
-  const safe = String(label || 'PHITLOK NEXUS').replace(/[<>&"']/g, '').slice(0, 36);
+  const safe = String(label || 'PHITLOK NEXUS').replace(/[<>&"']/g, '');
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500">
     <defs>
       <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
@@ -85,7 +85,7 @@ window.addEventListener('error', (e) => {
   }
   if (!img.dataset.triedSvg) {
     img.dataset.triedSvg = '1';
-    img.src = makeSvgFallback(img.getAttribute('alt') || 'PHITLOK NEXUS');
+    img.src = makeSvgFallback(img.dataset.shortName || img.getAttribute('alt') || 'PHITLOK NEXUS');
   }
 }, true);
 

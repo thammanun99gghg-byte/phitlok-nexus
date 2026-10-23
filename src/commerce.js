@@ -5,7 +5,7 @@
  */
 const crypto = require('node:crypto');
 const { transaction } = require('./db');
-const { PRICING, gpsTo3D, haversineM } = require('./seed-data');
+const { PRICING, gpsTo3D, haversineM, SHORT_NAMES } = require('./seed-data');
 const { buildKitchenTicket, sanitizeFlags, LANGS } = require('./tickets');
 const { buildQr, maskTarget } = require('./promptpay');
 
@@ -32,6 +32,11 @@ function bumpMetric(db, key, by = 1) {
 }
 
 // ---------- row mappers ----------
+// Merchants who sign up later have no curated short name: drop the parenthetical part of each name.
+function shortFromName(name) {
+  return Object.fromEntries(Object.entries(name).map(([k, v]) => [k, String(v).split(/ \(|（/)[0].trim()]));
+}
+
 function publicMerchant(row) {
   const lat = Number(row.lat) || 16.8228;
   const lng = Number(row.lng) || 100.2612;
@@ -40,6 +45,7 @@ function publicMerchant(row) {
     slug: row.slug,
     kind: row.kind || (row.category === 'stay' ? 'hotel' : 'restaurant'),
     name: parse(row.name_json, {}),
+    shortName: SHORT_NAMES[row.slug] || shortFromName(parse(row.name_json, {})),
     blurb: parse(row.blurb_json, {}),
     category: row.category,
     nearest: row.nearest,

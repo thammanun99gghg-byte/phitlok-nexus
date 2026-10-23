@@ -1,5 +1,5 @@
 // AI Universal Smart Lens & 6-Language Audio Guide — PHITLOK NEXUS v2.2
-import { state, api, esc, tr, LANGS, langSwitcher, emit, on, toast, atLeast, sleep, refreshIcons, svgFallbackUrl } from './core.js';
+import { state, api, esc, tr, LANGS, langSwitcher, emit, on, toast, atLeast, sleep, refreshIcons, svgFallbackUrl, shortLabel } from './core.js';
 import { renderDigitalMenu } from './menu.js';
 
 const SIGN_IMAGES = {
@@ -160,7 +160,7 @@ function renderHeritage() {
   const langMeta = LANGS.find((l) => l.code === lang) || LANGS[0];
   const gmapsUrl = lm.googleMapsUrl || `https://www.google.com/maps/search/?api=1&query=${lm.lat},${lm.lng}`;
   const satUrl = `https://www.google.com/maps/@?api=1&map_action=map&center=${lm.lat},${lm.lng}&zoom=18&basemap=satellite`;
-  const svgFb = svgFallbackUrl(tr(lm.name, lang));
+  const svgFb = svgFallbackUrl(shortLabel(lm, lang));
 
   out.innerHTML = `
     <div class="result-head">
@@ -361,7 +361,7 @@ function speak(text, lang, statusEl) {
 // ------------------------------------------------------------------ Mode B
 export async function runMenuPreset() {
   selectTab('menu');
-  showPreview('menu', '/assets/photos/noodles-tomyum.jpg', 'เมนูกระดาษ ร้านก๋วยเตี๋ยวห้อยขาริมน่าน (พิกัด 16.8251, 100.2618)');
+  showPreview('menu', '/assets/menu-hoi-kha.svg', 'ภาพจำลองเมนูกระดาษ ร้านก๋วยเตี๋ยวห้อยขาริมน่าน');
   await scanMenu(() => {
     const form = new FormData();
     form.append('preset', 'hoi-kha');

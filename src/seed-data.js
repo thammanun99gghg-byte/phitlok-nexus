@@ -57,7 +57,13 @@ const RAW_LANDMARKS = [
       ko: '태국 예술청 국가고적등록 및 수코타이 제6예술사무소',
       fr: 'Registre des monuments anciens du Département des Beaux-Arts (6e Bureau, Sukhothai)'
     },
-    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Wat_Phra_Si_Rattana_Mahathat%2C_Phitsanulok_%28I%29.jpg/960px-Wat_Phra_Si_Rattana_Mahathat%2C_Phitsanulok_%28I%29.jpg',
+    imageUrl: '/assets/photos/wat-yai.jpg',
+    // Same bytes as the Commons 960px thumbnail; checked by eye that it shows this place.
+    photoCredit: {
+      author: 'Supanut Arunoprayote',
+      license: 'CC BY 4.0',
+      source_url: 'https://commons.wikimedia.org/wiki/File:Wat_Phra_Si_Rattana_Mahathat,_Phitsanulok_(I).jpg'
+    },
     fallbackImage: '/assets/photos/wat-yai.jpg',
     keywords: ['พระพุทธชินราช', 'ชินราช', 'วัดใหญ่', 'พระศรีรัตนมหาธาตุ', 'พระเหลือ', 'chinnarat', 'wat yai', 'mahathat'],
     name: {
@@ -137,7 +143,13 @@ const RAW_LANDMARKS = [
       ko: '수코타이 제6예술사무소 고고학 발굴 보고서',
       fr: 'Rapport de fouilles archéologiques, 6e Bureau des Beaux-Arts de Sukhothai'
     },
-    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Chan_Royal_Palace_Historical_Center_%28March_2022%29_entrance.jpg/960px-Chan_Royal_Palace_Historical_Center_%28March_2022%29_entrance.jpg',
+    imageUrl: '/assets/photos/chan-palace.jpg',
+    // Same bytes as the Commons 960px thumbnail; checked by eye that it shows this place.
+    photoCredit: {
+      author: 'Chainwit',
+      license: 'CC BY-SA 4.0',
+      source_url: 'https://commons.wikimedia.org/wiki/File:Chan_Royal_Palace_Historical_Center_(March_2022)_entrance.jpg'
+    },
     fallbackImage: '/assets/photos/chan-palace.jpg',
     keywords: ['พระราชวังจันทน์', 'พระราชวังจันทร์', 'วังจันทน์', 'พระนเรศวร', 'สระสองห้อง', 'chan palace', 'naresuan', 'wang chan'],
     name: {
@@ -199,7 +211,13 @@ const RAW_LANDMARKS = [
       ko: '태국 문화부 핏사눌록주 고적 아카이브',
       fr: 'Archives des monuments anciens de Phitsanulok, Ministère de la Culture'
     },
-    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Wat_Nang_Phaya%2C_Phitsanulok_-_%E0%B8%A7%E0%B8%B1%E0%B8%94%E0%B8%99%E0%B8%B2%E0%B8%87%E0%B8%9E%E0%B8%8D%E0%B8%B2_%E0%B8%9E%E0%B8%B4%E0%B8%A9%E0%B8%93%E0%B8%B8%E0%B9%82%E0%B8%A5%E0%B8%81_%28March_2022%29_-_img_01.jpg/960px-Wat_Nang_Phaya%2C_Phitsanulok_-_%E0%B8%A7%E0%B8%B1%E0%B8%94%E0%B8%99%E0%B8%B2%E0%B8%87%E0%B8%9E%E0%B8%8D%E0%B8%B2_%E0%B8%9E%E0%B8%B4%E0%B8%A9%E0%B8%93%E0%B8%B8%E0%B9%82%E0%B8%A5%E0%B8%81_%28March_2022%29_-_img_01.jpg',
+    imageUrl: '/assets/photos/wat-nang-phaya.jpg',
+    // Same bytes as the Commons 960px thumbnail; checked by eye that it shows this place.
+    photoCredit: {
+      author: 'Chainwit',
+      license: 'CC BY-SA 4.0',
+      source_url: 'https://commons.wikimedia.org/wiki/File:Wat_Nang_Phaya,_Phitsanulok_-_%E0%B8%A7%E0%B8%B1%E0%B8%94%E0%B8%99%E0%B8%B2%E0%B8%87%E0%B8%9E%E0%B8%8D%E0%B8%B2_%E0%B8%9E%E0%B8%B4%E0%B8%A9%E0%B8%93%E0%B8%B8%E0%B9%82%E0%B8%A5%E0%B8%81_(March_2022)_-_img_01.jpg'
+    },
     fallbackImage: '/assets/photos/wat-nang-phaya.jpg',
     keywords: ['วัดนางพญา', 'พระนางพญา', 'เบญจภาคี', 'พระวิสุทธิกษัตรีย์', 'nang phaya', 'benjaphakee'],
     name: {
@@ -261,7 +279,13 @@ const RAW_LANDMARKS = [
       ko: '태국 예술청 국가고적등록',
       fr: 'Registre national des monuments anciens, Département des Beaux-Arts'
     },
-    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/March_2022_-_Royal_Stupa%2C_Wat_Ratcha_Burana%2C_Phitsanulok_-_%E0%B8%9E%E0%B8%A3%E0%B8%B0%E0%B9%80%E0%B8%88%E0%B8%94%E0%B8%B5%E0%B8%A2%E0%B9%8C%E0%B8%AB%E0%B8%A5%E0%B8%A7%E0%B8%87_%E0%B8%A7%E0%B8%B1%E0%B8%94%E0%B8%A3%E0%B8%B2%E0%B8%8A%E0%B8%9A%E0%B8%B9%E0%B8%A3%E0%B8%93%E0%B8%B0_%E0%B8%9E%E0%B8%B4%E0%B8%A9%E0%B8%93%E0%B8%B8%E0%B9%82%E0%B8%A5%E0%B8%81_-_img_01.jpg/960px-March_2022_-_Royal_Stupa%2C_Wat_Ratcha_Burana%2C_Phitsanulok_-_%E0%B8%9E%E0%B8%A3%E0%B8%B0%E0%B9%80%E0%B8%88%E0%B8%94%E0%B8%B5%E0%B8%A2%E0%B9%8C%E0%B8%AB%E0%B8%A5%E0%B8%A7%E0%B8%87_%E0%B8%A7%E0%B8%B1%E0%B8%94%E0%B8%A3%E0%B8%B2%E0%B8%8A%E0%B8%9A%E0%B8%B9%E0%B8%A3%E0%B8%93%E0%B8%B0_%E0%B8%9E%E0%B8%B4%E0%B8%A9%E0%B8%93%E0%B8%B8%E0%B9%82%E0%B8%A5%E0%B8%81_-_img_01.jpg',
+    imageUrl: '/assets/photos/wat-ratchaburana.jpg',
+    // Same bytes as the Commons 960px thumbnail; checked by eye that it shows this place.
+    photoCredit: {
+      author: 'Chainwit',
+      license: 'CC BY-SA 4.0',
+      source_url: 'https://commons.wikimedia.org/wiki/File:March_2022_-_Royal_Stupa,_Wat_Ratcha_Burana,_Phitsanulok_-_%E0%B8%9E%E0%B8%A3%E0%B8%B0%E0%B9%80%E0%B8%88%E0%B8%94%E0%B8%B5%E0%B8%A2%E0%B9%8C%E0%B8%AB%E0%B8%A5%E0%B8%A7%E0%B8%87_%E0%B8%A7%E0%B8%B1%E0%B8%94%E0%B8%A3%E0%B8%B2%E0%B8%8A%E0%B8%9A%E0%B8%B9%E0%B8%A3%E0%B8%93%E0%B8%B0_%E0%B8%9E%E0%B8%B4%E0%B8%A9%E0%B8%93%E0%B8%B8%E0%B9%82%E0%B8%A5%E0%B8%81_-_img_01.jpg'
+    },
     fallbackImage: '/assets/photos/wat-ratchaburana.jpg',
     keywords: ['วัดราชบูรณะ', 'เจดีย์หลวง', 'รามเกียรติ์', 'ratchaburana', 'royal stupa', 'ramakien'],
     name: {
@@ -380,10 +404,28 @@ const RAW_LANDMARKS = [
   }
 ];
 
+// Short names for map labels and image fallbacks (Thai ≤ 14 characters). Full names stay in the cards.
+const SHORT_NAMES = {
+  'wat-yai': { th: 'วัดใหญ่', en: 'Wat Yai', zh: '大寺', ja: 'ワット・ヤイ', ko: '왓 야이', fr: 'Wat Yai' },
+  'chan-palace': { th: 'วังจันทร์', en: 'Chan Palace', zh: '詹宫', ja: 'チャン王宮', ko: '짠 왕궁', fr: 'Palais Chan' },
+  'wat-nang-phaya': { th: 'วัดนางพญา', en: 'Wat Nang Phaya', zh: '南帕亚寺', ja: 'ワット・ナンパヤー', ko: '왓 낭파야', fr: 'Wat Nang Phaya' },
+  'wat-ratchaburana': { th: 'วัดราชบูรณะ', en: 'Wat Ratchaburana', zh: '拉差布拉那寺', ja: 'ワット・ラーチャブラナ', ko: '왓 랏차부라나', fr: 'Wat Ratchaburana' },
+  'city-pillar': { th: 'ศาลหลักเมือง', en: 'City Pillar Shrine', zh: '城隍庙', ja: '市の柱祠', ko: '시티 필라 사당', fr: 'Pilier de la ville' },
+  'hoi-kha-noodles': { th: 'ห้อยขาริมน่าน', en: 'Hoi Kha Noodles', zh: '垂腿船面', ja: 'ホイカー麺', ko: '호이카 국수', fr: 'Nouilles Hoi Kha' },
+  'juk-kai-thai': { th: 'จุกไก่ไทย', en: 'Juk Kai Thai', zh: '泰式鸡饭', ja: 'ジュック・ガイ・タイ', ko: '죽 까이 타이', fr: 'Juk Kai Thai' },
+  'pa-lom-noodles': { th: 'ไก่ป้าล้อม', en: 'Pa Lom Noodles', zh: '阿嬷炖鸡面', ja: 'パー・ロム麺', ko: '빠롬 국수', fr: 'Nouilles Pa Lom' },
+  'pa-thanom-padthai': { th: 'ผัดไทยป้าถนอม', en: 'Pa Thanom Pad Thai', zh: '古法炒河粉', ja: 'パー・タノム', ko: '빠타놈 팟타이', fr: 'Pad thaï Pa Thanom' },
+  'bang-krathum-otop': { th: 'ของฝากกล้วยตาก', en: 'Dried Banana Shop', zh: '香蕉干特产', ja: '干しバナナ土産', ko: '바나나 기념품', fr: 'Bananes séchées' },
+  'yodia-heritage': { th: 'โยเดีย', en: 'Yodia Heritage', zh: 'Yodia 酒店', ja: 'ヨディア', ko: '요디아', fr: 'Yodia Heritage' },
+  'topland-hotel': { th: 'ท็อปแลนด์', en: 'Topland', zh: '托普兰酒店', ja: 'トップランド', ko: '탑랜드', fr: 'Topland' },
+  'imperial-hotel': { th: 'อิมพีเรียล', en: 'The Imperial', zh: '帝国酒店', ja: 'インペリアル', ko: '임페리얼', fr: 'The Imperial' }
+};
+
 const LANDMARKS = RAW_LANDMARKS.map((lm) => {
   const pos = gpsTo3D(lm.lat, lm.lng);
   return {
     ...lm,
+    shortName: SHORT_NAMES[lm.id],
     x: pos.x,
     z: pos.z,
     dxM: pos.dxM,
@@ -677,6 +719,7 @@ const MERCHANTS = RAW_MERCHANTS.map((m) => {
   const distM = haversineM(m.lat, m.lng, nearLm.lat, nearLm.lng);
   return {
     ...m,
+    shortName: SHORT_NAMES[m.slug],
     x: pos.x,
     z: pos.z,
     dxM: pos.dxM,
@@ -1095,6 +1138,7 @@ module.exports = {
   ORIGIN_GPS,
   gpsTo3D,
   haversineM,
+  SHORT_NAMES,
   LANDMARKS,
   MERCHANTS,
   NETWORK_MERCHANTS,

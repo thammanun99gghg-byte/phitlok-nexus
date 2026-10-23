@@ -184,7 +184,7 @@ function renderTab2GpsChecker(d) {
                   </div>
         <div class="gps-radar">
           <img class="gps-radar__bg" src="${esc(m.imageUrl || m.fallbackImage)}"
-               onerror="this.onerror=null;this.src='${esc(m.fallbackImage || '/assets/photos/noodles-tomyum.jpg')}'"
+               onerror="this.onerror=null;this.src='${esc(m.fallbackImage || '/assets/photos/hoi-kha-noodles.jpg')}'"
                alt="${esc(m.name.th)}">
           <div class="gps-radar__overlay">
             <div class="gps-pin-pulse">
@@ -249,8 +249,8 @@ function renderTab3MenuManager(d) {
   }
   menuListEl.innerHTML = d.menu.map((item) => {
     const avail = item.available !== false;
-    const imgUrl = item.imageUrl || item.fallbackImage || '/assets/photos/noodles-tomyum.jpg';
-    const fallback = item.fallbackImage || '/assets/photos/noodles-tomyum.jpg';
+    const imgUrl = item.imageUrl || item.fallbackImage || '/assets/photos/hoi-kha-noodles.jpg';
+    const fallback = item.fallbackImage || '/assets/photos/hoi-kha-noodles.jpg';
     return `<li class="smart-menu-row ${avail ? '' : 'smart-menu-row--off'}">
       <img class="smart-menu-row__img" src="${esc(imgUrl)}"
            onerror="this.onerror=null;this.src='${esc(fallback)}'"

@@ -7,7 +7,7 @@ const { buildKitchenTicket } = require('./tickets');
 
 const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, '..', 'data');
 const DB_FILE = path.join(DATA_DIR, 'phitlok_nexus.sqlite');
-const SCHEMA_VERSION = 23; // PHITLOK NEXUS v2.3 (P0: DEMO_PROMPTPAY_ID, partner_status, verified places)
+const SCHEMA_VERSION = 24; // v2.4: local landmark photos + photoCredit + shortName (reseeds landmark data_json)
 
 const SCHEMA = `
 CREATE TABLE IF NOT EXISTS landmarks (

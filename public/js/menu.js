@@ -41,8 +41,8 @@ function itemTags(item, lang) {
 function itemRow(item, lang, { reason, orderable, isHotel }) {
   const name = tr(item.name, lang);
   const desc = tr(item.desc, lang) || item.desc?.en || '';
-  const imgUrl = item.imageUrl || item.fallbackImage || '/assets/photos/noodles-tomyum.jpg';
-  const fallback = item.fallbackImage || '/assets/photos/noodles-tomyum.jpg';
+  const imgUrl = item.imageUrl || item.fallbackImage || '/assets/photos/hoi-kha-noodles.jpg';
+  const fallback = item.fallbackImage || '/assets/photos/hoi-kha-noodles.jpg';
   const btnLabel = isHotel ? 'จองห้องพัก' : '+ สั่งอาหาร';
   const sampleBadge = item.isSample !== false
     ? `<span class="tag tag--sample">${isHotel ? 'ราคาตัวอย่าง' : 'เมนูตัวอย่าง / ราคาตัวอย่าง'}</span>`

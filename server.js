@@ -119,6 +119,8 @@ function publicLandmark(lm) {
     fallbackImage: lm.fallbackImage,
     googleMapsUrl: lm.googleMapsUrl || `https://www.google.com/maps/search/?api=1&query=${lm.lat},${lm.lng}`,
     googleEarthUrl: lm.googleEarthUrl || `https://earth.google.com/web/search/${lm.lat},${lm.lng}`,
+    photoCredit: lm.photoCredit || null,
+    shortName: lm.shortName,
     name: lm.name,
     summary: lm.summary,
     highlights: lm.highlights,

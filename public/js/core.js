@@ -120,9 +120,19 @@ export const ALLERGEN_LABELS = {
   soy: { th: 'ถั่วเหลือง', en: 'Soy', zh: '大豆', ja: '大豆', ko: '대두', fr: 'Soja' }
 };
 
+/** Short display name of a place (curated shortName, else the name without its parenthetical part). */
+export function shortLabel(entity, lang = state.lang) {
+  if (!entity) return '';
+  const short = tr(entity.shortName, lang);
+  if (short) return short;
+  return tr(entity.name, lang).split(/ \(|（/)[0].trim();
+}
+
 export function svgFallbackUrl(label = 'PHITLOK NEXUS') {
-  const safe = String(label || 'PHITLOK NEXUS').replace(/[<>&"']/g, '').slice(0, 36);
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500"><rect width="800" height="500" fill="#0F3D3E"/><circle cx="400" cy="200" r="52" fill="#B8860B"/><text x="400" y="310" text-anchor="middle" fill="#FFFFFF" font-family="sans-serif" font-size="24" font-weight="bold">${safe}</text><text x="400" y="346" text-anchor="middle" fill="#FFD97D" font-family="sans-serif" font-size="16">ภาพแทนชั่วคราว · รูปจริงโหลดไม่สำเร็จ</text></svg>`;
+  // Callers pass a short name; long labels shrink instead of being cut mid-word.
+  const safe = String(label || 'PHITLOK NEXUS').replace(/[<>&"']/g, '');
+  const size = safe.length > 28 ? 18 : 28;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500"><rect width="800" height="500" fill="#0F3D3E"/><circle cx="400" cy="200" r="52" fill="#B8860B"/><text x="400" y="310" text-anchor="middle" fill="#FFFFFF" font-family="sans-serif" font-size="${size}" font-weight="bold">${safe}</text><text x="400" y="346" text-anchor="middle" fill="#FFD97D" font-family="sans-serif" font-size="16">ภาพแทนชั่วคราว · รูปจริงโหลดไม่สำเร็จ</text></svg>`;
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
 }
 
