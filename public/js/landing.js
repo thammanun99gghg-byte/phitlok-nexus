@@ -6,18 +6,24 @@ async function loadStats() {
     const res = await fetch('/api/metrics');
     if (!res.ok) return;
     const m = await res.json();
-    const totalPins = (Number(m.totals?.saas?.activeMerchants) || 8) + 5;
+    const totalPlaces = Number(m.totals?.placesOnMap) || ((Number(m.totals?.saas?.activeMerchants) || 0) + (Number(m.totals?.landmarksCount) || 5));
+    const confirmedPartners = Number(m.totals?.confirmedPartners) || 0;
+    const passesSold = Number(m.totals?.vip?.passesSold) || 0;
+    const ordersCount = Number(m.totals?.orders?.count) || 0;
+    const heritageScans = Number(m.counters?.heritageScans) || 0;
     const values = {
-      'hero-merchants': `${fmt(totalPins)} แห่ง`,
-      'hero-vip': `${fmt(m.totals?.vip?.passesSold || 48)} ใบ`,
-      'hero-orders': `${fmt(m.totals?.orders?.count || 126)} รายการ`,
-      'hero-scans': `${fmt(m.counters?.heritageScans || 340)} ครั้ง`
+      'hero-merchants': `${fmt(totalPlaces)} แห่ง`,
+      'hero-confirmed': `${fmt(confirmedPartners)} แห่ง`,
+      'hero-langs': '6 ภาษา',
+      'hero-vip': `${fmt(passesSold)} ใบ (ข้อมูลสาธิต)`,
+      'hero-orders': `${fmt(ordersCount)} รายการ (ข้อมูลสาธิต)`,
+      'hero-scans': `${fmt(heritageScans)} ครั้ง (ข้อมูลสาธิต)`
     };
     for (const [id, v] of Object.entries(values)) {
       const el = document.getElementById(id);
       if (el) el.textContent = v;
     }
-  } catch { /* keep pre-rendered seed numbers when offline */ }
+  } catch { /* keep pre-rendered numbers when offline */ }
 }
 
 function startRotator() {

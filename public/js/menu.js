@@ -44,12 +44,15 @@ function itemRow(item, lang, { reason, orderable, isHotel }) {
   const imgUrl = item.imageUrl || item.fallbackImage || '/assets/photos/noodles-tomyum.jpg';
   const fallback = item.fallbackImage || '/assets/photos/noodles-tomyum.jpg';
   const btnLabel = isHotel ? 'จองห้องพัก' : '+ สั่งอาหาร';
+  const sampleBadge = item.isSample !== false
+    ? `<span class="tag tag--sample">${isHotel ? 'ราคาตัวอย่าง' : 'เมนูตัวอย่าง / ราคาตัวอย่าง'}</span>`
+    : '';
   return `<li class="menu-item${reason ? ' menu-item--blocked' : ''}">
     <img class="menu-item__thumb" src="${esc(imgUrl)}"
          onerror="this.onerror=null;this.src='${esc(fallback)}'"
          alt="${esc(name)}" loading="lazy" width="96" height="96">
     <div class="menu-item__info">
-      <p class="menu-item__name" lang="${lang}">${esc(name)}</p>
+      <p class="menu-item__name" lang="${lang}">${esc(name)} ${sampleBadge}</p>
       ${lang !== 'th' ? `<p class="menu-item__th" lang="th">${esc(item.name.th)}</p>` : ''}
       ${desc ? `<p class="menu-item__desc">${esc(desc)}</p>` : ''}
       <div class="menu-item__tags">${itemTags(item, lang)}</div>
@@ -74,11 +77,16 @@ export function renderDigitalMenu(container, ctx) {
       const reason = rejectReason(it, filter);
       (reason ? blocked : ok).push({ it, reason });
     }
+    const isDemoPartner = ctx.merchant.partnerStatus !== 'confirmed';
+    const partnerBadge = isDemoPartner
+      ? '<span class="badge badge--warn">ยังไม่ใช่พาร์ทเนอร์ · ข้อมูลสาธิต</span>'
+      : '<span class="badge badge--ok">พาร์ทเนอร์ที่ยืนยันแล้ว</span>';
+    const sampleMenuBadge = `<span class="badge badge--gold">${isHotel ? 'ราคาตัวอย่าง' : 'เมนูตัวอย่าง / ราคาตัวอย่าง'}</span>`;
     const sourceBadge = {
       preset: '<span class="badge badge--gold">Preset · OCR จำลองจากภาพเมนู</span>',
       gemini: '<span class="badge badge--ok">AI: Gemini Vision OCR</span>',
       'fallback-template': '<span class="badge badge--warn">โหมดสำรอง · เทมเพลต 6 ภาษา</span>',
-      database: `<span class="badge badge--ok">Verified on Google Maps &amp; 3D Nexus</span>`
+      database: `<span class="badge">สถานที่บนแผนที่ 3 มิติ</span>`
     }[ctx.source] || '';
     const filterFlag = FILTERS.find((f) => f.id === filter)?.flag;
     const cartCount = state.cart.merchantId === ctx.merchant.id ? state.cart.items.reduce((s, x) => s + x.qty, 0) : 0;
@@ -87,15 +95,17 @@ export function renderDigitalMenu(container, ctx) {
     container.innerHTML = `
       <div class="result-head">
         <div>
-          <p class="eyebrow">${isHotel ? 'ระบบจองห้องพักโรงแรม 6 ภาษา (Hotel Booking)' : 'ระบบสั่งอาหารดิจิทัล 6 ภาษา (Interactive Digital Menu)'}</p>
+          <p class="eyebrow">${isHotel ? 'ระบบจองห้องพักโรงแรม 6 ภาษา (โหมดสาธิต)' : 'ระบบสั่งอาหารดิจิทัล 6 ภาษา (โหมดสาธิต)'}</p>
           <h3 lang="${lang}">${esc(tr(ctx.merchant.name, lang))}</h3>
           <div class="badges">
+            ${partnerBadge}
+            ${sampleMenuBadge}
             ${sourceBadge}
             ${ctx.merchant.lat ? `<span class="badge">GPS: ${ctx.merchant.lat.toFixed(4)}, ${ctx.merchant.lng.toFixed(4)}</span>` : ''}
             <span class="badge ${ctx.merchant.shopStatus === 'busy' ? 'badge--warn' : 'badge--ok'}">
               ${ctx.merchant.shopStatus === 'busy' ? 'คิวเต็มชั่วคราว' : 'เปิดรับลูกค้า'}
             </span>
-            <a class="badge" href="${esc(gmapsUrl)}" target="_blank" rel="noopener">เปิดพิกัดบน Google Maps ↗</a>
+            <a class="badge" href="${esc(gmapsUrl)}" target="_blank" rel="noopener">ดูหน้าร้านใน Google Maps ↗</a>
           </div>
         </div>
         ${langSwitcher(lang, 'menu-lang')}

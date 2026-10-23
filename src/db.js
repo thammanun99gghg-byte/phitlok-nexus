@@ -7,7 +7,7 @@ const { buildKitchenTicket } = require('./tickets');
 
 const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, '..', 'data');
 const DB_FILE = path.join(DATA_DIR, 'phitlok_nexus.sqlite');
-const SCHEMA_VERSION = 22; // PHITLOK NEXUS v2.2 (13 real pins, 6 languages, 4 revenue streams, exact seed metrics)
+const SCHEMA_VERSION = 23; // PHITLOK NEXUS v2.3 (P0: DEMO_PROMPTPAY_ID, partner_status, verified places)
 
 const SCHEMA = `
 CREATE TABLE IF NOT EXISTS landmarks (
@@ -39,6 +39,7 @@ CREATE TABLE IF NOT EXISTS merchants (
   stamp_coupon_percent INTEGER NOT NULL DEFAULT 0,
   featured INTEGER NOT NULL DEFAULT 1,
   promptpay_id TEXT NOT NULL,
+  partner_status TEXT NOT NULL DEFAULT 'demo',
   status TEXT NOT NULL DEFAULT 'active',
   shop_status TEXT NOT NULL DEFAULT 'open',
   owner_name TEXT,
@@ -225,8 +226,8 @@ function seed(db) {
     const insMerchant = db.prepare(`INSERT INTO merchants
       (slug, kind, name_json, blurb_json, category, nearest, distance_m, lat, lng, x, z,
        image_url, fallback_image, plan, monthly_fee_satang, room_rate_satang,
-       stamp_coupon_percent, featured, promptpay_id, status, shop_status, created_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?)`);
+       stamp_coupon_percent, featured, promptpay_id, partner_status, status, shop_status, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?)`);
 
     const merchantMeta = {};
     for (const m of MERCHANTS) {
@@ -235,7 +236,8 @@ function seed(db) {
         m.slug, m.kind, JSON.stringify(m.name), JSON.stringify(m.blurb), m.category, m.nearest,
         m.distance_m, m.lat, m.lng, m.x, m.z, m.imageUrl, m.fallbackImage, m.plan,
         m.monthly_fee_satang, m.room_rate_satang || 0, m.stamp_coupon_percent, m.featured,
-        m.promptpay_id, m.shop_status || 'open', isoDaysAgo(joined, rand)
+        (process.env.DEMO_PROMPTPAY_ID || m.promptpay_id || '').trim(),
+        m.partner_status || 'demo', m.shop_status || 'open', isoDaysAgo(joined, rand)
       );
       merchantMeta[r.lastInsertRowid] = { joined, kind: m.kind, fee: m.monthly_fee_satang };
     }

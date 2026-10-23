@@ -36,23 +36,45 @@ function bindClose(body) {
 
 function renderQr(co) {
   const body = document.getElementById('pay-body');
+  const hasPlayableQr = Boolean(co.qr && co.qr.playable && co.qr.dataUrl);
+  const qrSection = hasPlayableQr
+    ? `<div class="qr-wrap">
+        <div class="badges" style="justify-content:center;margin-bottom:8px">
+          <span class="qr-brand">THAI QR PAYMENT · PromptPay</span>
+          <span class="badge badge--warn">โหมดสาธิต</span>
+        </div>
+        <img src="${co.qr.dataUrl}" alt="QR พร้อมเพย์สาธิต ยอด ${baht(co.amountSatang)}" width="230" height="230">
+        <p class="small">พร้อมเพย์สาธิต (DEMO_PROMPTPAY_ID): <b>${esc(co.qr.target)}</b> · ยอดชำระ <b>${baht(co.amountSatang)}</b></p>
+        <p class="small">QR หมดอายุใน <span class="countdown" id="pay-countdown">15:00</span></p>
+        <p class="demo-warning">โหมดสาธิต: กรุณากดปุ่มยืนยันด้านล่างแทนการโอนเงินจริง</p>
+      </div>`
+    : `<div class="qr-wrap qr-wrap--demo-only" role="region" aria-label="QR ตัวอย่าง ห้ามโอนเงิน">
+        <div class="badges" style="justify-content:center;margin-bottom:8px">
+          <span class="badge badge--warn">โหมดสาธิต</span>
+          <span class="badge">ไม่ได้ผูกบัญชีธนาคารจริง</span>
+        </div>
+        <div class="qr-placeholder-box" style="border:2px dashed var(--gold,#B8860B);border-radius:16px;padding:24px 16px;margin:8px auto;max-width:260px;text-align:center;background:rgba(184,134,11,0.08)">
+          <p style="font-size:1.25rem;font-weight:700;margin:0 0 8px;color:var(--danger,#B91C1C)">QR ตัวอย่าง ห้ามโอนเงิน</p>
+          <p class="small muted" style="margin:0">ยังไม่ได้ตั้งค่า <code>DEMO_PROMPTPAY_ID</code> เพื่อป้องกันการสแกนโอนเงินเข้าบัญชีบุคคลอื่นโดยไม่ตั้งใจ</p>
+        </div>
+        <p class="small">ยอดจำลองชำระ: <b>${baht(co.amountSatang)}</b> · หมดอายุใน <span class="countdown" id="pay-countdown">15:00</span></p>
+        <p class="demo-warning">โหมดสาธิต: กดปุ่ม "ยืนยันการชำระเงินจำลอง" ด้านล่างเพื่อทดสอบระบบได้ทันที</p>
+      </div>`;
+
   body.innerHTML = `
     <div class="dialog__head">
-      <div><p class="eyebrow">ชำระเงินด้วย Thai QR Payment (EMVCo)</p><h2 id="pay-title">${esc(co.title)}</h2></div>
+      <div>
+        <p class="eyebrow"><span class="badge badge--warn">โหมดสาธิต</span> ชำระเงินด้วย Thai QR Payment (EMVCo)</p>
+        <h2 id="pay-title">${esc(co.title)}</h2>
+      </div>
       ${closeBtn()}
     </div>
     ${breakdownTable(co.breakdown)}
-    <div class="qr-wrap">
-      <span class="qr-brand">THAI QR PAYMENT · PromptPay</span>
-      <img src="${co.qr.dataUrl}" alt="QR พร้อมเพย์ ยอด ${baht(co.amountSatang)}" width="230" height="230">
-      <p class="small">พร้อมเพย์ปลายทาง: <b>${esc(co.qr.target)}</b> · ยอดชำระ <b>${baht(co.amountSatang)}</b></p>
-      <p class="small">QR หมดอายุใน <span class="countdown" id="pay-countdown">15:00</span></p>
-      <p class="demo-warning">โหมดสาธิตสำหรับกรรมการ: กรุณากดปุ่มยืนยันด้านล่างแทนการโอนเงินจริง</p>
-    </div>
-    <details class="ocr"><summary>EMVCo payload (มาตรฐานธนาคารแห่งประเทศไทย)</summary><pre>${esc(co.qr.payload)}</pre></details>
+    ${qrSection}
+    <details class="ocr"><summary>ข้อมูลรายการชำระเงิน (โหมดสาธิต)</summary><pre>${esc(co.qr ? co.qr.payload : 'DEMO-MODE')}</pre></details>
     <div class="menu-footer">
       <button class="btn btn--ghost" type="button" data-close>ยกเลิก</button>
-      <button class="btn btn--primary btn--lg" type="button" data-confirm>ยืนยันการชำระเงินสำเร็จ (โหมดสาธิตสำหรับกรรมการ)</button>
+      <button class="btn btn--primary btn--lg" type="button" data-confirm>ยืนยันการชำระเงินจำลอง (โหมดสาธิต)</button>
     </div>`;
   startCountdown(co.expiresAt);
   body.onclick = async (e) => {

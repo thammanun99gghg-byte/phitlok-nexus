@@ -22,7 +22,7 @@
     } catch (e) {}
   </script>
   <link rel="stylesheet" href="/styles.css">
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
   <script type="module" src="/js/site.js"></script>
   <script type="module" src="/js/landing.js"></script>
 </head>
@@ -107,14 +107,14 @@
       </div>
     </section>
 
-    <!-- 2. Live numbers (Pre-populated with real seed values — never shows '–') -->
+    <!-- 2. Live numbers (Real database counts & clearly labeled demo data — never shows '–') -->
     <section class="stats-strip" aria-label="ตัวเลขจากระบบแบบเรียลไทม์">
       <dl class="container stats-strip__inner">
-        <div class="stat"><dt>พาร์ทเนอร์ร้านดัง &amp; โรงแรม</dt><dd id="hero-merchants">13 แห่ง</dd></div>
-        <div class="stat"><dt>บัตร VIP Pass ที่จำหน่ายแล้ว</dt><dd id="hero-vip">48 ใบ</dd></div>
-        <div class="stat"><dt>ออเดอร์อาหาร &amp; จองที่พักสะสม</dt><dd id="hero-orders">126 รายการ</dd></div>
-        <div class="stat"><dt>สแกนป้ายประวัติศาสตร์สะสม</dt><dd id="hero-scans">340 ครั้ง</dd></div>
-        <p class="stats-strip__note"><span class="live-dot" aria-hidden="true"></span> อัปเดตยอดการท่องเที่ยวและการสั่งซื้อในจังหวัดพิษณุโลกแบบเรียลไทม์</p>
+        <div class="stat"><dt>สถานที่บนแผนที่</dt><dd id="hero-merchants">13 แห่ง</dd></div>
+        <div class="stat"><dt>ร้านที่ยืนยันแล้ว</dt><dd id="hero-confirmed">0 แห่ง</dd></div>
+        <div class="stat"><dt>บัตร VIP Pass (ข้อมูลสาธิต)</dt><dd id="hero-vip">48 ใบ (ข้อมูลสาธิต)</dd></div>
+        <div class="stat"><dt>ออเดอร์จำลอง (ข้อมูลสาธิต)</dt><dd id="hero-orders">126 รายการ (ข้อมูลสาธิต)</dd></div>
+        <p class="stats-strip__note"><span class="live-dot" aria-hidden="true"></span> ตัวเลขจริงจากฐานข้อมูลระบบ · รายการธุรกรรมตั้งต้นเป็นข้อมูลสาธิตสำหรับการทดสอบ</p>
       </dl>
     </section>
 

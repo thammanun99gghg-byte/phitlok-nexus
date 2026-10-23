@@ -78,25 +78,29 @@ const PNG_1PX = Buffer.from('89504e470d0a1a0a0000000d494844520000000100000001080
       const html = await r.text();
       assert.ok(html.includes(marker), `${url} contains ${marker}`);
       assert.ok(html.includes('id="theme-toggle"'), `${url} contains Light/Dark theme toggle button`);
-      assert.ok(html.includes('☀️ สว่าง / 🌙 มืด'), `${url} contains [☀️ สว่าง / 🌙 มืด] label`);
+      assert.ok(html.includes('lucide@0.460.0'), `${url} pins lucide@0.460.0 instead of @latest`);
+      assert.ok(!html.includes('lucide@latest'), `${url} does not use lucide@latest`);
     }
     const homeHtml = await (await fetch(base + '/')).text();
-    assert.ok(homeHtml.includes('13 แห่ง') && homeHtml.includes('48 ใบ') && homeHtml.includes('126 รายการ') && homeHtml.includes('340 ครั้ง'), 'Home stats strip pre-populated with real seed numbers');
+    assert.ok(homeHtml.includes('13 แห่ง') && homeHtml.includes('ข้อมูลสาธิต'), 'Home stats strip labels demo data');
     assert.ok(!/<dd[^>]*>–<\/dd>/.test(homeHtml), 'No empty dash in home page <dd> stats');
     assert.ok(homeHtml.includes('GPS: 16.8239, 100.2624'), 'Clickable Wat Yai GPS link present');
-    assert.ok(homeHtml.includes('เข้าโหมดนักท่องเที่ยว') && homeHtml.includes('เข้าโหมดร้านค้า') && homeHtml.includes('เข้าโหมดผู้บริหาร'), 'Concise 3-role buttons present');
+    const creditsHtml = await (await fetch(base + '/credits')).text();
+    assert.ok(!creditsHtml.includes('ทีม สจล.'), 'credits.html does not claim KMITL team affiliation');
+    assert.ok(creditsHtml.includes('สมาชิก 3 คน'), 'credits.html lists 3-member team');
     const missing = await fetch(base + '/does-not-exist');
     assert.equal(missing.status, 404);
   });
 
-  await test('GET /api/init-data → 200 with 13 real pins (5 Heritage + 5 Restaurants + 3 Hotels) & GPS coordinates', async () => {
+  await test('GET /api/init-data → 200 with 13 real pins, partnerStatus="demo", and zero Unsplash stock URLs', async () => {
     const r = await call('GET', '/api/init-data');
     assert.equal(r.status, 200);
     assert.equal(r.json.landmarks.length, 5);
     assert.equal(r.json.merchants.length, 8);
-    assert.equal(r.json.merchants.filter((m) => m.kind === 'restaurant').length, 5);
-    assert.equal(r.json.merchants.filter((m) => m.kind === 'hotel').length, 3);
-    assert.ok(r.json.menuItems.length >= 14);
+    assert.ok(r.json.merchants.every((m) => m.partnerStatus === 'demo'), 'all merchants start with partnerStatus: demo');
+    assert.ok(r.json.menuItems.every((i) => i.isSample === true), 'all seeded menu items marked as sample');
+    assert.ok(!JSON.stringify(r.json.merchants).includes('images.unsplash.com'), 'no Unsplash stock photos used as real shop photos');
+    assert.ok(!JSON.stringify(r.json.merchants).includes('081234500'), 'no fake 081234500x phone numbers in merchants');
     assert.equal(r.json.originGps.lat, 16.8228);
     assert.equal(r.json.originGps.lng, 100.2612);
     assert.ok(!JSON.stringify(r.json.merchants).includes('phone'), 'merchant phone numbers are never exposed');
@@ -172,6 +176,10 @@ const PNG_1PX = Buffer.from('89504e470d0a1a0a0000000d494844520000000100000001080
     assert.equal(r.json.breakdown.discountSatang, disc);
     assert.equal(r.json.breakdown.feeSatang, fee);
     assert.equal(r.json.amountSatang, sub - disc + fee);
+    assert.equal(r.json.demoMode, true);
+    assert.equal(r.json.qr.playable, false, 'Without DEMO_PROMPTPAY_ID, no payable QR is generated');
+    assert.equal(r.json.qr.dataUrl, null);
+    assert.equal(r.json.qr.target, 'QR ตัวอย่าง ห้ามโอนเงิน');
     const c = await call('POST', `/api/checkout/${r.json.checkoutId}/confirm`);
     assert.equal(c.status, 200);
     orderNo = c.json.order.orderNo;

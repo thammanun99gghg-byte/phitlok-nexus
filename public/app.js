@@ -206,6 +206,10 @@ function renderMapCard(ent) {
     const fallback = m.fallbackImage || '/assets/photos/noodles-tomyum.jpg';
     const svgFb = svgFallbackUrl(tr(m.name, lang));
 
+    const isDemoPartner = m.partnerStatus !== 'confirmed';
+    const partnerBadgeText = isDemoPartner ? 'ยังไม่ใช่พาร์ทเนอร์ · ข้อมูลสาธิต' : 'พาร์ทเนอร์ที่ยืนยันแล้ว';
+    const sampleLabel = isHotel ? 'ราคาตัวอย่าง' : 'เมนูตัวอย่าง / ราคาตัวอย่าง';
+
     card.innerHTML = `
       <div class="map-card__media">
         <img src="${esc(imgUrl)}"
@@ -213,13 +217,14 @@ function renderMapCard(ent) {
              onerror="this.onerror=null;this.src='${esc(svgFb)}'"
              alt="${esc(tr(m.name, lang))}" loading="lazy">
         <span class="map-card__badge ${isHotel ? 'map-card__badge--blue' : 'map-card__badge--emerald'}">
-          ${isHotel ? 'โรงแรมที่พักชั้นนำ' : 'ร้านอาหารดังพิษณุโลก'}
+          ${isHotel ? 'ที่พักบนแผนที่' : 'สถานที่บนแผนที่'}
         </span>
       </div>
       <div class="map-card__header-row">
-        <a class="kicker kicker--link" href="${esc(satUrl)}" target="_blank" rel="noopener">
-          <i data-lucide="shield-check"></i> Verified on Google Maps &amp; 3D Nexus ↗
-        </a>
+        <div class="badges">
+          <span class="badge badge--warn">${partnerBadgeText}</span>
+          <span class="badge badge--gold">${sampleLabel}</span>
+        </div>
         ${langSwitcher(lang, 'card-lang')}
       </div>
       <h3 lang="${lang}">${esc(tr(m.name, lang))}</h3>
@@ -313,6 +318,7 @@ function renderDirectoryCards() {
     const items = state.data.menuItems.filter((i) => i.merchantId === m.id);
     const minPrice = items.length ? Math.min(...items.map((i) => i.priceSatang)) : m.roomRateSatang || 5000;
     const svgFb = svgFallbackUrl(tr(m.name, lang));
+    const isDemoPartner = m.partnerStatus !== 'confirmed';
     return `<article class="dir-card dir-card--${isHotel ? 'hotel' : 'restaurant'}" data-dir-cat="${isHotel ? 'hotel' : 'restaurant'}">
       <div class="dir-card__img-wrap">
         <img src="${esc(m.imageUrl || m.fallbackImage)}"
@@ -320,17 +326,21 @@ function renderDirectoryCards() {
              onerror="this.onerror=null;this.src='${esc(svgFb)}'"
              alt="${esc(tr(m.name, lang))}" loading="lazy">
         <span class="dir-card__tag ${isHotel ? 'dir-card__tag--blue' : 'dir-card__tag--emerald'}">
-          ${isHotel ? `โรงแรมที่พัก · เริ่มต้น ${baht(minPrice)}` : `ร้านอาหารดัง · เริ่มต้น ${baht(minPrice)}`}
+          ${isHotel ? `ที่พัก · ราคาตัวอย่าง ${baht(minPrice)}` : `ร้านค้า · เมนูตัวอย่าง ${baht(minPrice)}`}
         </span>
       </div>
       <div class="dir-card__body">
         <a class="dir-card__gps dir-card__gps--link" href="${esc(satUrl)}" target="_blank" rel="noopener" title="คลิกเปิดดูพิกัดจริงบน Google Maps Satellite">
           <i data-lucide="map-pin"></i> <b>GPS: <code>${m.lat.toFixed(4)}, ${m.lng.toFixed(4)}</code> ↗</b>
         </a>
+        <div class="badges" style="margin:4px 0">
+          <span class="badge badge--warn">${isDemoPartner ? 'ยังไม่ใช่พาร์ทเนอร์ · ข้อมูลสาธิต' : 'พาร์ทเนอร์ที่ยืนยันแล้ว'}</span>
+          <span class="badge badge--gold">${isHotel ? 'ราคาตัวอย่าง' : 'เมนูตัวอย่าง / ราคาตัวอย่าง'}</span>
+        </div>
         <h3 lang="${lang}">${esc(tr(m.name, lang))}</h3>
         <p class="muted small" lang="${lang}">${esc(tr(m.blurb, lang))}</p>
         <a class="dir-card__ref dir-card__ref--link" href="${esc(gmaps)}" target="_blank" rel="noopener">
-          <i data-lucide="shield-check"></i> Verified on Google Maps · ${m.shopStatus === 'busy' ? 'คิวเต็มชั่วคราว' : 'เปิดรับลูกค้า'} ↗
+          <i data-lucide="external-link"></i> ดูหน้าร้านใน Google Maps · ${m.shopStatus === 'busy' ? 'คิวเต็มชั่วคราว' : 'เปิดรับลูกค้า'} ↗
         </a>
         <div class="dir-card__actions">
           <button class="btn btn--primary btn--sm" type="button" data-dir-menu="${m.id}">

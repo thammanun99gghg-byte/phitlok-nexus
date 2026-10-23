@@ -346,6 +346,8 @@ app.get('/api/metrics', (req, res) => {
 
   const activeRestaurants = db.prepare("SELECT COUNT(*) AS n FROM merchants WHERE status = 'active' AND kind = 'restaurant'").get().n;
   const activeHotels = db.prepare("SELECT COUNT(*) AS n FROM merchants WHERE status = 'active' AND kind = 'hotel'").get().n;
+  const confirmedPartners = db.prepare("SELECT COUNT(*) AS n FROM merchants WHERE status = 'active' AND partner_status = 'confirmed'").get().n;
+  const landmarksCount = db.prepare('SELECT COUNT(*) AS n FROM landmarks').get().n;
   const activeCount = activeRestaurants + activeHotels;
 
   const partnerStats = db.prepare(`
@@ -369,8 +371,12 @@ app.get('/api/metrics', (req, res) => {
 
   res.json({
     ok: true,
+    demoMode: true,
     generatedAt: new Date().toISOString(),
     totals: {
+      landmarksCount,
+      placesOnMap: landmarksCount + activeCount,
+      confirmedPartners,
       platformRevenueSatang: totalRevenueSatang,
       vip: { passesSold: vip.count, revenueSatang: vip.revenueSatang },
       restaurantSaas: {

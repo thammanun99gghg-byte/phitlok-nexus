@@ -388,14 +388,17 @@ const LANDMARKS = RAW_LANDMARKS.map((lm) => {
 });
 
 // =========================================================================
-// หมวด B (5 ร้านอาหาร/ของฝากจริง) + หมวด C (3 โรงแรมจริง) = 8 พาร์ทเนอร์หลัก
+// หมวด B (5 ร้านอาหาร/ของฝาก) + หมวด C (3 โรงแรมที่พัก) = 8 สถานที่สาธิตบนแผนที่
 // =========================================================================
+const DEMO_PROMPTPAY_ID = (process.env.DEMO_PROMPTPAY_ID || '').trim();
+
 const RAW_MERCHANTS = [
-  // --- 5 ร้านอาหารและของฝากชื่อดังจริงในพิษณุโลก ---
+  // --- 5 ร้านอาหารและของฝากในพิษณุโลก (สถานะเริ่มต้น: ข้อมูลสาธิต ยังไม่ใช่พาร์ทเนอร์) ---
   {
     slug: 'hoi-kha-noodles',
     kind: 'restaurant',
     category: 'food',
+    partner_status: 'demo',
     lat: 16.8251,
     lng: 100.2618,
     nearest: 'wat-yai',
@@ -403,9 +406,9 @@ const RAW_MERCHANTS = [
     monthly_fee_satang: 19900,
     stamp_coupon_percent: 15,
     featured: 1,
-    promptpay_id: '0812345001',
+    promptpay_id: DEMO_PROMPTPAY_ID,
     shop_status: 'open',
-    imageUrl: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=800&q=80',
+    imageUrl: '/assets/photos/hoi-kha-noodles.jpg',
     fallbackImage: '/assets/photos/hoi-kha-noodles.jpg',
     name: {
       th: 'ก๋วยเตี๋ยวห้อยขา ริมน่าน (ซอยพุทธบูชา ข้างวัดใหญ่)',
@@ -428,6 +431,7 @@ const RAW_MERCHANTS = [
     slug: 'juk-kai-thai',
     kind: 'restaurant',
     category: 'food',
+    partner_status: 'demo',
     lat: 16.8195,
     lng: 100.2642,
     nearest: 'wat-ratchaburana',
@@ -435,9 +439,9 @@ const RAW_MERCHANTS = [
     monthly_fee_satang: 19900,
     stamp_coupon_percent: 15,
     featured: 1,
-    promptpay_id: '0812345002',
+    promptpay_id: DEMO_PROMPTPAY_ID,
     shop_status: 'open',
-    imageUrl: 'https://images.unsplash.com/photo-1562967914-608f82629710?auto=format&fit=crop&w=800&q=80',
+    imageUrl: '/assets/photos/juk-kai-thai.jpg',
     fallbackImage: '/assets/photos/juk-kai-thai.jpg',
     name: {
       th: 'จุกไก่ไทย (ตำนานข้าวมันไก่-สะเต๊ะ เมืองพิษณุโลก)',
@@ -460,6 +464,7 @@ const RAW_MERCHANTS = [
     slug: 'pa-lom-noodles',
     kind: 'restaurant',
     category: 'food',
+    partner_status: 'demo',
     lat: 16.8128,
     lng: 100.2595,
     nearest: 'wat-ratchaburana',
@@ -467,9 +472,9 @@ const RAW_MERCHANTS = [
     monthly_fee_satang: 19900,
     stamp_coupon_percent: 10,
     featured: 1,
-    promptpay_id: '0812345003',
+    promptpay_id: DEMO_PROMPTPAY_ID,
     shop_status: 'open',
-    imageUrl: 'https://images.unsplash.com/photo-1555126634-323283e090fa?auto=format&fit=crop&w=800&q=80',
+    imageUrl: '/assets/photos/pa-lom-noodles.jpg',
     fallbackImage: '/assets/photos/pa-lom-noodles.jpg',
     name: {
       th: 'ก๋วยเตี๋ยวไก่ป้าล้อม (วัดจันทร์ตะวันออก)',
@@ -492,6 +497,7 @@ const RAW_MERCHANTS = [
     slug: 'pa-thanom-padthai',
     kind: 'restaurant',
     category: 'food',
+    partner_status: 'demo',
     lat: 16.8208,
     lng: 100.2602,
     nearest: 'wat-ratchaburana',
@@ -499,9 +505,9 @@ const RAW_MERCHANTS = [
     monthly_fee_satang: 19900,
     stamp_coupon_percent: 10,
     featured: 1,
-    promptpay_id: '0812345004',
+    promptpay_id: DEMO_PROMPTPAY_ID,
     shop_status: 'open',
-    imageUrl: 'https://images.unsplash.com/photo-1559314809-0d155014e29e?auto=format&fit=crop&w=800&q=80',
+    imageUrl: '/assets/photos/pa-thanom-padthai.jpg',
     fallbackImage: '/assets/photos/pa-thanom-padthai.jpg',
     name: {
       th: 'ผัดไทยป้าถนอม & ขนมเบื้องโบราณ ริมน่าน',
@@ -524,6 +530,7 @@ const RAW_MERCHANTS = [
     slug: 'bang-krathum-otop',
     kind: 'restaurant',
     category: 'souvenir',
+    partner_status: 'demo',
     lat: 16.8232,
     lng: 100.2640,
     nearest: 'wat-yai',
@@ -531,9 +538,9 @@ const RAW_MERCHANTS = [
     monthly_fee_satang: 19900,
     stamp_coupon_percent: 15,
     featured: 1,
-    promptpay_id: '0812345005',
+    promptpay_id: DEMO_PROMPTPAY_ID,
     shop_status: 'open',
-    imageUrl: 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?auto=format&fit=crop&w=800&q=80',
+    imageUrl: '/assets/photos/bang-krathum-otop.jpg',
     fallbackImage: '/assets/photos/bang-krathum-otop.jpg',
     name: {
       th: 'ศูนย์ของฝากกล้วยตากบางกระทุ่ม & หมี่ซั่วพิษณุโลก',
@@ -553,11 +560,12 @@ const RAW_MERCHANTS = [
     }
   },
 
-  // --- 3 โรงแรมและสถานที่พักผ่อนจริงในพิษณุโลก ---
+  // --- 3 โรงแรมและสถานที่พักผ่อนในพิษณุโลก ---
   {
     slug: 'yodia-heritage',
     kind: 'hotel',
     category: 'stay',
+    partner_status: 'demo',
     lat: 16.8285,
     lng: 100.2588,
     nearest: 'chan-palace',
@@ -566,9 +574,9 @@ const RAW_MERCHANTS = [
     room_rate_satang: 185000,
     stamp_coupon_percent: 10,
     featured: 1,
-    promptpay_id: '0812345006',
+    promptpay_id: DEMO_PROMPTPAY_ID,
     shop_status: 'open',
-    imageUrl: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
+    imageUrl: '/assets/photos/yodia-heritage.jpg',
     fallbackImage: '/assets/photos/yodia-heritage.jpg',
     name: {
       th: 'Yodia Heritage Hotel (โยเดีย เฮอริเทจ โฮเทล)',
@@ -579,18 +587,19 @@ const RAW_MERCHANTS = [
       fr: 'Yodia Heritage Hotel (Hôtel Boutique au bord de la Nan)'
     },
     blurb: {
-      th: 'บูติคโฮเทลริมแม่น้ำน่าน ติดพระราชวังจันทร์ ตกแต่งกลิ่นอายประวัติศาสตร์อยุธยา-สุโขทัย พร้อมสระว่ายน้ำและอาหารเช้าพื้นเมือง | ราคาเริ่มต้น 1,850 บาท/คืน',
-      en: 'Boutique riverside sanctuary beside Chan Royal Palace blending Ayutthaya-Sukhothai heritage aesthetics with river views. Starting at 1,850 THB/night.',
-      zh: '紧邻詹宫的难河畔精品文化酒店，融合阿瑜陀耶与素可泰古典美学，含河景泳池与本地特色早餐 | 1,850泰铢/晚起。',
-      ja: 'チャン王宮のすぐ隣、ナン川沿いに佇むブティックホテル。アユタヤとスコータイの歴史美が融合した空間です｜1泊1,850バーツ〜。',
-      ko: '짠 왕궁 바로 옆 난 강변에 위치한 부티크 호텔로 아유타야와 수코타이 역사 미학을 담고 있습니다 | 1박 1,850바트부터.',
-      fr: 'Hôtel-boutique de charme au bord de la rivière Nan, jouxtant le Palais Royal de Chan, inspiré de l’esthétique d’Ayutthaya et Sukhothai | Dès 1 850 THB/nuit.'
+      th: 'บูติคโฮเทลริมแม่น้ำน่าน ติดพระราชวังจันทร์ ตกแต่งกลิ่นอายประวัติศาสตร์อยุธยา-สุโขทัย พร้อมสระว่ายน้ำและอาหารเช้าพื้นเมือง | ราคาตัวอย่างเริ่มต้น 1,850 บาท/คืน',
+      en: 'Boutique riverside sanctuary beside Chan Royal Palace blending Ayutthaya-Sukhothai heritage aesthetics with river views. Sample rate from 1,850 THB/night.',
+      zh: '紧邻詹宫的难河畔精品文化酒店，融合阿瑜陀耶与素可泰古典美学，含河景泳池与本地特色早餐 | 示例价格1,850泰铢/晚起。',
+      ja: 'チャン王宮のすぐ隣、ナン川沿いに佇むブティックホテル。アユタヤとスコータイの歴史美が融合した空間です｜参考価格1泊1,850バーツ〜。',
+      ko: '짠 왕궁 바로 옆 난 강변에 위치한 부티크 호텔로 아유타야와 수코타이 역사 미학을 담고 있습니다 | 예시 요금 1박 1,850바트부터.',
+      fr: 'Hôtel-boutique de charme au bord de la rivière Nan, jouxtant le Palais Royal de Chan | Tarif indicatif dès 1 850 THB/nuit.'
     }
   },
   {
     slug: 'topland-hotel',
     kind: 'hotel',
     category: 'stay',
+    partner_status: 'demo',
     lat: 16.8221,
     lng: 100.2658,
     nearest: 'wat-yai',
@@ -599,9 +608,9 @@ const RAW_MERCHANTS = [
     room_rate_satang: 129000,
     stamp_coupon_percent: 10,
     featured: 1,
-    promptpay_id: '0812345007',
+    promptpay_id: DEMO_PROMPTPAY_ID,
     shop_status: 'open',
-    imageUrl: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80',
+    imageUrl: '/assets/photos/topland-hotel.jpg',
     fallbackImage: '/assets/photos/topland-hotel.jpg',
     name: {
       th: 'Topland Hotel & Convention Centre (โรงแรมท็อปแลนด์)',
@@ -612,18 +621,19 @@ const RAW_MERCHANTS = [
       fr: 'Topland Hotel & Convention Centre Phitsanulok'
     },
     blurb: {
-      th: 'โรงแรมแลนด์มาร์กใจกลางเมือง ห่างจากวัดใหญ่และสะพานนเรศวรเพียง 400 เมตร มองเห็นวิวแม่น้ำน่านมุมสูงและตัวเมืองพิษณุโลก | ราคาเริ่มต้น 1,290 บาท/คืน',
-      en: 'Iconic high-rise landmark hotel in the city center, just 400 m from Wat Yai and Naresuan Bridge with panoramic Nan River views. Starting at 1,290 THB/night.',
-      zh: '市中心地标高空酒店，距离大寺与纳黎萱桥仅400米，俯瞰难河全景与彭世洛城市天际线 | 1,290泰铢/晚起。',
-      ja: 'ワット・ヤイやナレースワン橋からわずか400m、市街中心部にそびえるランドマークホテル。上층からナン川を一望できます｜1泊1,290バーツ〜。',
-      ko: '왓 야이와 나레쑤언 다리에서 불과 400m 거리에 위치한 도심 랜드마크 호텔로 난 강의 파노라마 전망을 자랑합니다 | 1박 1,290바트부터.',
-      fr: 'Hôtel emblématique au cœur de la ville, à seulement 400 m de Wat Yai et du pont Naresuan, offrant une vue panoramique sur la rivière Nan | Dès 1 290 THB/nuit.'
+      th: 'โรงแรมแลนด์มาร์กใจกลางเมือง ห่างจากวัดใหญ่และสะพานนเรศวรเพียง 400 เมตร มองเห็นวิวแม่น้ำน่านมุมสูงและตัวเมืองพิษณุโลก | ราคาตัวอย่างเริ่มต้น 1,290 บาท/คืน',
+      en: 'Iconic high-rise landmark hotel in the city center, just 400 m from Wat Yai and Naresuan Bridge with panoramic Nan River views. Sample rate from 1,290 THB/night.',
+      zh: '市中心地标高空酒店，距离大寺与纳黎萱桥仅400米，俯瞰难河全景与彭世洛城市天际线 | 示例价格1,290泰铢/晚起。',
+      ja: 'ワット・ヤイやナレースワン橋からわずか400m、市街中心部にそびえるランドマークホテル｜参考価格1泊1,290バーツ〜。',
+      ko: '왓 야이와 나레쑤언 다리에서 불과 400m 거리에 위치한 도심 랜드마크 호텔로 난 강의 파노라마 전망을 자랑합니다 | 예시 요금 1박 1,290바트부터.',
+      fr: 'Hôtel emblématique au cœur de la ville, à seulement 400 m de Wat Yai et du pont Naresuan | Tarif indicatif dès 1 290 THB/nuit.'
     }
   },
   {
     slug: 'imperial-hotel',
     kind: 'hotel',
     category: 'stay',
+    partner_status: 'demo',
     lat: 16.8042,
     lng: 100.2785,
     nearest: 'wat-ratchaburana',
@@ -632,9 +642,9 @@ const RAW_MERCHANTS = [
     room_rate_satang: 145000,
     stamp_coupon_percent: 10,
     featured: 1,
-    promptpay_id: '0812345008',
+    promptpay_id: DEMO_PROMPTPAY_ID,
     shop_status: 'open',
-    imageUrl: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80',
+    imageUrl: '/assets/photos/imperial-hotel.jpg',
     fallbackImage: '/assets/photos/imperial-hotel.jpg',
     name: {
       th: 'The Imperial Hotel & Convention Centre Phitsanulok',
@@ -682,7 +692,7 @@ const MENU_ITEMS = [
   {
     merchant: 'hoi-kha-noodles', code: 'HK01', price: 60, unit: 'ชาม', category: 'food',
     allergens: ['peanut', 'pork'], spicy: 2, vegetarian: 0, halal: 0,
-    imageUrl: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=800&q=80',
+    imageUrl: '/assets/photos/hoi-kha-noodles.jpg',
     fallbackImage: '/assets/photos/hoi-kha-noodles.jpg',
     name: {
       th: 'ก๋วยเตี๋ยวต้มยำสุโขทัยหมูแดงถั่วป่น',
@@ -704,7 +714,7 @@ const MENU_ITEMS = [
   {
     merchant: 'hoi-kha-noodles', code: 'HK02', price: 70, unit: 'ชาม', category: 'food',
     allergens: ['pork', 'soy', 'dairy'], spicy: 2, vegetarian: 0, halal: 0,
-    imageUrl: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80',
+    imageUrl: '/assets/photos/food-ribs.jpg',
     fallbackImage: '/assets/photos/food-ribs.jpg',
     name: {
       th: 'ก๋วยเตี๋ยวต้มยำน้ำข้นซี่โครงหมูอ่อน',
@@ -726,7 +736,7 @@ const MENU_ITEMS = [
   {
     merchant: 'hoi-kha-noodles', code: 'HK03', price: 50, unit: 'จาน', category: 'food',
     allergens: ['pork', 'gluten', 'egg', 'soy'], spicy: 0, vegetarian: 0, halal: 0,
-    imageUrl: 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=800&q=80',
+    imageUrl: '/assets/photos/food-wonton.jpg',
     fallbackImage: '/assets/photos/food-wonton.jpg',
     name: {
       th: 'เกี๊ยวทอดกรอบไส้หมู',
@@ -750,7 +760,7 @@ const MENU_ITEMS = [
   {
     merchant: 'juk-kai-thai', code: 'JK01', price: 80, unit: 'จาน', category: 'food',
     allergens: ['soy'], spicy: 1, vegetarian: 0, halal: 1,
-    imageUrl: 'https://images.unsplash.com/photo-1562967914-608f82629710?auto=format&fit=crop&w=800&q=80',
+    imageUrl: '/assets/photos/juk-kai-thai.jpg',
     fallbackImage: '/assets/photos/juk-kai-thai.jpg',
     name: {
       th: 'ข้าวมันไก่ตอนสับจานกลาง',
@@ -772,7 +782,7 @@ const MENU_ITEMS = [
   {
     merchant: 'juk-kai-thai', code: 'JK02', price: 70, unit: 'ชุด', category: 'food',
     allergens: ['pork', 'peanut'], spicy: 1, vegetarian: 0, halal: 0,
-    imageUrl: 'https://images.unsplash.com/photo-1529563021893-cc83c992d75d?auto=format&fit=crop&w=800&q=80',
+    imageUrl: '/assets/photos/food-satay.jpg',
     fallbackImage: '/assets/photos/food-satay.jpg',
     name: {
       th: 'หมูสะเต๊ะย่างเตาถ่านพร้อมอาจาด',
@@ -794,7 +804,7 @@ const MENU_ITEMS = [
   {
     merchant: 'juk-kai-thai', code: 'JK03', price: 50, unit: 'ถ้วย', category: 'food',
     allergens: ['pork', 'soy'], spicy: 0, vegetarian: 0, halal: 0,
-    imageUrl: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=800&q=80',
+    imageUrl: '/assets/photos/food-soup.jpg',
     fallbackImage: '/assets/photos/food-soup.jpg',
     name: {
       th: 'ต้มจืดมะระซี่โครงหมู',
@@ -818,7 +828,7 @@ const MENU_ITEMS = [
   {
     merchant: 'pa-lom-noodles', code: 'PL01', price: 55, unit: 'ชาม', category: 'food',
     allergens: ['soy'], spicy: 0, vegetarian: 0, halal: 1,
-    imageUrl: 'https://images.unsplash.com/photo-1555126634-323283e090fa?auto=format&fit=crop&w=800&q=80',
+    imageUrl: '/assets/photos/pa-lom-noodles.jpg',
     fallbackImage: '/assets/photos/pa-lom-noodles.jpg',
     name: {
       th: 'ก๋วยเตี๋ยวไก่ฉีก-น่องไก่ตุ๋นยาจีน',
@@ -840,7 +850,7 @@ const MENU_ITEMS = [
   {
     merchant: 'pa-lom-noodles', code: 'PL02', price: 65, unit: 'ชาม', category: 'food',
     allergens: ['soy', 'egg'], spicy: 0, vegetarian: 0, halal: 1,
-    imageUrl: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=800&q=80',
+    imageUrl: '/assets/photos/food-soup.jpg',
     fallbackImage: '/assets/photos/food-soup.jpg',
     name: {
       th: 'เกาเหลาตีนไก่เปื่อย-ไข่อ่อน',
@@ -864,7 +874,7 @@ const MENU_ITEMS = [
   {
     merchant: 'pa-thanom-padthai', code: 'PT01', price: 65, unit: 'จาน', category: 'food',
     allergens: ['shellfish', 'egg', 'peanut', 'soy'], spicy: 1, vegetarian: 0, halal: 1,
-    imageUrl: 'https://images.unsplash.com/photo-1559314809-0d155014e29e?auto=format&fit=crop&w=800&q=80',
+    imageUrl: '/assets/photos/pa-thanom-padthai.jpg',
     fallbackImage: '/assets/photos/pa-thanom-padthai.jpg',
     name: {
       th: 'ผัดไทยห่อไข่กุ้งสดสูตรโบราณ',
@@ -886,7 +896,7 @@ const MENU_ITEMS = [
   {
     merchant: 'pa-thanom-padthai', code: 'PT02', price: 40, unit: 'ชุด', category: 'dessert',
     allergens: ['egg', 'shellfish'], spicy: 0, vegetarian: 0, halal: 1,
-    imageUrl: 'https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&w=800&q=80',
+    imageUrl: '/assets/photos/food-dessert.jpg',
     fallbackImage: '/assets/photos/food-dessert.jpg',
     name: {
       th: 'ขนมเบื้องไทยไส้หวาน-ไส้เค็มมะพร้าวขูด',
@@ -910,7 +920,7 @@ const MENU_ITEMS = [
   {
     merchant: 'bang-krathum-otop', code: 'OT01', price: 120, unit: 'กล่อง', category: 'souvenir',
     allergens: [], spicy: 0, vegetarian: 1, halal: 1,
-    imageUrl: 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?auto=format&fit=crop&w=800&q=80',
+    imageUrl: '/assets/photos/bang-krathum-otop.jpg',
     fallbackImage: '/assets/photos/bang-krathum-otop.jpg',
     name: {
       th: 'กล้วยตากพลังงานแสงอาทิตย์พาราโบลาโดม',
@@ -932,7 +942,7 @@ const MENU_ITEMS = [
   {
     merchant: 'bang-krathum-otop', code: 'OT02', price: 95, unit: 'ห่อ', category: 'souvenir',
     allergens: ['gluten'], spicy: 0, vegetarian: 1, halal: 1,
-    imageUrl: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=800&q=80',
+    imageUrl: '/assets/photos/hoi-kha-noodles.jpg',
     fallbackImage: '/assets/photos/hoi-kha-noodles.jpg',
     name: {
       th: 'หมี่ซั่วเตาถ่านสูตรดั้งเดิมพิษณุโลก',
@@ -954,7 +964,7 @@ const MENU_ITEMS = [
   {
     merchant: 'bang-krathum-otop', code: 'OT03', price: 85, unit: 'กระปุก', category: 'souvenir',
     allergens: ['shellfish'], spicy: 2, vegetarian: 0, halal: 1,
-    imageUrl: 'https://images.unsplash.com/photo-1559314809-0d155014e29e?auto=format&fit=crop&w=800&q=80',
+    imageUrl: '/assets/photos/pa-thanom-padthai.jpg',
     fallbackImage: '/assets/photos/pa-thanom-padthai.jpg',
     name: {
       th: 'น้ำพริกกุ้งเสียบสมุนไพร',
@@ -978,7 +988,7 @@ const MENU_ITEMS = [
   {
     merchant: 'yodia-heritage', code: 'YH01', price: 1850, unit: 'คืน', category: 'stay',
     allergens: [], spicy: 0, vegetarian: 1, halal: 1,
-    imageUrl: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
+    imageUrl: '/assets/photos/yodia-heritage.jpg',
     fallbackImage: '/assets/photos/yodia-heritage.jpg',
     name: {
       th: 'ห้องพัก Deluxe River Heritage (รวมอาหารเช้า 2 ท่าน)',
@@ -1002,7 +1012,7 @@ const MENU_ITEMS = [
   {
     merchant: 'topland-hotel', code: 'TL01', price: 1290, unit: 'คืน', category: 'stay',
     allergens: [], spicy: 0, vegetarian: 1, halal: 1,
-    imageUrl: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80',
+    imageUrl: '/assets/photos/topland-hotel.jpg',
     fallbackImage: '/assets/photos/topland-hotel.jpg',
     name: {
       th: 'ห้องพัก Superior Panorama City & River View (รวมอาหารเช้า)',
@@ -1026,7 +1036,7 @@ const MENU_ITEMS = [
   {
     merchant: 'imperial-hotel', code: 'IM01', price: 1450, unit: 'คืน', category: 'stay',
     allergens: [], spicy: 0, vegetarian: 1, halal: 1,
-    imageUrl: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80',
+    imageUrl: '/assets/photos/imperial-hotel.jpg',
     fallbackImage: '/assets/photos/imperial-hotel.jpg',
     name: {
       th: 'ห้องพัก Grand Deluxe Pool & Garden View (รวมอาหารเช้า)',

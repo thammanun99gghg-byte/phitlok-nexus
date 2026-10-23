@@ -230,12 +230,13 @@ function renderAllProvinceMonitor() {
     partnersEl.innerHTML = `<table class="data-table">
       <thead>
         <tr>
-          <th scope="col">พาร์ทเนอร์ร้านค้า / โรงแรม</th>
-          <th scope="col">ประเภท &amp; แพ็กเกจ</th>
+          <th scope="col">สถานที่บนแผนที่ (ร้านค้า / โรงแรม)</th>
+          <th scope="col">สถานะความร่วมมือ</th>
+          <th scope="col">ประเภท &amp; แพ็กเกจจำลอง</th>
           <th scope="col">พิกัด GPS จริง</th>
           <th scope="col">สถานะร้าน</th>
-          <th scope="col">ออเดอร์สะสม</th>
-          <th scope="col">ยอดขาย GMV</th>
+          <th scope="col">ออเดอร์สาธิต</th>
+          <th scope="col">ยอดขายจำลอง (GMV)</th>
           <th scope="col">ค่าธรรมเนียม (3-5%)</th>
           <th scope="col">แผนที่จริง</th>
         </tr>
@@ -243,9 +244,11 @@ function renderAllProvinceMonitor() {
       <tbody>
         ${metrics.partners.map((p) => {
           const isHotel = p.kind === 'hotel' || p.category === 'stay';
+          const isDemo = p.partnerStatus !== 'confirmed';
           const gmaps = p.googleMapsUrl || `https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}`;
           return `<tr>
             <td><b>${esc(p.name.th)}</b></td>
+            <td><span class="badge ${isDemo ? 'badge--warn' : 'badge--ok'}">${isDemo ? 'ยังไม่ใช่พาร์ทเนอร์ · ข้อมูลสาธิต' : 'ยืนยันแล้ว'}</span></td>
             <td><span class="badge ${isHotel ? 'badge--blue' : 'badge--ok'}">${isHotel ? 'โรงแรม (499฿/ด. · 5%)' : 'ร้านอาหาร (199฿/ด. · 3%)'}</span></td>
             <td><code>${p.lat.toFixed(4)}, ${p.lng.toFixed(4)}</code></td>
             <td><span class="badge ${p.shopStatus === 'busy' ? 'badge--warn' : 'badge--ok'}">${p.shopStatus === 'busy' ? 'คิวเต็มชั่วคราว' : 'เปิดรับลูกค้า'}</span></td>

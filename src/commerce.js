@@ -9,7 +9,7 @@ const { PRICING, gpsTo3D, haversineM } = require('./seed-data');
 const { buildKitchenTicket, sanitizeFlags, LANGS } = require('./tickets');
 const { buildQr, maskTarget } = require('./promptpay');
 
-const PLATFORM_PROMPTPAY_ID = process.env.PROMPTPAY_ID || '0000000000';
+const PLATFORM_PROMPTPAY_ID = (process.env.DEMO_PROMPTPAY_ID || process.env.PROMPTPAY_ID || '').trim();
 const CHECKOUT_TTL_MS = 15 * 60 * 1000;
 const VIP_DAYS = 7;
 const MAX_LINES = 30;
@@ -57,6 +57,7 @@ function publicMerchant(row) {
     roomRateSatang: row.room_rate_satang || 0,
     stampCouponPercent: row.stamp_coupon_percent,
     featured: !!row.featured,
+    partnerStatus: row.partner_status || 'demo',
     shopStatus: row.shop_status || 'open',
     createdAt: row.created_at
   };
@@ -79,6 +80,7 @@ function publicItem(row) {
     vegetarian: !!row.vegetarian,
     halal: !!row.halal,
     available: row.available !== 0,
+    isSample: (row.source || 'seed') === 'seed',
     source: row.source
   };
 }
@@ -331,24 +333,23 @@ async function createCheckout(db, visitorId, body) {
       ko: 'PHITLOK NEXUS 인증 파트너',
       fr: 'Partenaire certifié PHITLOK NEXUS'
     };
-    const defaultImg = isHotel
-      ? 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80'
-      : 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=800&q=80';
+    const defaultImg = isHotel ? '/assets/photos/yodia-heritage.jpg' : '/assets/photos/hoi-kha-noodles.jpg';
     const defaultFallback = isHotel ? '/assets/photos/yodia-heritage.jpg' : '/assets/photos/hoi-kha-noodles.jpg';
+    const demoTarget = (process.env.DEMO_PROMPTPAY_ID || '').trim();
     const r = db.prepare(`INSERT INTO merchants
       (slug, kind, name_json, blurb_json, category, nearest, distance_m, lat, lng, x, z,
        image_url, fallback_image, plan, monthly_fee_satang, room_rate_satang, stamp_coupon_percent,
-       featured, promptpay_id, status, shop_status, owner_name, phone, marketing_consent, pdpa_consent_at, created_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 10, 1, ?, 'pending', 'open', ?, ?, ?, ?, ?)`)
+       featured, promptpay_id, partner_status, status, shop_status, owner_name, phone, marketing_consent, pdpa_consent_at, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 10, 1, ?, 'demo', 'pending', 'open', ?, ?, ?, ?, ?)`)
       .run(
         slug, kind, JSON.stringify(name), JSON.stringify(blurb), form.category, form.landmark.id,
         pos.distanceM, pos.lat, pos.lng, pos.x, pos.z, defaultImg, defaultFallback,
-        plan, feeSatang, isHotel ? 140000 : 0, form.phone, form.ownerName, form.phone,
+        plan, feeSatang, isHotel ? 140000 : 0, demoTarget, form.ownerName, form.phone,
         form.marketingConsent ? 1 : 0, created, created
       );
     merchantId = Number(r.lastInsertRowid);
     amount = feeSatang;
-    target = PLATFORM_PROMPTPAY_ID;
+    target = demoTarget;
     title = isHotel ? 'Hotel Partner SaaS (499฿/เดือน)' : 'Restaurant Partner SaaS (199฿/เดือน)';
     breakdown = {
       lines: [{ label: `${title} — ${form.shopName}`, amountSatang: amount }],
@@ -359,18 +360,37 @@ async function createCheckout(db, visitorId, body) {
     throw new HttpError(400, 'ประเภทการชำระเงินไม่ถูกต้อง');
   }
 
+  const resolvedTarget = (process.env.DEMO_PROMPTPAY_ID || target || '').trim();
+
   db.prepare(`INSERT INTO checkouts (id, type, visitor_id, merchant_id, payload_json, breakdown_json, amount_satang, promptpay_target, status, created_at, expires_at)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)`)
-    .run(id, body.type, visitorId, merchantId, JSON.stringify(payload), JSON.stringify(breakdown), amount, target, created, expires);
+    .run(id, body.type, visitorId, merchantId, JSON.stringify(payload), JSON.stringify(breakdown), amount, resolvedTarget || 'DEMO-NO-PROMPTPAY', created, expires);
 
-  const qr = await buildQr(target, amount);
+  let qrResult;
+  if (resolvedTarget) {
+    const qr = await buildQr(resolvedTarget, amount);
+    qrResult = {
+      playable: true,
+      dataUrl: qr.dataUrl,
+      payload: qr.payload,
+      target: maskTarget(resolvedTarget)
+    };
+  } else {
+    qrResult = {
+      playable: false,
+      dataUrl: null,
+      payload: 'DEMO-MODE-NO-TRANSFER (ยังไม่ได้ตั้งค่า DEMO_PROMPTPAY_ID)',
+      target: 'QR ตัวอย่าง ห้ามโอนเงิน'
+    };
+  }
+
   return {
     checkoutId: id,
     type: body.type,
     title,
     amountSatang: amount,
     breakdown,
-    qr: { dataUrl: qr.dataUrl, payload: qr.payload, target: maskTarget(target) },
+    qr: qrResult,
     expiresAt: expires,
     demoMode: true
   };
