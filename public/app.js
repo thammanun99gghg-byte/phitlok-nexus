@@ -563,7 +563,7 @@ function bindGlobal() {
     const mId = r.order?.breakdown?.merchantId || r.merchant?.id || null;
     refreshMerchantData(mId).catch(() => {});
     refreshAdminData().catch(() => {});
-    toast(r.type === 'order' ? `ชำระเงินสำเร็จ — ส่งออเดอร์ ${r.order.orderNo} เข้าหน้าจอร้านค้าแล้ว` : 'ชำระเงินสำเร็จ — อัปเดตยอดรายได้แบบเรียลไทม์แล้ว', 'ok');
+    toast(r.type === 'order' ? `ชำระเงินสำเร็จ — ส่งออเดอร์ ${r.order.orderNo} เข้าหน้าจอร้านค้าแล้ว` : 'ชำระเงินสำเร็จ — บันทึกยอดในแดชบอร์ดแล้ว', 'ok');
   });
 
   on('navigate', ({ to, result }) => {

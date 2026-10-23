@@ -54,10 +54,10 @@ function render() {
 
   document.getElementById('admin-kpis').innerHTML = [
     [
-      'รายได้รวมแพลตฟอร์ม (Real-Time)',
+      'รายได้รวม (ข้อมูลจำลอง)',
       baht(t.platformRevenueSatang),
       'kpi--gold',
-      `อัปเดตสดแบบเรียลไทม์ · รวม 4 ช่องทางทำเงิน`
+      'รวม 4 ช่องทาง'
     ],
     [
       '1. SaaS ร้านอาหาร (199฿/ด.)',
@@ -89,7 +89,7 @@ function render() {
   renderSplit(t);
   renderTx(metrics.recent);
   renderAllProvinceMonitor();
-  document.getElementById('admin-updated').textContent = `อัปเดตสดจาก SQLite ${new Date().toLocaleTimeString('th-TH')} · สแกนป้ายสะสม ${num(metrics.counters.heritageScans)} ครั้ง`;
+  document.getElementById('admin-updated').textContent = `อัปเดตล่าสุด ${new Date().toLocaleTimeString('th-TH')} · สแกนป้ายสะสม ${num(metrics.counters.heritageScans)} ครั้ง (ข้อมูลจำลอง)`;
   if (!calcInitialised) { calcInitialised = true; resetCalculator(); }
   refreshIcons();
 }
