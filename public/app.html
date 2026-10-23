@@ -1,0 +1,588 @@
+<!doctype html>
+<html lang="th" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PHITLOK NEXUS v2.2 — แพลตฟอร์มพิกัดจริง 3 มิติ &amp; เศรษฐกิจท่องเที่ยวพิษณุโลก 6 ภาษา</title>
+  <meta name="description" content="PHITLOK NEXUS v2.2 เชื่อม 5 โบราณสถาน 5 ร้านอาหารดัง และ 3 โรงแรมชั้นนำในพิษณุโลก ด้วยพิกัด GPS จริง เสียงบรรยาย 6 ภาษา และระบบสั่งอาหาร/จองที่พักพร้อมเพย์">
+  <meta name="theme-color" content="#FAF8F5">
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="/assets/fonts/anuphan-thai.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/noto-sans-thai-looped-thai.woff2" as="font" type="font/woff2" crossorigin>
+  <script>
+    try {
+      var t = localStorage.getItem('phitlok_theme');
+      if (t === 'dark' || t === 'light') {
+        document.documentElement.dataset.theme = t;
+        document.documentElement.style.colorScheme = t;
+      }
+    } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script type="module" src="/js/site.js"></script>
+  <script type="module" src="/app.js"></script>
+</head>
+<body class="page-app">
+  <a class="skip-link" href="#main">ข้ามไปยังเนื้อหาหลัก</a>
+
+  <header class="topbar">
+    <div class="topbar__inner">
+      <a class="brand" href="/" aria-label="PHITLOK NEXUS — หน้าแรก">
+        <svg class="brand__mark" viewBox="0 0 40 40" aria-hidden="true">
+          <rect width="40" height="40" rx="10" fill="#0F3D3E"/>
+          <path d="M20 6 L25 16 H15 Z M13 18 H27 V21 H13 Z M11 23 H29 V26 H11 Z M9 28 H31 V33 H9 Z" fill="#B8860B"/>
+        </svg>
+        <span class="brand__text">PHITLOK <b>NEXUS</b> <small class="version-tag">v2.2</small></span>
+      </a>
+      <nav class="sitenav" aria-label="หน้าหลักของเว็บไซต์">
+        <a href="/"><span class="sitenav__no">01</span>หน้าแรก</a>
+        <a href="/app" aria-current="page"><span class="sitenav__no">02</span>แอปพลิเคชัน</a>
+        <a href="/credits"><span class="sitenav__no">03</span>เครดิต</a>
+      </nav>
+      <div class="topbar__actions">
+        <button class="btn btn--outline btn--sm theme-toggle" type="button" id="theme-toggle" data-theme-toggle aria-pressed="false" aria-label="สลับโหมดหน้าจอสว่างและมืด">
+          <span class="theme-toggle__label">☀️ สว่าง / 🌙 มืด</span>
+        </button>
+        <div class="topbar__role-actions" id="tourist-top-actions">
+          <button class="btn btn--outline btn--sm" type="button" id="open-wallet" aria-haspopup="dialog">
+            <i data-lucide="ticket"></i> คูปอง <span class="pill" id="wallet-count">0</span>
+          </button>
+          <button class="btn btn--primary btn--sm" type="button" id="open-cart" aria-haspopup="dialog">
+            <i data-lucide="shopping-bag"></i> ตะกร้า <span class="pill pill--gold" id="cart-count">0</span>
+          </button>
+        </div>
+        <button class="btn btn--icon btn--ghost menu-toggle" type="button" id="menu-toggle" aria-expanded="false" aria-controls="mobile-nav" aria-label="เปิดเมนูหน้าเว็บ">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+      </div>
+    </div>
+    <nav class="mobile-nav" id="mobile-nav" aria-label="เมนูหน้าเว็บ" hidden>
+      <a href="/"><span class="sitenav__no">01</span><b>หน้าแรก</b><small>รู้จัก PHITLOK NEXUS v2.2</small></a>
+      <a href="/app" aria-current="page"><span class="sitenav__no">02</span><b>แอปพลิเคชัน</b><small>แยก 3 บทบาท: นักท่องเที่ยว · เจ้าของร้าน · ผู้บริหาร</small></a>
+      <a href="/credits"><span class="sitenav__no">03</span><b>เครดิต</b><small>ทีม แหล่งอ้างอิงกรมศิลปากร และเทคโนโลยี</small></a>
+    </nav>
+
+    <!-- Role Switcher Bar & Role-Specific Navigation -->
+    <div class="role-bar">
+      <div class="container role-bar__inner">
+        <div class="role-bar__switcher" role="group" aria-label="สลับโหมดผู้ใช้งาน 3 ฝั่ง">
+          <span class="role-bar__title"><i data-lucide="layers"></i> โหมดผู้ใช้งาน:</span>
+          <button class="role-btn" type="button" data-role="tourist" aria-pressed="true">
+            <i data-lucide="compass"></i>
+            <span>1. ฝั่งนักท่องเที่ยว <small>(Tourist View)</small></span>
+          </button>
+          <button class="role-btn" type="button" data-role="merchant" aria-pressed="false">
+            <i data-lucide="store"></i>
+            <span>2. ฝั่งเจ้าของร้าน &amp; โรงแรม <small>(Merchant Portal)</small></span>
+          </button>
+          <button class="role-btn" type="button" data-role="admin" aria-pressed="false">
+            <i data-lucide="bar-chart-3"></i>
+            <span>3. ฝั่งผู้บริหารแพลตฟอร์ม <small>(Executive Admin)</small></span>
+          </button>
+        </div>
+
+        <!-- Role 1 Navigation: Tourist -->
+        <nav class="role-subnav" data-role-nav="tourist" aria-label="เมนูนำทางฝั่งนักท่องเที่ยว">
+          <a href="#map"><i data-lucide="map"></i> แผนที่ 3D พิกัดจริง (13 หมุด)</a>
+          <a href="#directory"><i data-lucide="grid"></i> 5 โบราณสถาน · 5 ร้านดัง · 3 โรงแรม</a>
+          <a href="#lens"><i data-lucide="headphones"></i> AI Audio Guide &amp; สั่งอาหาร 6 ภาษา</a>
+          <a href="#vip"><i data-lucide="crown"></i> VIP Pass 99฿</a>
+        </nav>
+
+        <!-- Role 2 Navigation: Merchant -->
+        <nav class="role-subnav" data-role-nav="merchant" aria-label="เมนูนำทางฝั่งเจ้าของร้านและโรงแรม" hidden>
+          <button type="button" class="subnav-btn" data-jump-m-tab="kitchen"><i data-lucide="utensils-crossed"></i> 1. หน้าจอรับออเดอร์หน้าร้าน</button>
+          <button type="button" class="subnav-btn" data-jump-m-tab="gps"><i data-lucide="map-pin"></i> 2. ตรวจสอบหมุด GPS &amp; สถานะร้าน</button>
+          <button type="button" class="subnav-btn" data-jump-m-tab="menu"><i data-lucide="sparkles"></i> 3. จัดการเมนู &amp; สแกนแปล 6 ภาษา</button>
+        </nav>
+
+        <!-- Role 3 Navigation: Executive Admin -->
+        <nav class="role-subnav" data-role-nav="admin" aria-label="เมนูนำทางฝั่งผู้บริหารแพลตฟอร์ม" hidden>
+          <a href="#admin-revenue"><i data-lucide="TrendingUp"></i> รายได้ 4 ช่องทาง</a>
+          <a href="#admin-monitor"><i data-lucide="radar"></i> ตรวจสอบ 13 หมุด &amp; พาร์ทเนอร์</a>
+          <a href="#calculator"><i data-lucide="calculator"></i> คำนวณจุดคุ้มทุน (Unit Economics)</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- =====================================================================
+         ROLE 1: TOURIST VIEW (ฝั่งนักท่องเที่ยว — สวยงาม ใช้งานง่าย สั่งซื้อไว)
+         ===================================================================== -->
+    <div class="view" id="view-tourist" data-view="tourist">
+      <!-- 1.1: 3D Real-Coordinate Map -->
+      <section class="section" id="map" aria-labelledby="map-title">
+        <div class="container">
+          <div class="section__head section__head--row">
+            <div>
+              <p class="eyebrow"><i data-lucide="globe-2"></i> 3D Real-Coordinate Geospatial Map · จุดศูนย์กลางสะพานนเรศวร (16.8228, 100.2612)</p>
+              <h1 id="map-title">แผนที่ท่องเที่ยว 3 มิติ อ้างอิงพิกัด GPS จริงจังหวัดพิษณุโลก</h1>
+              <p class="section__lead">แปลงค่าพิกัดดาวเทียม <code>(Lat, Lng)</code> จริงของทั้ง 13 สถานที่ริมแม่น้ำน่านเป็นระนาบ 3 มิติ พร้อมลิงก์ตรวจสอบสถานที่จริงบน Google Maps / Google Earth 3D</p>
+            </div>
+            <!-- Category Filter Buttons -->
+            <div class="map-filters" role="group" aria-label="สลับหมวดหมุดบนแผนที่ 3 มิติ">
+              <button class="btn btn--filter" type="button" data-map-filter="all" aria-pressed="true">
+                <i data-lucide="layers"></i> [ทั้งหมด 13 หมุด]
+              </button>
+              <button class="btn btn--filter btn--filter-gold" type="button" data-map-filter="heritage" aria-pressed="false">
+                <i data-lucide="landmark"></i> [5 โบราณสถาน]
+              </button>
+              <button class="btn btn--filter btn--filter-emerald" type="button" data-map-filter="restaurant" aria-pressed="false">
+                <i data-lucide="utensils"></i> [5 ร้านอาหารดัง]
+              </button>
+              <button class="btn btn--filter btn--filter-blue" type="button" data-map-filter="hotel" aria-pressed="false">
+                <i data-lucide="building-2"></i> [3 โรงแรมที่พัก]
+              </button>
+            </div>
+          </div>
+
+          <div class="map-layout">
+            <div class="map-stage" id="map-stage">
+              <canvas id="map-canvas" aria-label="แผนที่ 3 มิติ อ้างอิงพิกัด GPS จริงของจังหวัดพิษณุโลก" role="img"></canvas>
+              <div class="map-labels" id="map-labels"></div>
+              <div class="map-status" id="map-status" role="status">กำลังโหลดแผนที่ 3 มิติพิกัดจริง…</div>
+              <ul class="map-legend" aria-label="คำอธิบายสัญลักษณ์โมเดล 3 มิติ">
+                <li><span class="sw sw--gold" aria-hidden="true"></span>5 โบราณสถาน (#B8860B ทองโบราณ)</li>
+                <li><span class="sw sw--emerald" aria-hidden="true"></span>5 ร้านอาหารดัง (#0F3D3E เขียวมรกต)</li>
+                <li><span class="sw sw--blue" aria-hidden="true"></span>3 โรงแรมที่พัก (#1E3A8A น้ำเงินคราม)</li>
+                <li><span class="sw sw--trail" aria-hidden="true"></span>Golden Revenue Trail (เส้นทางกระจายรายได้)</li>
+              </ul>
+            </div>
+            <aside class="map-card card" id="map-card" aria-live="polite" tabindex="-1">
+              <p class="muted">คลิกหมุดบนแผนที่ 3 มิติเพื่อดูรูปภาพจริง พิกัด GPS และลิงก์ Google Maps</p>
+            </aside>
+          </div>
+
+          <div class="map-shortcuts" role="group" aria-label="ปุ่มลัดซูมไปยังพิกัดจริง">
+            <button class="btn btn--outline btn--sm" type="button" data-focus="landmark:wat-yai"><i data-lucide="landmark"></i> วัดใหญ่ (16.8239, 100.2624)</button>
+            <button class="btn btn--outline btn--sm" type="button" data-focus="landmark:chan-palace"><i data-lucide="landmark"></i> พระราชวังจันทน์ (16.8286, 100.2581)</button>
+            <button class="btn btn--outline btn--sm" type="button" data-focus="landmark:wat-nang-phaya"><i data-lucide="landmark"></i> วัดนางพญา (16.8221, 100.2631)</button>
+            <button class="btn btn--outline btn--sm" type="button" data-focus="landmark:wat-ratchaburana"><i data-lucide="landmark"></i> วัดราชบูรณะ (16.8208, 100.2635)</button>
+            <button class="btn btn--outline btn--sm" type="button" data-focus="landmark:city-pillar"><i data-lucide="landmark"></i> ศาลหลักเมือง (16.8262, 100.2595)</button>
+            <button class="btn btn--outline btn--sm" type="button" data-focus="merchant:hoi-kha-noodles"><i data-lucide="utensils"></i> ก๋วยเตี๋ยวห้อยขาริมน่าน</button>
+            <button class="btn btn--outline btn--sm" type="button" data-focus="merchant:yodia-heritage"><i data-lucide="building-2"></i> โรงแรมโยเดีย เฮอริเทจ</button>
+            <button class="btn btn--ghost btn--sm" type="button" data-focus="overview"><i data-lucide="maximize-2"></i> มุมมองภาพรวมสะพานนเรศวร</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 1.2: Complete Real-World Directory (5 Heritage + 5 Restaurants + 3 Hotels) -->
+      <section class="section section--alt" id="directory" aria-labelledby="dir-title">
+        <div class="container">
+          <div class="section__head">
+            <p class="eyebrow"><i data-lucide="check-circle-2"></i> ฐานข้อมูลจริง 100% · รูปภาพจริง · พิกัดจริง · อ้างอิงกรมศิลปากร</p>
+            <h2 id="dir-title">ครบทั้ง 5 โบราณสถาน + 5 ร้านอาหารดัง + 3 โรงแรมที่พักชั้นนำ</h2>
+            <p class="section__lead">กดเลือกสถานที่เพื่อฟังเสียงบรรยายประวัติศาสตร์ 6 ภาษา สั่งอาหารล่วงหน้า หรือจองห้องพักโรงแรมได้ทันที</p>
+          </div>
+          <div class="directory-grid" id="directory-grid"></div>
+        </div>
+      </section>
+
+      <!-- 1.3 & 1.4: 6-Language AI Audio Guide + Digital Ordering & Hotel Booking -->
+      <section class="section" id="lens" aria-labelledby="lens-title">
+        <div class="container">
+          <div class="section__head">
+            <p class="eyebrow"><i data-lucide="sparkles"></i> AI Universal Smart Lens &amp; 6-Language Audio Guide (TH · EN · CN · JP · KR · FR)</p>
+            <h2 id="lens-title">ระบบเสียงบรรยายประวัติศาสตร์ 6 ภาษา &amp; สั่งอาหาร/จองโรงแรมดิจิทัล</h2>
+            <p class="section__lead">อ้างอิงข้อมูลจริงจากกรมศิลปากรและทะเบียนโบราณสถาน พร้อมระบบกรองภูมิแพ้อาหารและชำระเงินผ่าน QR PromptPay <span class="ai-badge" id="ai-badge">กำลังตรวจสอบ AI…</span></p>
+          </div>
+
+          <div class="tabs" role="tablist" aria-label="โหมดการใช้งาน">
+            <button class="tab" role="tab" type="button" id="tab-heritage" aria-controls="panel-heritage" aria-selected="true">
+              <i data-lucide="headphones"></i> โหมด A · เสียงบรรยาย 5 โบราณสถาน (6 ภาษา)
+            </button>
+            <button class="tab" role="tab" type="button" id="tab-menu" aria-controls="panel-menu" aria-selected="false" tabindex="-1">
+              <i data-lucide="utensils"></i> โหมด B · สั่งอาหาร 5 ร้านดัง &amp; จอง 3 โรงแรม (6 ภาษา)
+            </button>
+          </div>
+
+          <div class="tabpanel" role="tabpanel" id="panel-heritage" aria-labelledby="tab-heritage">
+            <div class="lens-grid">
+              <div class="card lens-input">
+                <h3>เลือกโบราณสถานพิษณุโลก (5 แห่งจริง)</h3>
+                <div class="preset-list">
+                  <button class="btn btn--preset" type="button" data-heritage-preset="wat-yai">
+                    <span class="preset-no">1</span><span>วัดพระศรีรัตนมหาธาตุวรมหาวิหาร (วัดใหญ่) · พ.ศ. 1900</span>
+                  </button>
+                  <button class="btn btn--preset" type="button" data-heritage-preset="chan-palace">
+                    <span class="preset-no">2</span><span>โบราณสถานพระราชวังจันทน์ (สมเด็จพระนเรศวรฯ)</span>
+                  </button>
+                  <button class="btn btn--preset" type="button" data-heritage-preset="wat-nang-phaya">
+                    <span class="preset-no">3</span><span>วัดนางพญา (ต้นกำเนิดพระนางพญา เบญจภาคี)</span>
+                  </button>
+                  <button class="btn btn--preset" type="button" data-heritage-preset="wat-ratchaburana">
+                    <span class="preset-no">4</span><span>วัดราชบูรณะ (เจดีย์หลวง 700 ปี &amp; จิตรกรรมฝาผนัง)</span>
+                  </button>
+                  <button class="btn btn--preset" type="button" data-heritage-preset="city-pillar">
+                    <span class="preset-no">5</span><span>ศาลหลักเมืองพิษณุโลก (เสาหลักเมืองไม้มงคล)</span>
+                  </button>
+                </div>
+                <div class="divider"><span>หรือถ่ายภาพป้ายประวัติศาสตร์จริง</span></div>
+                <label class="upload" for="heritage-file">
+                  <input type="file" id="heritage-file" accept="image/jpeg,image/png,image/webp">
+                  <span class="upload__btn"><i data-lucide="camera"></i> อัปโหลด/ถ่ายภาพป้ายโบราณสถาน</span>
+                  <span class="upload__hint">รองรับ .jpg .png .webp ไม่เกิน 5MB</span>
+                </label>
+                <figure class="scan-preview" id="heritage-preview" hidden>
+                  <div class="scan-frame"><img alt="" id="heritage-preview-img"><span class="scan-line" aria-hidden="true"></span></div>
+                  <figcaption id="heritage-preview-cap"></figcaption>
+                </figure>
+                <ol class="pipeline" id="heritage-pipeline" hidden>
+                  <li data-step="ocr">OCR อ่านตัวอักษรจากป้าย</li>
+                  <li data-step="rag">ดึงข้อมูลอ้างอิงกรมศิลปากร (RAG)</li>
+                  <li data-step="i18n">เตรียมเนื้อหาและเสียงบรรยาย 6 ภาษา</li>
+                </ol>
+              </div>
+              <div class="card lens-output" id="heritage-result" aria-live="polite">
+                <div class="empty">
+                  <p class="empty__title">กดเลือกโบราณสถานด้านซ้ายเพื่อฟังเสียงบรรยาย 6 ภาษา</p>
+                  <p class="muted">รองรับภาษาไทย (TH), อังกฤษ (EN), จีน (CN), ญี่ปุ่น (JP), เกาหลี (KR) และฝรั่งเศส (FR) พร้อมอ้างอิงกรมศิลปากรและรับคูปองส่วนลด 15%</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tabpanel" role="tabpanel" id="panel-menu" aria-labelledby="tab-menu" hidden>
+            <div class="lens-grid">
+              <div class="card lens-input">
+                <h3>เลือกร้านอาหารหรือโรงแรมที่พัก</h3>
+                <div class="preset-list">
+                  <button class="btn btn--preset" type="button" id="menu-preset">
+                    <span class="preset-no">1</span><span>ทดลองส่องเมนู ร้านก๋วยเตี๋ยวห้อยขาริมน่าน (6 ภาษา)</span>
+                  </button>
+                </div>
+                <div class="divider"><span>หรือเลือกร้านอาหาร / โรงแรมจากรายการ</span></div>
+                <div class="field">
+                  <label for="menu-merchant">เลือกร้านอาหารดัง หรือ โรงแรมที่พัก</label>
+                  <select id="menu-merchant"></select>
+                </div>
+                <label class="upload" for="menu-file">
+                  <input type="file" id="menu-file" accept="image/jpeg,image/png,image/webp">
+                  <span class="upload__btn"><i data-lucide="file-scan"></i> สแกนรูปเมนูกระดาษเพื่อแปล 6 ภาษา</span>
+                  <span class="upload__hint">รองรับ .jpg .png .webp ไม่เกิน 5MB</span>
+                </label>
+                <figure class="scan-preview" id="menu-preview" hidden>
+                  <div class="scan-frame scan-frame--tall"><img alt="" id="menu-preview-img"><span class="scan-line" aria-hidden="true"></span></div>
+                  <figcaption id="menu-preview-cap"></figcaption>
+                </figure>
+                <ol class="pipeline" id="menu-pipeline" hidden>
+                  <li data-step="ocr">OCR อ่านรายการและราคา</li>
+                  <li data-step="rag">ตรวจสอบสารก่อภูมิแพ้ (Allergen Check)</li>
+                  <li data-step="i18n">สร้าง Digital Menu 6 ภาษา</li>
+                </ol>
+              </div>
+              <div class="card lens-output" id="menu-result" aria-live="polite">
+                <div class="empty">
+                  <p class="empty__title">เมนูดิจิทัล 6 ภาษา &amp; ระบบจองห้องพักจะแสดงที่นี่</p>
+                  <p class="muted">กรองอาหารตามภูมิแพ้ (ไร้ถั่วลิสง · ไม่เผ็ด · ฮาลาล/มังสวิรัติ) ชำระผ่าน QR PromptPay และส่งใบสั่งภาษาไทยตัวใหญ่ให้ร้านค้าทันที</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIP Pass & SaaS Onboarding -->
+      <section class="section section--alt" id="vip" aria-labelledby="vip-title">
+        <div class="container vip-grid">
+          <div>
+            <p class="eyebrow"><i data-lucide="crown"></i> ช่องทางทำเงินที่ 3 · บัตรนักท่องเที่ยว Phitsanulok VIP Pass (99฿)</p>
+            <h2 id="vip-title">Phitsanulok VIP Heritage Pass</h2>
+            <p class="section__lead">บัตรนักท่องเที่ยวราคาประหยัดเพียง <b>99 บาท/ทริป</b> ปลดล็อกเสียงบรรยายประวัติศาสตร์ 6 ภาษาฉบับเต็มครบทั้ง 5 โบราณสถาน พร้อมชุดคูปองส่วนลดร้านอาหารและโรงแรมรวมมูลค่า <b id="vip-voucher-total">500</b> บาท</p>
+            <ul class="checklist">
+              <li>ฟังเสียงบรรยายฉบับเต็ม 6 ภาษา (TH, EN, CN, JP, KR, FR) ครบทุกจุด</li>
+              <li>รับคูปองส่วนลดทันทีสำหรับร้านก๋วยเตี๋ยวห้อยขาริมน่าน, จุกไก่ไทย, ของฝากบางกระทุ่ม และโรงแรมโยเดีย เฮอริเทจ</li>
+              <li>ชำระเงินปลอดภัยผ่านมาตรฐาน Thai QR PromptPay</li>
+            </ul>
+          </div>
+          <div class="card vip-card" id="vip-card">
+            <p class="vip-card__label">PHITSANULOK VIP PASS</p>
+            <p class="vip-card__price"><span id="vip-price">99</span><small>฿ / ทริป (7 วัน)</small></p>
+            <div id="vip-action"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="for-merchants" aria-labelledby="saas-title">
+        <div class="container saas-grid">
+          <div>
+            <p class="eyebrow"><i data-lucide="building"></i> ช่องทางทำเงินที่ 1 &amp; 2 · SaaS ร้านอาหาร (199฿) และ SaaS โรงแรม (499฿)</p>
+            <h2 id="saas-title">ลงทะเบียนพาร์ทเนอร์ร้านอาหาร &amp; โรงแรมขึ้นแผนที่ 3D</h2>
+            <p class="section__lead">แพ็กเกจ <b>SaaS ร้านอาหาร 199฿/เดือน</b> (ค่าธรรมเนียมออเดอร์ 3%) และ <b>SaaS โรงแรมที่พัก 499฿/เดือน</b> (ค่าธรรมเนียมจองห้องพัก 5%) พร้อมระบบแปล 6 ภาษาอัตโนมัติ</p>
+            <div class="card note">
+              <h3>ทำไมร้านค้าและโรงแรมในพิษณุโลกจึงคุ้มค่าตั้งแต่วันแรก?</h3>
+              <p>เพียงรับออเดอร์นักท่องเที่ยวต่างชาติ 2–3 โต๊ะต่อเดือน หรือรับจองห้องพักเพียง 1 คืน ก็คุ้มค่าสมาชิกรายเดือนทันที เงินค่าอาหารและค่าห้องพักโอนเข้าบัญชีพร้อมเพย์ของร้านโดยตรง</p>
+            </div>
+          </div>
+          <form class="card form" id="saas-form" novalidate>
+            <h3>สมัครสมาชิกพาร์ทเนอร์ SaaS</h3>
+            <div class="field">
+              <label for="f-shop">ชื่อร้านอาหาร / โรงแรมที่พัก <span class="req" aria-hidden="true">*</span></label>
+              <input id="f-shop" name="shopName" required maxlength="80" autocomplete="organization" placeholder="เช่น บ้านก๋วยเตี๋ยวริมน่าน หรือ โรงแรมพิษณุโลกบูติค">
+              <p class="field__error" id="err-shopName"></p>
+            </div>
+            <div class="field">
+              <label for="f-owner">ชื่อผู้ติดต่อ / ผู้จัดการ <span class="req" aria-hidden="true">*</span></label>
+              <input id="f-owner" name="ownerName" required maxlength="80" autocomplete="name">
+              <p class="field__error" id="err-ownerName"></p>
+            </div>
+            <div class="field">
+              <label for="f-phone">เบอร์โทรศัพท์ (ผูกพร้อมเพย์รับเงินลูกค้า) <span class="req" aria-hidden="true">*</span></label>
+              <input id="f-phone" name="phone" required inputmode="tel" maxlength="12" autocomplete="tel" placeholder="08xxxxxxxx">
+              <p class="field__error" id="err-phone"></p>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="f-category">ประเภทธุรกิจ &amp; แพ็กเกจ SaaS</label>
+                <select id="f-category" name="category">
+                  <option value="food">ร้านอาหาร (SaaS 199฿/เดือน)</option>
+                  <option value="souvenir">ของฝาก / OTOP (SaaS 199฿/เดือน)</option>
+                  <option value="cafe">คาเฟ่ / เครื่องดื่ม (SaaS 199฿/เดือน)</option>
+                  <option value="stay">โรงแรมที่พัก (Hotel SaaS 499฿/เดือน)</option>
+                </select>
+                <p class="field__error" id="err-category"></p>
+              </div>
+              <div class="field">
+                <label for="f-nearest">ใกล้โบราณสถาน</label>
+                <select id="f-nearest" name="nearest">
+                  <option value="wat-yai">วัดพระศรีรัตนมหาธาตุ (วัดใหญ่)</option>
+                  <option value="chan-palace">พระราชวังจันทน์</option>
+                  <option value="wat-nang-phaya">วัดนางพญา</option>
+                  <option value="wat-ratchaburana">วัดราชบูรณะ</option>
+                  <option value="city-pillar">ศาลหลักเมืองพิษณุโลก</option>
+                </select>
+                <p class="field__error" id="err-nearest"></p>
+              </div>
+            </div>
+            <div class="pdpa" role="note" aria-labelledby="pdpa-title">
+              <p class="pdpa__title" id="pdpa-title">ประกาศคุ้มครองข้อมูลส่วนบุคคล (PDPA)</p>
+              <p>ระบบจัดเก็บเฉพาะชื่อสถานประกอบการ ชื่อผู้ติดต่อ และเบอร์โทรศัพท์เพื่อปักหมุดพิกัดบนแผนที่ 3D และสร้าง QR พร้อมเพย์รับชำระเงิน เบอร์โทรไม่ถูกเปิดเผยต่อสาธารณะ</p>
+              <label class="check">
+                <input type="checkbox" id="f-pdpa" name="pdpaConsent" required>
+                <span>ข้าพเจ้ายอมรับนโยบายคุ้มครองข้อมูลส่วนบุคคล (PDPA) <span class="req" aria-hidden="true">*</span></span>
+              </label>
+              <p class="field__error" id="err-pdpaConsent"></p>
+              <label class="check">
+                <input type="checkbox" id="f-marketing" name="marketingConsent">
+                <span>ยินยอมเข้าร่วมแคมเปญคูปองนักท่องเที่ยว (ไม่บังคับ)</span>
+              </label>
+            </div>
+            <button class="btn btn--primary btn--block" type="submit">สมัครและชำระ <span id="saas-price-btn">199</span> บาท ด้วย QR PromptPay</button>
+          </form>
+        </div>
+      </section>
+    </div>
+
+    <!-- =====================================================================
+         ROLE 2: MERCHANT PORTAL (ฝั่งเจ้าของร้านและโรงแรม — ปุ่มใหญ่ >= 48px ใช้งานง่าย 3 แท็บ)
+         ===================================================================== -->
+    <div class="view" id="view-merchant" data-view="merchant" hidden>
+      <section class="section">
+        <div class="container">
+          <div class="section__head section__head--row">
+            <div>
+              <p class="eyebrow"><i data-lucide="store"></i> Merchant Portal · หน้าจอสำหรับแม่ค้าและผู้จัดการโรงแรม</p>
+              <h2 id="merchant-title">ระบบจัดการร้านค้าและโรงแรม</h2>
+            </div>
+            <div class="field field--inline">
+              <label for="merchant-select">เลือกร้านอาหาร / โรงแรมของฉัน:</label>
+              <select id="merchant-select"></select>
+            </div>
+          </div>
+
+          <div class="kpis" id="merchant-kpis"></div>
+
+          <!-- 3 Sub-Tabs for Merchant Portal (Large >= 48px buttons) -->
+          <div class="merchant-tabs" role="tablist" aria-label="เมนูจัดการร้านค้า 3 ส่วนหลัก">
+            <button class="btn btn--merchant-tab" role="tab" type="button" data-m-tab="kitchen" aria-selected="true">
+              <i data-lucide="utensils-crossed"></i>
+              <span>1. หน้าจอรับออเดอร์หน้าร้าน <small>(Live Kitchen &amp; Booking)</small></span>
+            </button>
+            <button class="btn btn--merchant-tab" role="tab" type="button" data-m-tab="gps" aria-selected="false">
+              <i data-lucide="map-pin"></i>
+              <span>2. ตรวจสอบหมุดแผนที่ &amp; สถานะร้าน <small>(My Shop GPS Checker)</small></span>
+            </button>
+            <button class="btn btn--merchant-tab" role="tab" type="button" data-m-tab="menu" aria-selected="false">
+              <i data-lucide="sparkles"></i>
+              <span>3. จัดการเมนู &amp; อัปโหลดรูปด้วย AI <small>(Smart Menu Manager)</small></span>
+            </button>
+          </div>
+
+          <!-- Sub-Tab 1: Live Kitchen & Booking Display -->
+          <div class="merchant-panel" data-m-panel="kitchen">
+            <div class="subhead">
+              <h3>รายการออเดอร์และการจองจากนักท่องเที่ยว <span class="live-dot" aria-hidden="true"></span></h3>
+              <p class="muted small" id="merchant-updated"></p>
+            </div>
+            <p class="muted">แสดงตัวหนังสือภาษาไทยขนาดใหญ่ชัดเจน พร้อมป้ายสีแดงเตือนอาการแพ้อาหาร และปุ่มกดเปลี่ยนสถานะ <code>[รับออเดอร์]</code> → <code>[กำลังทำ]</code> → <code>[เสร็จพร้อมเสิร์ฟ]</code></p>
+            <div class="orders" id="merchant-orders" aria-live="polite"></div>
+          </div>
+
+          <!-- Sub-Tab 2: My Shop GPS & Map Checker -->
+          <div class="merchant-panel" data-m-panel="gps" hidden>
+            <div id="merchant-gps-panel"></div>
+          </div>
+
+          <!-- Sub-Tab 3: Smart Menu Manager -->
+          <div class="merchant-panel" data-m-panel="menu" hidden>
+            <div class="merchant-grid">
+              <div class="card">
+                <h3><i data-lucide="list-checks"></i> รายการเมนู / ห้องพักของร้าน (กดเปิด-ปิดของหมดในคลิกเดียว)</h3>
+                <p class="muted small">เมื่อกดเปลี่ยนเป็น "ของหมด" หน้าเว็บฝั่งนักท่องเที่ยวทั้ง 6 ภาษาจะล็อกปุ่มสั่งซื้อรายการนั้นทันที</p>
+                <ul class="smart-menu-list" id="merchant-menu"></ul>
+              </div>
+              <div class="card">
+                <h3><i data-lucide="scan-text"></i> สแกนเมนูกระดาษเพื่อแปล 6 ภาษาอัตโนมัติด้วย AI</h3>
+                <p class="muted">ถ่ายรูปเมนูกระดาษภาษาไทย AI จะอ่านชื่ออาหาร ราคา วิเคราะห์สารก่อภูมิแพ้ และแปลเป็น 6 ภาษา (TH, EN, CN, JP, KR, FR) ให้ทันที</p>
+                <div class="actions">
+                  <button class="btn btn--merchant btn--gold btn--block" type="button" id="merchant-ai-preset">
+                    <i data-lucide="wand-2"></i> ทดลองสแกนเมนูกระดาษด้วย AI (แปล 6 ภาษาอัตโนมัติ)
+                  </button>
+                </div>
+                <div class="divider"><span>หรืออัปโหลดรูปถ่ายเมนูกระดาษจริง</span></div>
+                <label class="upload" for="merchant-menu-file">
+                  <input type="file" id="merchant-menu-file" accept="image/jpeg,image/png,image/webp">
+                  <span class="upload__btn"><i data-lucide="upload"></i> เลือกรูปเมนูกระดาษของร้าน (.jpg .png .webp)</span>
+                </label>
+                <div id="merchant-scan-result" class="mt" aria-live="polite"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- =====================================================================
+         ROLE 3: EXECUTIVE ADMIN CONSOLE (ฝั่งผู้บริหารแพลตฟอร์ม — เห็นทุกอย่างครบวงจร)
+         ===================================================================== -->
+    <div class="view" id="view-admin" data-view="admin" hidden>
+      <section class="section" id="admin-revenue">
+        <div class="container">
+          <div class="section__head section__head--row">
+            <div>
+              <p class="eyebrow"><i data-lucide="shield"></i> Executive Admin Console · แดชบอร์ดผู้บริหารและนักลงทุน</p>
+              <h2>Executive Revenue Dashboard (รายได้จริงแยกตาม 4 ช่องทางทำเงิน)</h2>
+            </div>
+            <p class="muted small" id="admin-updated" role="status"></p>
+          </div>
+
+          <!-- 5 KPI Cards (Total + 4 Revenue Streams) -->
+          <div class="kpis kpis--5" id="admin-kpis"></div>
+
+          <div class="admin-grid">
+            <div class="card chart-card">
+              <div class="chart-card__head">
+                <h3 id="chart-title">กราฟรายได้แพลตฟอร์มรายวัน (14 วันล่าสุด แยก 4 ช่องทาง)</h3>
+                <ul class="legend" id="chart-legend" aria-label="คำอธิบายกราฟ"></ul>
+              </div>
+              <div class="chart" id="revenue-chart" role="img" aria-labelledby="chart-title"></div>
+              <div class="chart-tooltip" id="chart-tooltip" hidden></div>
+              <details class="table-toggle">
+                <summary>ดูตารางตัวเลขรายวันครบทั้ง 4 ช่องทาง</summary>
+                <div class="table-wrap" id="revenue-table"></div>
+              </details>
+            </div>
+            <div class="card">
+              <h3>สัดส่วนรายได้สะสม 4 ช่องทางทำเงิน</h3>
+              <div id="revenue-split"></div>
+              <h3 class="mt">ธุรกรรมล่าสุดแบบเรียลไทม์</h3>
+              <ul class="tx-list" id="tx-list"></ul>
+            </div>
+          </div>
+
+          <!-- All-Province Map & Partner Monitor (13 Pins + Partner Status Table + All Orders) -->
+          <div class="card mt" id="admin-monitor">
+            <div class="section__head">
+              <p class="eyebrow"><i data-lucide="radar"></i> All-Province Map &amp; Partner Monitor</p>
+              <h3>ตรวจสอบหมุดพิกัดจริงทั้ง 13 จุดในจังหวัดพิษณุโลก &amp; สถานะพาร์ทเนอร์ทั้งหมด</h3>
+              <p class="muted">แสดงข้อมูลครบทั้ง 5 โบราณสถาน, 5 ร้านอาหารดัง และ 3 โรงแรมที่พัก พร้อมลิงก์ยืนยันพิกัดบน Google Maps และประวัติทุกออเดอร์ในระบบ</p>
+            </div>
+
+            <h4>1. ภาพรวมพิกัดจริงทั้ง 13 หมุดในจังหวัดพิษณุโลก (5 โบราณสถาน + 5 ร้านอาหาร + 3 โรงแรม)</h4>
+            <div class="pin-monitor-grid" id="admin-pins-overview"></div>
+
+            <h4 class="mt">2. ตารางตรวจสอบสถานะร้านอาหารและโรงแรมพาร์ทเนอร์ทั้งหมด</h4>
+            <div class="table-wrap" id="admin-partners-table"></div>
+
+            <h4 class="mt">3. ประวัติธุรกรรมทุกออเดอร์และการจองห้องพักที่เกิดขึ้นในระบบ</h4>
+            <div class="table-wrap" id="admin-orders-table"></div>
+          </div>
+
+          <!-- Interactive Unit Economics Calculator -->
+          <div class="card calc mt" id="calculator">
+            <div class="calc__head">
+              <div>
+                <p class="eyebrow"><i data-lucide="calculator"></i> Interactive Unit Economics &amp; Break-Even Calculator</p>
+                <h3>เครื่องคำนวณจุดคุ้มทุนและกำไรสุทธิรายเดือน (ปรับค่าได้จริงครบ 4 ช่องทางรายได้)</h3>
+              </div>
+              <button class="btn btn--outline" type="button" id="stress-toggle" aria-pressed="false">จำลองสถานการณ์: ต้นทุนเซิร์ฟเวอร์และ API เพิ่มขึ้น 2 เท่า</button>
+            </div>
+            <div class="calc__grid">
+              <div class="calc__inputs">
+                <div class="range">
+                  <label for="r-merchants">1. จำนวนร้านอาหาร SaaS (199฿/เดือน) <output id="o-merchants" for="r-merchants"></output></label>
+                  <input type="range" id="r-merchants" min="0" max="500" step="1">
+                </div>
+                <div class="range">
+                  <label for="r-hotels">2. จำนวนโรงแรมที่พัก SaaS (499฿/เดือน) <output id="o-hotels" for="r-hotels"></output></label>
+                  <input type="range" id="r-hotels" min="0" max="150" step="1">
+                </div>
+                <div class="range">
+                  <label for="r-tourists">3. นักท่องเที่ยวที่ใช้งาน/เดือน <output id="o-tourists" for="r-tourists"></output></label>
+                  <input type="range" id="r-tourists" min="0" max="30000" step="100">
+                </div>
+                <div class="range">
+                  <label for="r-vip">อัตราซื้อบัตร VIP Pass (99฿) <output id="o-vip" for="r-vip"></output></label>
+                  <input type="range" id="r-vip" min="0" max="60" step="1">
+                </div>
+                <div class="range">
+                  <label for="r-orders">4. ออเดอร์/การจองต่อนักท่องเที่ยว <output id="o-orders" for="r-orders"></output></label>
+                  <input type="range" id="r-orders" min="0" max="5" step="0.1">
+                </div>
+                <div class="range">
+                  <label for="r-aov">มูลค่าการใช้จ่ายเฉลี่ยต่อรายการ (บาท) <output id="o-aov" for="r-aov"></output></label>
+                  <input type="range" id="r-aov" min="50" max="1500" step="10">
+                </div>
+                <button class="btn btn--ghost btn--sm" type="button" id="calc-reset">รีเซ็ตเป็นค่ามาตรฐาน</button>
+              </div>
+              <div class="calc__outputs" id="calc-outputs" aria-live="polite"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__grid">
+      <div>
+        <p class="brand__text">PHITLOK <b>NEXUS</b> <small class="version-tag">v2.2</small></p>
+        <p>แพลตฟอร์มท่องเที่ยวเชิงประวัติศาสตร์ 3 มิติ อ้างอิงพิกัด GPS จริงและแหล่งข้อมูลกรมศิลปากร เชื่อม 5 โบราณสถาน 5 ร้านอาหารดัง และ 3 โรงแรมที่พักในจังหวัดพิษณุโลก</p>
+      </div>
+      <div class="footer__cols">
+        <div><h2>หน้าเว็บ</h2><a href="/">01 หน้าแรก</a><a href="/app">02 แอปพลิเคชัน</a><a href="/credits">03 เครดิต &amp; อ้างอิง</a></div>
+        <div><h2>3 บทบาทผู้ใช้งาน</h2><a href="/app#tourist">ฝั่งนักท่องเที่ยว</a><a href="/app#merchant">ฝั่งเจ้าของร้าน/โรงแรม</a><a href="/app#admin">ฝั่งผู้บริหารแพลตฟอร์ม</a></div>
+        <div><h2>ข้อมูลอ้างอิง</h2><a href="/credits#sources">แหล่งอ้างอิงกรมศิลปากร</a><a href="/credits#tech">เทคโนโลยีและลิขสิทธิ์</a><a href="/credits#disclaimer">ข้อจำกัดความรับผิดชอบ</a></div>
+      </div>
+    </div>
+    <div class="container footer__bottom">
+      <p>© 2569 PHITLOK NEXUS v2.2 · ผลงานส่งแข่งขันสาย Software for Business &amp; Tourism ("Make Me Money") · โหมดสาธิต: QR พร้อมเพย์ใช้สำหรับทดสอบระบบ</p>
+    </div>
+  </footer>
+
+  <!-- Dialogs -->
+  <dialog class="dialog" id="pay-dialog" aria-labelledby="pay-title">
+    <div class="dialog__body" id="pay-body"></div>
+  </dialog>
+  <dialog class="dialog dialog--drawer" id="cart-dialog" aria-labelledby="cart-title">
+    <div class="dialog__body" id="cart-body"></div>
+  </dialog>
+  <dialog class="dialog" id="wallet-dialog" aria-labelledby="wallet-title">
+    <div class="dialog__body" id="wallet-body"></div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>

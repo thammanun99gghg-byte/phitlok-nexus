@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" role="img" aria-labelledby="t">
+  <title id="t">ภาพจำลองป้ายประวัติพระพุทธชินราช วัดพระศรีรัตนมหาธาตุวรมหาวิหาร</title>
+  <defs>
+    <linearGradient id="wood" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5a3a22"/>
+      <stop offset="1" stop-color="#3f2716"/>
+    </linearGradient>
+    <linearGradient id="board" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#173f3a"/>
+      <stop offset="1" stop-color="#0f2f2c"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="520" fill="#d9cfbf"/>
+  <rect x="40" y="30" width="720" height="460" rx="14" fill="url(#wood)"/>
+  <rect x="62" y="52" width="676" height="416" rx="8" fill="url(#board)"/>
+  <rect x="78" y="68" width="644" height="384" rx="4" fill="none" stroke="#c9a24a" stroke-width="2"/>
+  <circle cx="400" cy="112" r="26" fill="none" stroke="#e2c36b" stroke-width="3"/>
+  <path d="M400 92 l10 22 h-20 z M386 120 h28 v6 h-28z" fill="#e2c36b"/>
+  <g font-family="'IBM Plex Sans Thai','Noto Sans Thai',Tahoma,sans-serif" fill="#f4ead2" text-anchor="middle">
+    <text x="400" y="176" font-size="30" font-weight="700">วัดพระศรีรัตนมหาธาตุวรมหาวิหาร</text>
+    <text x="400" y="222" font-size="38" font-weight="700" fill="#e9c66a">พระพุทธชินราช</text>
+    <text x="400" y="270" font-size="22">พระพุทธรูปสำริดปางมารวิชัย ศิลปะสุโขทัยตอนปลาย</text>
+    <text x="400" y="306" font-size="22">สร้างราว พ.ศ. ๑๙๐๐ ในรัชสมัยพระมหาธรรมราชาที่ ๑ (พญาลิไท)</text>
+    <text x="400" y="342" font-size="22">บานประตูประดับมุก สร้าง พ.ศ. ๒๒๙๙</text>
+    <text x="400" y="420" font-size="18" fill="#d8c28a">กรมศิลปากร</text>
+  </g>
+</svg>

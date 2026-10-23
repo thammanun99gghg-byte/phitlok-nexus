@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="th" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PHITLOK NEXUS v2.2 — แพลตฟอร์มพิกัดจริง 3 มิติ &amp; เศรษฐกิจท่องเที่ยวพิษณุโลก 6 ภาษา</title>
+  <meta name="description" content="PHITLOK NEXUS เชื่อม 5 โบราณสถานจริง 5 ร้านอาหารดัง และ 3 โรงแรมชั้นนำในพิษณุโลก อ่านป้ายและฟังเสียงบรรยาย 6 ภาษา สั่งอาหารและจองที่พักด้วยพร้อมเพย์">
+  <meta name="theme-color" content="#FAF8F5">
+  <meta property="og:title" content="PHITLOK NEXUS v2.2 — พิกัดจริง 3 มิติ × 6 ภาษา × รายได้ชุมชนพิษณุโลก">
+  <meta property="og:description" content="แผนที่ 3 มิติพิกัด GPS จริง, เสียงบรรยายกรมศิลปากร 6 ภาษา, สั่งอาหารและจองโรงแรมพร้อมใบสั่งเตือนภูมิแพ้ภาษาไทย">
+  <meta property="og:image" content="/assets/photos/wat-yai.jpg">
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="/assets/fonts/anuphan-thai.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/noto-sans-thai-looped-thai.woff2" as="font" type="font/woff2" crossorigin>
+  <script>
+    try {
+      var t = localStorage.getItem('phitlok_theme');
+      if (t === 'dark' || t === 'light') {
+        document.documentElement.dataset.theme = t;
+        document.documentElement.style.colorScheme = t;
+      }
+    } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script type="module" src="/js/site.js"></script>
+  <script type="module" src="/js/landing.js"></script>
+</head>
+<body class="page-home">
+  <a class="skip-link" href="#main">ข้ามไปยังเนื้อหาหลัก</a>
+  <header class="topbar">
+    <div class="topbar__inner">
+      <a class="brand" href="/" aria-label="PHITLOK NEXUS — หน้าแรก">
+        <svg class="brand__mark" viewBox="0 0 40 40" aria-hidden="true">
+          <rect width="40" height="40" rx="10" fill="#0F3D3E"/>
+          <path d="M20 6 L25 16 H15 Z M13 18 H27 V21 H13 Z M11 23 H29 V26 H11 Z M9 28 H31 V33 H9 Z" fill="#B8860B"/>
+        </svg>
+        <span class="brand__text">PHITLOK <b>NEXUS</b> <small class="version-tag">v2.2</small></span>
+      </a>
+      <nav class="sitenav" aria-label="หน้าหลักของเว็บไซต์">
+        <a href="/" aria-current="page"><span class="sitenav__no">01</span>หน้าแรก</a>
+        <a href="/app"><span class="sitenav__no">02</span>แอปพลิเคชัน</a>
+        <a href="/credits"><span class="sitenav__no">03</span>เครดิต</a>
+      </nav>
+      <div class="topbar__actions">
+        <button class="btn btn--outline btn--sm theme-toggle" type="button" id="theme-toggle" data-theme-toggle aria-pressed="false" aria-label="สลับโหมดหน้าจอสว่างและมืด">
+          <span class="theme-toggle__label">☀️ สว่าง / 🌙 มืด</span>
+        </button>
+        <a class="btn btn--primary btn--sm" href="/app">เปิดแอป v2.2 <i data-lucide="arrow-right"></i></a>
+        <button class="btn btn--icon btn--ghost menu-toggle" type="button" id="menu-toggle" aria-expanded="false" aria-controls="mobile-nav" aria-label="เปิดเมนูหน้าเว็บ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+      </div>
+    </div>
+    <nav class="mobile-nav" id="mobile-nav" aria-label="เมนูหน้าเว็บ" hidden>
+      <a href="/" aria-current="page"><span class="sitenav__no">01</span><b>หน้าแรก</b><small>รู้จัก PHITLOK NEXUS</small></a>
+      <a href="/app"><span class="sitenav__no">02</span><b>แอปพลิเคชัน</b><small>แผนที่ 3D พิกัดจริง · เสียง 6 ภาษา · 3 บทบาท</small></a>
+      <a href="/credits"><span class="sitenav__no">03</span><b>เครดิต</b><small>ทีม แหล่งอ้างอิงกรมศิลปากร และเทคโนโลยี</small></a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <!-- 1. Hero -->
+    <section class="w-hero" aria-labelledby="hero-title">
+      <div class="container">
+        <div class="w-hero__grid">
+          <div>
+            <p class="eyebrow"><i data-lucide="compass"></i> PHITLOK NEXUS · แพลตฟอร์มท่องเที่ยวพิกัดจริงริมแม่น้ำน่าน</p>
+            <h1 id="hero-title">เที่ยวมรดกพิษณุโลก<br>เข้าใจลึกซึ้งด้วย<br><span class="rotator" aria-hidden="true"><span class="rotator__word" id="rotator">ภาษาไทย (TH)</span></span><span class="sr-only">6 ภาษา: ไทย อังกฤษ จีน ญี่ปุ่น เกาหลี และฝรั่งเศส</span></h1>
+            <p class="lead">เชื่อม <b>5 โบราณสถานจริง</b> (อ้างอิงกรมศิลปากร) เข้ากับ <b>5 ร้านอาหารดัง</b> และ <b>3 โรงแรมที่พักชั้นนำ</b> บนแผนที่ 3 มิติพิกัด GPS จริง ฟังเสียงบรรยาย 6 ภาษา สั่งอาหารปลอดภัยไร้ภูมิแพ้ และจองที่พักด้วย QR PromptPay</p>
+            <div class="w-hero__cta">
+              <a class="btn btn--primary btn--lg" href="/app#tourist">เข้าโหมดนักท่องเที่ยว <i data-lucide="arrow-right"></i></a>
+              <a class="btn btn--outline btn--lg" href="#judges">คู่มือทดสอบสำหรับกรรมการ</a>
+            </div>
+            <ul class="w-hero__meta">
+              <li>พิกัด GPS จริงทั้ง 13 หมุด</li>
+              <li>รองรับ 6 ภาษา (TH/EN/CN/JP/KR/FR)</li>
+              <li>คัดกรองภูมิแพ้อาหารอัตโนมัติ</li>
+            </ul>
+          </div>
+          <div class="w-hero__visual">
+            <img src="/assets/photos/wat-yai.jpg"
+                 data-fallback="/assets/photos/wat-yai.jpg"
+                 width="1200" height="800"
+                 alt="พระวิหารพระพุทธชินราช วัดพระศรีรัตนมหาธาตุวรมหาวิหาร จังหวัดพิษณุโลก">
+            <a class="float-chip float-chip--a float-chip--link"
+               href="/credits#sources"
+               title="คลิกดูรายละเอียดแหล่งอ้างอิงทะเบียนโบราณสถาน กรมศิลปากร">
+              <i data-lucide="shield-check"></i> <b>Verified by Fine Arts Dept. ↗</b>
+            </a>
+            <a class="float-chip float-chip--b float-chip--link"
+               href="https://www.google.com/maps/@?api=1&amp;map_action=map&amp;center=16.8239,100.2624&amp;zoom=18&amp;basemap=satellite"
+               target="_blank" rel="noopener"
+               title="คลิกเปิดดูพิกัดดาวเทียมและ Street View จริงบน Google Maps">
+              <i data-lucide="map-pin"></i> <b>GPS: 16.8239, 100.2624 ↗</b>
+            </a>
+          </div>
+        </div>
+        <nav class="modes" aria-label="ทางลัดไปยังโหมดต่าง ๆ ในแอป">
+          <ul class="modes__list">
+            <li><a href="/app#tourist"><i data-lucide="compass"></i> ฝั่งนักท่องเที่ยว</a></li>
+            <li><a href="/app#merchant"><i data-lucide="store"></i> ฝั่งเจ้าของร้าน &amp; โรงแรม</a></li>
+            <li><a href="/app#admin"><i data-lucide="bar-chart-3"></i> ฝั่งผู้บริหารแพลตฟอร์ม</a></li>
+            <li><a href="/app#map"><i data-lucide="globe"></i> แผนที่ 3D พิกัดจริง (13 หมุด)</a></li>
+            <li><a href="/app#lens"><i data-lucide="volume-2"></i> เสียงบรรยาย 6 ภาษา</a></li>
+            <li><a href="/app#lens-menu"><i data-lucide="utensils"></i> สั่งอาหาร &amp; จองโรงแรม</a></li>
+          </ul>
+        </nav>
+      </div>
+    </section>
+
+    <!-- 2. Live numbers (Pre-populated with real seed values — never shows '–') -->
+    <section class="stats-strip" aria-label="ตัวเลขจากระบบแบบเรียลไทม์">
+      <dl class="container stats-strip__inner">
+        <div class="stat"><dt>พาร์ทเนอร์ร้านดัง &amp; โรงแรม</dt><dd id="hero-merchants">13 แห่ง</dd></div>
+        <div class="stat"><dt>บัตร VIP Pass ที่จำหน่ายแล้ว</dt><dd id="hero-vip">48 ใบ</dd></div>
+        <div class="stat"><dt>ออเดอร์อาหาร &amp; จองที่พักสะสม</dt><dd id="hero-orders">126 รายการ</dd></div>
+        <div class="stat"><dt>สแกนป้ายประวัติศาสตร์สะสม</dt><dd id="hero-scans">340 ครั้ง</dd></div>
+        <p class="stats-strip__note"><span class="live-dot" aria-hidden="true"></span> อัปเดตยอดการท่องเที่ยวและการสั่งซื้อในจังหวัดพิษณุโลกแบบเรียลไทม์</p>
+      </dl>
+    </section>
+
+    <!-- 3. 3 Role Cards (Clean 3-Second Microcopy) -->
+    <section class="section" id="about" aria-labelledby="about-title">
+      <div class="container">
+        <div class="section__head section__head--center">
+          <p class="eyebrow">ประสบการณ์เฉพาะตัวสำหรับ 3 กลุ่มผู้ใช้งาน</p>
+          <h2 id="about-title">เลือกโหมดการใช้งานที่ตรงกับคุณได้ทันที</h2>
+          <p class="section__lead">แยกหน้าจอและเครื่องมือให้เหมาะกับนักท่องเที่ยว เจ้าของกิจการในท้องถิ่น และผู้บริหารแพลตฟอร์ม</p>
+        </div>
+
+        <div class="audience" role="list">
+          <article class="card" role="listitem">
+            <span class="audience__ico"><i data-lucide="compass"></i></span>
+            <h3>1. ฝั่งนักท่องเที่ยว</h3>
+            <p class="audience__summary">สำรวจแผนที่ 3D พิกัดจริง · ฟังเสียงประวัติศาสตร์ 6 ภาษา · สั่งอาหารคัดกรองภูมิแพ้ &amp; จองที่พักทันที</p>
+            <a class="btn btn--primary" href="/app#tourist">เข้าโหมดนักท่องเที่ยว</a>
+          </article>
+          <article class="card" role="listitem">
+            <span class="audience__ico"><i data-lucide="store"></i></span>
+            <h3>2. ฝั่งเจ้าของร้าน &amp; โรงแรม</h3>
+            <p class="audience__summary">รับออเดอร์ตัวอักษรใหญ่พร้อมคำเตือนภูมิแพ้ · เช็กพิกัด GPS ร้านตัวเอง · ปิดเมนูของหมดในคลิกเดียว</p>
+            <a class="btn btn--outline" href="/app#merchant">เข้าโหมดร้านค้า</a>
+          </article>
+          <article class="card" role="listitem">
+            <span class="audience__ico"><i data-lucide="bar-chart-3"></i></span>
+            <h3>3. ฝั่งผู้บริหารแพลตฟอร์ม</h3>
+            <p class="audience__summary">ติดตามรายได้จริง 4 ช่องทาง · ตรวจสอบพาร์ทเนอร์ทั้ง 13 หมุด · คำนวณจุดคุ้มทุนอัตโนมัติ</p>
+            <a class="btn btn--outline" href="/app#admin">เข้าโหมดผู้บริหาร</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Business model (4 Revenue Streams) -->
+    <section class="section section--alt" id="business" aria-labelledby="business-title">
+      <div class="container">
+        <div class="section__head section__head--center">
+          <p class="eyebrow">Make Me Money · โมเดลธุรกิจ 4 ช่องทางทำเงิน</p>
+          <h2 id="business-title">4 ช่องทางรายได้จริง ที่ยั่งยืนและขยายผลได้ทั่วประเทศ</h2>
+          <p class="section__lead">ผสานรายได้ประจำรายเดือน (B2B SaaS) เข้ากับรายได้ตามปริมาณนักท่องเที่ยว (B2C &amp; Transaction Fee)</p>
+        </div>
+        <div class="revenue revenue--4">
+          <article class="card">
+            <h3>1. SaaS ร้านอาหาร</h3>
+            <p class="revenue__price">199฿ <small>/ ร้าน / เดือน</small></p>
+            <dl><dt>กลุ่มเป้าหมาย</dt><dd>ร้านอาหารและร้านของฝาก OTOP</dd><dt>สิทธิประโยชน์</dt><dd>ปักหมุด 3D, แปลเมนู 6 ภาษา, หน้าจอรับออเดอร์</dd></dl>
+          </article>
+          <article class="card">
+            <h3>2. SaaS โรงแรมที่พัก</h3>
+            <p class="revenue__price">499฿ <small>/ โรงแรม / เดือน</small></p>
+            <dl><dt>กลุ่มเป้าหมาย</dt><dd>บูติคโฮเทลและโรงแรมในพิษณุโลก</dd><dt>สิทธิประโยชน์</dt><dd>โมเดลอาคารโรงแรม 3D, ระบบจองห้องพัก 6 ภาษา</dd></dl>
+          </article>
+          <article class="card">
+            <h3>3. Phitsanulok VIP Pass</h3>
+            <p class="revenue__price">99฿ <small>/ ทริป (7 วัน)</small></p>
+            <dl><dt>กลุ่มเป้าหมาย</dt><dd>นักท่องเที่ยวชาวไทยและต่างชาติ</dd><dt>สิทธิประโยชน์</dt><dd>เสียงบรรยาย 6 ภาษาฉบับเต็ม + คูปองส่วนลด 500฿</dd></dl>
+          </article>
+          <article class="card">
+            <h3>4. ค่าธรรมเนียมธุรกรรม</h3>
+            <p class="revenue__price">3–5% <small>/ รายการ</small></p>
+            <dl><dt>อัตราเรียกเก็บ</dt><dd>สั่งอาหาร 3% · จองโรงแรม 5%</dd><dt>จุดเด่น</dt><dd>ชำระผ่านมาตรฐาน Thai QR PromptPay</dd></dl>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Judge route (Technical Details Moved Here Exclusively) -->
+    <section class="section" id="judges" aria-labelledby="judges-title">
+      <div class="container">
+        <div class="judge">
+          <div>
+            <p class="eyebrow">สำหรับคณะกรรมการตัดสิน</p>
+            <h2 id="judges-title">ทดสอบครบทุกฟีเจอร์ใน 3 นาที</h2>
+            <p class="muted">สถาปัตยกรรมระบบออกแบบด้วย Strict 3-Role View Separation, ปุ่มกดหน้าจอร้านค้าขนาดใหญ่ (&ge; 48px), พิกัดดาวเทียม Three.js Geospatial Mapping และบันทึกธุรกรรมลงฐานข้อมูล SQLite แบบเรียลไทม์</p>
+            <a class="btn btn--gold btn--lg" href="/app">เปิดแอปพลิเคชัน v2.2</a>
+          </div>
+          <ol class="judge-route">
+            <li><p><b>ฝั่งนักท่องเที่ยว:</b> กดสลับหมวดหมุด 3D <code>[5 โบราณสถาน]</code> <code>[5 ร้านอาหารดัง]</code> <code>[3 โรงแรมที่พัก]</code> และกดเปิดพิกัดจริงบน Google Maps</p><a class="btn btn--outline btn--sm" href="/app#map">แผนที่ 3D</a></li>
+            <li><p><b>เสียงบรรยาย 6 ภาษา:</b> เลือกโบราณสถาน กดสลับภาษา TH/EN/CN/JP/KR/FR แล้วกด <code>[▶ เล่นเสียงบรรยาย]</code></p><a class="btn btn--outline btn--sm" href="/app#lens">Audio Guide</a></li>
+            <li><p><b>สั่งอาหาร &amp; กรองภูมิแพ้:</b> เลือกเมนูร้านก๋วยเตี๋ยวห้อยขา กรอง "ไร้ถั่วลิสง" และชำระด้วย QR PromptPay</p><a class="btn btn--outline btn--sm" href="/app#lens-menu">สั่งอาหาร</a></li>
+            <li><p><b>ฝั่งเจ้าของร้าน:</b> ดูใบสั่งตัวหนังสือใหญ่ ป้ายแดงเตือนแพ้ถั่ว กด <code>[รับออเดอร์]</code> ตรวจสอบพิกัด GPS ร้าน และกดสลับปุ่ม "ของหมด"</p><a class="btn btn--outline btn--sm" href="/app#merchant">โหมดร้านค้า</a></li>
+            <li><p><b>ฝั่งผู้บริหาร:</b> ดูรายได้ 4 ช่องทาง ตารางพาร์ทเนอร์ทั้ง 13 หมุด และปรับเครื่องคำนวณจุดคุ้มทุน</p><a class="btn btn--outline btn--sm" href="/app#admin">โหมดผู้บริหาร</a></li>
+          </ol>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__grid">
+      <div>
+        <p class="brand__text">PHITLOK <b>NEXUS</b> <small class="version-tag">v2.2</small></p>
+        <p>แพลตฟอร์มท่องเที่ยวเชิงประวัติศาสตร์ 3 มิติ อ้างอิงพิกัด GPS จริงและแหล่งข้อมูลกรมศิลปากร จังหวัดพิษณุโลก</p>
+      </div>
+      <div class="footer__cols">
+        <div><h2>หน้าเว็บ</h2><a href="/">01 หน้าแรก</a><a href="/app">02 แอปพลิเคชัน</a><a href="/credits">03 เครดิต</a></div>
+        <div><h2>3 บทบาทผู้ใช้งาน</h2><a href="/app#tourist">ฝั่งนักท่องเที่ยว</a><a href="/app#merchant">ฝั่งเจ้าของร้าน/โรงแรม</a><a href="/app#admin">ฝั่งผู้บริหารแพลตฟอร์ม</a></div>
+        <div><h2>ข้อมูลอ้างอิง</h2><a href="/credits#sources">แหล่งข้อมูลกรมศิลปากร</a><a href="/credits#tech">เทคโนโลยีโอเพนซอร์ส</a><a href="/credits#disclaimer">ข้อจำกัดความรับผิดชอบ</a></div>
+      </div>
+    </div>
+    <div class="container footer__bottom">
+      <p>© 2569 PHITLOK NEXUS v2.2 · ผลงานแข่งขันสาย Software for Business &amp; Tourism ("Make Me Money")</p>
+    </div>
+  </footer>
+</body>
+</html>

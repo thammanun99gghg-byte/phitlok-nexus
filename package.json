@@ -1,0 +1,23 @@
+{
+  "name": "phitlok-nexus",
+  "version": "1.0.0",
+  "description": "PHITLOK NEXUS — 3D Heritage & AI Vision Commerce platform for Phitsanulok (Wat Yai, Chan Palace, Nan riverside merchants)",
+  "main": "server.js",
+  "private": true,
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning server.js",
+    "dev": "node --disable-warning=ExperimentalWarning --watch server.js",
+    "reset-db": "node --disable-warning=ExperimentalWarning scripts/reset-db.js",
+    "test": "node --disable-warning=ExperimentalWarning scripts/smoke-test.js"
+  },
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "helmet": "^8.0.0",
+    "multer": "^2.0.2",
+    "qrcode": "^1.5.4"
+  }
+}

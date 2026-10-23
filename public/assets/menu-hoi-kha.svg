@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 760" role="img" aria-labelledby="t">
+  <title id="t">ภาพจำลองเมนูกระดาษ ร้านก๋วยเตี๋ยวห้อยขาริมน่าน</title>
+  <rect width="600" height="760" fill="#cbbfa9"/>
+  <g transform="rotate(-1.5 300 380)">
+    <rect x="44" y="30" width="512" height="700" fill="#fbf6e9" stroke="#b9a988"/>
+    <path d="M44 120 H556" stroke="#c0392b" stroke-width="2"/>
+    <g font-family="'IBM Plex Sans Thai','Noto Sans Thai',Tahoma,sans-serif" fill="#1f1a14">
+      <text x="300" y="78" font-size="34" font-weight="700" text-anchor="middle" fill="#8c1d12">ก๋วยเตี๋ยวห้อยขา ริมน่าน</text>
+      <text x="300" y="106" font-size="16" text-anchor="middle" fill="#4a3f30">เปิด 9 โมง – 2 ทุ่ม · ใกล้วัดใหญ่</text>
+      <g font-size="23">
+        <text x="78" y="178">ก๋วยเตี๋ยวต้มยำสุโขทัยห้อยขา</text><text x="522" y="178" text-anchor="end">60.-</text>
+        <text x="78" y="238">ก๋วยเตี๋ยวน้ำใสหมูตุ๋น</text><text x="522" y="238" text-anchor="end">60.-</text>
+        <text x="78" y="298">ก๋วยเตี๋ยวเรือน้ำตกเนื้อ</text><text x="522" y="298" text-anchor="end">65.-</text>
+        <text x="78" y="358">ก๋วยเตี๋ยวไก่ตุ๋นยาจีน</text><text x="522" y="358" text-anchor="end">65.-</text>
+        <text x="78" y="418">ก๋วยเตี๋ยวเจผักรวมเต้าหู้</text><text x="522" y="418" text-anchor="end">55.-</text>
+        <text x="78" y="478">ผักบุ้งลอยฟ้า</text><text x="522" y="478" text-anchor="end">80.-</text>
+        <text x="78" y="538">น้ำกระเจี๊ยบเย็น</text><text x="522" y="538" text-anchor="end">25.-</text>
+      </g>
+      <path d="M78 194 H522 M78 254 H522 M78 314 H522 M78 374 H522 M78 434 H522 M78 494 H522 M78 554 H522" stroke="#ddd2bb" stroke-dasharray="4 6"/>
+      <text x="300" y="640" font-size="19" text-anchor="middle" fill="#4a3f30">พิเศษ +10 · ไม่ใส่ถั่ว / ไม่เผ็ด บอกแม่ค้าได้เลย</text>
+      <text x="300" y="690" font-size="17" text-anchor="middle" fill="#8c1d12">สแกนจ่ายพร้อมเพย์ได้</text>
+    </g>
+  </g>
+</svg>
