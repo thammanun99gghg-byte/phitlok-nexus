@@ -374,8 +374,16 @@ code { font-family: ui-monospace, 'Cascadia Code', Consolas, monospace; font-siz
 @media (min-width: 1024px) {
   .map-layout { grid-template-columns: minmax(0, 1fr) 410px; align-items: start; }
 }
+/* T5: mobile 70% of the screen; desktop fills the screen under the 64px bar (24px margin above and below), never under 560px */
+.map-layout { --map-h: 70vh; }
+@supports (height: 1dvh) { .map-layout { --map-h: 70dvh; } }
+@media (min-width: 1024px) {
+  .map-layout { --map-h: max(560px, calc(100vh - 64px - 48px)); }
+  @supports (height: 1dvh) { .map-layout { --map-h: max(560px, calc(100dvh - 64px - 48px)); } }
+  .map-layout > .map-card { max-height: var(--map-h); overflow-y: auto; overscroll-behavior: contain; }
+}
 .map-stage {
-  position: relative; height: 580px; min-height: 400px;
+  position: relative; height: var(--map-h);
   border-radius: var(--radius-lg); overflow: hidden; border: 1.5px solid var(--edge-strong);
   background: linear-gradient(180deg, #D9ECFF 0%, #EAF3E2 55%, #DCE5D2 100%);
   box-shadow: var(--e2);
