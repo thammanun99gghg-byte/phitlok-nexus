@@ -185,7 +185,7 @@ function renderHeritage() {
       </div>
     </div>
     <div class="heritage-body" lang="${lang}">
-      <p class="eyebrow" lang="th">ผลการสแกน · ความมั่นใจ ${Math.round(r.retrieval.confidence * 100)}% · อ้างอิง: ${esc(lm.fineArtsRef || 'กรมศิลปากร')}</p>
+      <p class="eyebrow" lang="th">ผลการสแกน · ความมั่นใจ ${Math.round(r.retrieval.confidence * 100)}% · อ้างอิง: ${esc(tr(lm.fineArtsRef) || 'กรมศิลปากร')}</p>
       <h3>${esc(tr(lm.name, lang))}</h3>
       <p>${esc(tr(lm.summary, lang))}</p>
       ${lm.highlights && tr(lm.highlights, lang) ? `<p class="highlight-box"><b>จุดเด่นสำคัญ:</b> ${esc(tr(lm.highlights, lang))}</p>` : ''}
@@ -208,14 +208,14 @@ function renderHeritage() {
           <span></span><span></span><span></span><span></span><span></span>
         </div>
       </div>
-      <p class="muted" id="audio-status" aria-live="polite">ภาษาเสียง: <b>${esc(langMeta.label)}</b> (${esc(langMeta.speech)}, rate = 0.95) · แหล่งอ้างอิง: ${esc(lm.fineArtsRef || 'กรมศิลปากร')}</p>
+      <p class="muted" id="audio-status" aria-live="polite">ภาษาเสียง: <b>${esc(langMeta.label)}</b> (${esc(langMeta.speech)}, rate = 0.95) · แหล่งอ้างอิง: ${esc(tr(lm.fineArtsRef) || 'กรมศิลปากร')}</p>
     </div>
     <div class="heritage-body" lang="${lang}">
       ${(lm.sections || []).map((s) => `<h3>${esc(tr(s.title, lang))}</h3><p>${esc(tr(s.body, lang))}</p>`).join('')}
     </div>
     <details class="ocr"><summary lang="th">ข้อความที่ OCR อ่านได้ &amp; แหล่งอ้างอิงกรมศิลปากร (RAG)</summary>
       <pre lang="th">${esc(r.ocrText)}</pre>
-      <p class="retrieval" lang="th">คำสำคัญที่จับคู่ได้: ${r.retrieval.matchedKeywords.map(esc).join(', ')} · แหล่งอ้างอิง: ${esc(lm.fineArtsRef || r.retrieval.corpus)}</p>
+      <p class="retrieval" lang="th">คำสำคัญที่จับคู่ได้: ${r.retrieval.matchedKeywords.map(esc).join(', ')} · แหล่งอ้างอิง: ${esc(tr(lm.fineArtsRef) || r.retrieval.corpus)}</p>
     </details>
     ${rw && rw.eligible ? `<div class="reward" role="status" lang="th">
       <p class="reward__title"><i data-lucide="award"></i> สะสมตราประทับมรดกพิษณุโลกสำเร็จ! (${stampCount}/5 โบราณสถาน)</p>

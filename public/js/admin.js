@@ -195,7 +195,7 @@ function renderAllProvinceMonitor() {
       name: l.name.th,
       lat: l.lat,
       lng: l.lng,
-      ref: l.fineArtsRef || 'กรมศิลปากร',
+      ref: tr(l.fineArtsRef, 'th') || 'กรมศิลปากร',
       url: l.googleMapsUrl || `https://www.google.com/maps/search/?api=1&query=${l.lat},${l.lng}`
     }));
     const merchantPins = (metrics.partners || state.data.merchants).map((m) => ({
