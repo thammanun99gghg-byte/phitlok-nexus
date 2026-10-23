@@ -108,14 +108,16 @@
     </section>
 
     <!-- 2. Live numbers (Real database counts & clearly labeled demo data — never shows '–') -->
-    <section class="stats-strip" aria-label="ตัวเลขจากระบบแบบเรียลไทม์">
-      <dl class="container stats-strip__inner">
-        <div class="stat"><dt>สถานที่บนแผนที่</dt><dd id="hero-merchants">13 แห่ง</dd></div>
-        <div class="stat"><dt>ร้านที่ยืนยันแล้ว</dt><dd id="hero-confirmed">0 แห่ง</dd></div>
-        <div class="stat"><dt>บัตร VIP Pass (ข้อมูลสาธิต)</dt><dd id="hero-vip">48 ใบ (ข้อมูลสาธิต)</dd></div>
-        <div class="stat"><dt>ออเดอร์จำลอง (ข้อมูลสาธิต)</dt><dd id="hero-orders">126 รายการ (ข้อมูลสาธิต)</dd></div>
-        <p class="stats-strip__note"><span class="live-dot" aria-hidden="true"></span> ตัวเลขจริงจากฐานข้อมูลระบบ · รายการธุรกรรมตั้งต้นเป็นข้อมูลสาธิตสำหรับการทดสอบ</p>
-      </dl>
+    <section class="stats-strip" aria-label="ตัวเลขจากระบบ">
+      <div class="container">
+        <dl class="stats-strip__inner">
+          <div class="stat"><dt>สถานที่บนแผนที่</dt><dd><span class="stat__num" id="hero-merchants">13 แห่ง</span></dd></div>
+          <div class="stat"><dt>ร้านที่ยืนยันแล้ว</dt><dd><span class="stat__num" id="hero-confirmed">0 แห่ง</span></dd></div>
+          <div class="stat"><dt>บัตร VIP Pass</dt><dd><span class="stat__num" id="hero-vip">48 ใบ</span><span class="stat__tag">ข้อมูลสาธิต</span></dd></div>
+          <div class="stat"><dt>ออเดอร์</dt><dd><span class="stat__num" id="hero-orders">126 รายการ</span><span class="stat__tag">ข้อมูลสาธิต</span></dd></div>
+        </dl>
+        <p class="stats-strip__note">ยอดขายและออเดอร์ตั้งต้นเป็นข้อมูลสาธิตสำหรับการทดสอบ</p>
+      </div>
     </section>
 
     <!-- 3. 3 Role Cards (Clean 3-Second Microcopy) -->

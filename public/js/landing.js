@@ -15,9 +15,9 @@ async function loadStats() {
       'hero-merchants': `${fmt(totalPlaces)} แห่ง`,
       'hero-confirmed': `${fmt(confirmedPartners)} แห่ง`,
       'hero-langs': '6 ภาษา',
-      'hero-vip': `${fmt(passesSold)} ใบ (ข้อมูลสาธิต)`,
-      'hero-orders': `${fmt(ordersCount)} รายการ (ข้อมูลสาธิต)`,
-      'hero-scans': `${fmt(heritageScans)} ครั้ง (ข้อมูลสาธิต)`
+      'hero-vip': `${fmt(passesSold)} ใบ`,
+      'hero-orders': `${fmt(ordersCount)} รายการ`,
+      'hero-scans': `${fmt(heritageScans)} ครั้ง`
     };
     for (const [id, v] of Object.entries(values)) {
       const el = document.getElementById(id);
