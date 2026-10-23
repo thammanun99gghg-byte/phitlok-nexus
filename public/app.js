@@ -129,12 +129,10 @@ function renderVisitorBits() {
   const box = document.getElementById('vip-action');
   if (!box) return;
   if (v.vip.active) {
-    box.innerHTML = `<div class="vip-status"><p><b>✓ คุณถือบัตร Phitsanulok VIP Pass แล้ว</b></p>
-      <p class="small">ใช้ได้ถึง ${new Date(v.vip.until).toLocaleString('th-TH', { dateStyle: 'medium', timeStyle: 'short' })}</p>
-      <button class="btn btn--gold btn--block" type="button" data-open-wallet>ดูคูปองของฉัน (${active})</button></div>`;
+    box.innerHTML = `<div class="vip-status"><p><b>✓ ใช้ได้ถึง ${new Date(v.vip.until).toLocaleString('th-TH', { dateStyle: 'medium', timeStyle: 'short' })}</b></p>
+      <button class="btn btn--gold btn--block" type="button" data-open-wallet>ดูคูปอง (${active})</button></div>`;
   } else {
-    box.innerHTML = `<button class="btn btn--gold btn--lg btn--block" type="button" data-buy-vip>ซื้อ Phitsanulok VIP Pass ${baht(state.data.pricing.vipPassSatang)} (QR PromptPay)</button>
-      <p class="small">ชำระครั้งเดียวต่อทริป ปลดล็อกเสียงบรรยาย 6 ภาษาฉบับเต็ม + คูปองส่วนลด 500฿</p>`;
+    box.innerHTML = `<button class="btn btn--gold btn--lg btn--block" type="button" data-buy-vip>ซื้อ VIP Pass</button>`;
   }
 }
 

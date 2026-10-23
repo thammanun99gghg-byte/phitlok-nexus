@@ -238,22 +238,15 @@
         </div>
       </section>
 
-      <!-- VIP Pass & SaaS Onboarding -->
-      <section class="section section--alt" id="vip" aria-labelledby="vip-title">
-        <div class="container vip-grid">
-          <div>
-            <p class="eyebrow"><i data-lucide="crown"></i> ช่องทางทำเงินที่ 3 · บัตรนักท่องเที่ยว Phitsanulok VIP Pass (99฿)</p>
-            <h2 id="vip-title">Phitsanulok VIP Heritage Pass</h2>
-            <p class="section__lead">บัตรนักท่องเที่ยวราคาประหยัดเพียง <b>99 บาท/ทริป</b> ปลดล็อกเสียงบรรยายประวัติศาสตร์ 6 ภาษาฉบับเต็มครบทั้ง 5 โบราณสถาน พร้อมชุดคูปองส่วนลดร้านอาหารและโรงแรมรวมมูลค่า <b id="vip-voucher-total">500</b> บาท</p>
-            <ul class="checklist">
-              <li>ฟังเสียงบรรยายฉบับเต็ม 6 ภาษา (TH, EN, CN, JP, KR, FR) ครบทุกจุด</li>
-              <li>รับคูปองส่วนลดทันทีสำหรับร้านก๋วยเตี๋ยวห้อยขาริมน่าน, จุกไก่ไทย, ของฝากบางกระทุ่ม และโรงแรมโยเดีย เฮอริเทจ</li>
-              <li>ชำระเงินปลอดภัยผ่านมาตรฐาน Thai QR PromptPay</li>
-            </ul>
-          </div>
+      <!-- VIP Pass: one card -->
+      <section class="section" id="vip" aria-labelledby="vip-title">
+        <div class="container">
           <div class="card vip-card" id="vip-card">
-            <p class="vip-card__label">PHITSANULOK VIP PASS</p>
-            <p class="vip-card__price"><span id="vip-price">99</span><small>฿ / ทริป (7 วัน)</small></p>
+            <div class="vip-card__body">
+              <p class="vip-card__label"><i data-lucide="crown"></i> VIP Pass</p>
+              <h2 id="vip-title">ฟังเรื่องเล่าฉบับเต็ม + คูปอง <span id="vip-voucher-total">500</span>฿</h2>
+              <p class="vip-card__price"><span id="vip-price">99</span><small>฿ ต่อทริป 7 วัน</small></p>
+            </div>
             <div id="vip-action"></div>
           </div>
         </div>
@@ -423,6 +416,14 @@
             <p class="muted small" id="admin-updated" role="status"></p>
           </div>
 
+          <div class="tabs" role="tablist" aria-label="ส่วนของแดชบอร์ด" id="admin-tabs">
+            <button class="tab" role="tab" type="button" id="admin-tab-revenue" aria-controls="admin-panel-revenue" aria-selected="true"><i data-lucide="trending-up"></i> รายได้</button>
+            <button class="tab" role="tab" type="button" id="admin-tab-partners" aria-controls="admin-panel-partners" aria-selected="false" tabindex="-1"><i data-lucide="store"></i> พาร์ทเนอร์</button>
+            <button class="tab" role="tab" type="button" id="admin-tab-calc" aria-controls="admin-panel-calc" aria-selected="false" tabindex="-1"><i data-lucide="calculator"></i> คุ้มทุน</button>
+          </div>
+
+          <div class="tabpanel" role="tabpanel" id="admin-panel-revenue" aria-labelledby="admin-tab-revenue">
+
           <!-- 5 KPI Cards (Total + 4 Revenue Streams) -->
           <div class="kpis kpis--5" id="admin-kpis"></div>
 
@@ -447,8 +448,10 @@
             </div>
           </div>
 
-          <!-- All-Province Map & Partner Monitor (13 Pins + Partner Status Table + All Orders) -->
-          <div class="card mt" id="admin-monitor">
+          </div>
+
+          <div class="tabpanel" role="tabpanel" id="admin-panel-partners" aria-labelledby="admin-tab-partners" hidden>
+          <div class="card" id="admin-monitor">
             <div class="section__head">
               <p class="eyebrow"><i data-lucide="radar"></i> All-Province Map &amp; Partner Monitor</p>
               <h3>ตรวจสอบหมุดพิกัดจริงทั้ง 13 จุดในจังหวัดพิษณุโลก &amp; สถานะพาร์ทเนอร์ทั้งหมด</h3>
@@ -465,8 +468,10 @@
             <div class="table-wrap" id="admin-orders-table"></div>
           </div>
 
-          <!-- Interactive Unit Economics Calculator -->
-          <div class="card calc mt" id="calculator">
+          </div>
+
+          <div class="tabpanel" role="tabpanel" id="admin-panel-calc" aria-labelledby="admin-tab-calc" hidden>
+          <div class="card calc" id="calculator">
             <div class="calc__head">
               <div>
                 <p class="eyebrow"><i data-lucide="calculator"></i> Interactive Unit Economics &amp; Break-Even Calculator</p>
@@ -504,6 +509,7 @@
               </div>
               <div class="calc__outputs" id="calc-outputs" aria-live="polite"></div>
             </div>
+          </div>
           </div>
         </div>
       </section>

@@ -175,3 +175,33 @@ export async function atLeast(promise, ms) {
 }
 
 export const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/** Wire an ARIA tablist: click or Arrow/Home/End keys select a tab and show its aria-controls panel. */
+export function bindTablist(list, onSelect) {
+  if (!list) return;
+  const tabs = () => [...list.querySelectorAll('[role="tab"]')];
+  const select = (tab, focus) => {
+    for (const t of tabs()) {
+      const on = t === tab;
+      t.setAttribute('aria-selected', String(on));
+      t.tabIndex = on ? 0 : -1;
+      const panel = document.getElementById(t.getAttribute('aria-controls'));
+      if (panel) panel.hidden = !on;
+    }
+    if (focus) tab.focus();
+    if (onSelect) onSelect(tab);
+  };
+  list.addEventListener('click', (e) => {
+    const t = e.target.closest('[role="tab"]');
+    if (t && list.contains(t)) select(t, false);
+  });
+  list.addEventListener('keydown', (e) => {
+    const all = tabs();
+    const i = all.indexOf(document.activeElement);
+    if (i < 0) return;
+    const next = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: all.length - 1 }[e.key];
+    if (next === undefined) return;
+    e.preventDefault();
+    select(all[(next + all.length) % all.length], true);
+  });
+}

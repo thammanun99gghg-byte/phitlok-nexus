@@ -1,5 +1,5 @@
 // Executive Admin Console (4-Stream Revenue Dashboard, 13-Pin All-Province Monitor, Interactive Unit Economics Calculator) — PHITLOK NEXUS v2.0
-import { state, api, esc, tr, baht, num, timeAgo, on, refreshIcons } from './core.js';
+import { state, api, esc, tr, baht, num, timeAgo, on, refreshIcons, bindTablist } from './core.js';
 
 const SERIES = [
   { key: 'saasSatang', label: '1. SaaS ร้านอาหาร 199฿/เดือน', color: '#0F3D3E' },
@@ -390,6 +390,7 @@ function calculate() {
 }
 
 export function initAdmin() {
+  bindTablist(document.getElementById('admin-tabs'));
   Object.values(inputs).forEach((get) => get()?.addEventListener('input', calculate));
   document.getElementById('calc-reset')?.addEventListener('click', () => { if (metrics) resetCalculator(); });
   const st = document.getElementById('stress-toggle');

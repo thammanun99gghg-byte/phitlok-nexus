@@ -978,3 +978,10 @@ html { scroll-padding-top: 80px; }
   .appbar--site .menu-toggle, .show-mobile-grid { display: none; }
 }
 .appbar--site .sitenav a { min-height: 44px; font-size: 1rem; }
+/* VIP Pass: a single card */
+.vip-card { display: grid; gap: 16px; align-items: center; padding: 24px; }
+.vip-card h2 { font-size: 1.5rem; margin: 4px 0; }
+.vip-card__label { display: inline-flex; align-items: center; gap: 8px; margin: 0; letter-spacing: 0; text-transform: none; font-size: 1rem; }
+.vip-card__label svg { width: 20px; height: 20px; }
+.vip-card__price { font-size: 2.5rem; margin: 0; }
+@media (min-width: 760px) { .vip-card { grid-template-columns: 1fr minmax(240px, 320px); } }
