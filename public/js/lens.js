@@ -22,6 +22,7 @@ const TABS = ['heritage', 'menu', 'stay'];
 const isStay = (m) => m.kind === 'hotel' || m.category === 'stay';
 let previewUrl = null;
 let isPaused = false;
+let speakingKey = null; // `${landmarkId}|${lang}` of the narration in the engine
 
 // ------------------------------------------------------------------ tabs
 export function selectTab(which, { focus = false } = {}) {
@@ -272,14 +273,14 @@ async function playAudio(mode) {
     }
     return;
   }
-  if (isPaused && synth.speaking && mode === 'summary') {
+  const lm = lastHeritage?.landmark;
+  if (isPaused && synth.speaking && mode === 'summary' && lm && speakingKey === `${lm.id}|${lang}`) {
     synth.resume();
     isPaused = false;
     setWavePlaying(true);
     if (statusEl) statusEl.textContent = t('speech.resumed');
     return;
   }
-  const lm = lastHeritage?.landmark;
   if (!lm) return;
   await speakGuide(lm.id, mode, lang, statusEl);
 }
@@ -291,13 +292,12 @@ export async function speakGuide(landmarkId, mode, lang, statusEl) {
     return;
   }
   // Always cancel any existing speech before fetching/playing new narration
-  window.speechSynthesis.cancel();
-  isPaused = false;
+  resetSynth();
   setWavePlaying(true);
   try {
     const vipFlag = (state.data?.visitor?.vip?.active || isVipActive()) ? '&vip=true' : '';
     const res = await api(`/api/audio-guide/${encodeURIComponent(landmarkId)}?lang=${lang}&mode=${mode}${vipFlag}`);
-    speak(res.text, lang, statusEl);
+    await speak(res.text, lang, statusEl, `${landmarkId}|${lang}`);
   } catch (err) {
     setWavePlaying(false);
     if (err.data && err.data.needsVip) {
@@ -309,10 +309,46 @@ export async function speakGuide(landmarkId, mode, lang, statusEl) {
   }
 }
 
-function pickVoice(code) {
-  const voices = window.speechSynthesis.getVoices();
-  const prefix = code.slice(0, 2).toLowerCase();
-  return voices.find((v) => v.lang === code) || voices.find((v) => v.lang && v.lang.toLowerCase().startsWith(prefix)) || null;
+// Chrome fills the voice list asynchronously: on the first click it is often still empty.
+function loadVoices(timeout = 1500) {
+  const synth = window.speechSynthesis;
+  const now = synth.getVoices();
+  if (now.length) return Promise.resolve(now);
+  return new Promise((resolve) => {
+    const done = () => { synth.removeEventListener?.('voiceschanged', done); resolve(synth.getVoices()); };
+    synth.addEventListener?.('voiceschanged', done);
+    setTimeout(done, timeout);
+  });
+}
+
+// Region preference when a language has several voices (Mandarin before Cantonese, etc.).
+const PREFERRED = { zh: ['zh-cn', 'cmn-hans-cn', 'zh-tw', 'cmn'], en: ['en-us', 'en-gb'], fr: ['fr-fr', 'fr-ca'] };
+
+/** A voice that really speaks this language, or null — never a voice of another language. */
+function pickVoice(code, voices) {
+  const norm = (s) => String(s || '').replace(/_/g, '-').toLowerCase();
+  const want = norm(code);
+  const base = want.split('-')[0];
+  const same = voices.filter((v) => {
+    const l = norm(v.lang);
+    return l === want || l.split('-')[0] === base || (base === 'zh' && l.startsWith('cmn'));
+  });
+  if (!same.length) return null;
+  const order = [want, ...(PREFERRED[base] || [])];
+  same.sort((x, y) => {
+    const rx = order.indexOf(norm(x.lang)), ry = order.indexOf(norm(y.lang));
+    return (rx < 0 ? 99 : rx) - (ry < 0 ? 99 : ry) || Number(y.localService) - Number(x.localService);
+  });
+  return same[0];
+}
+
+// Chrome keeps the engine paused after cancel(); new speech then never starts.
+function resetSynth() {
+  const synth = window.speechSynthesis;
+  if (synth.paused) synth.resume();
+  synth.cancel();
+  isPaused = false;
+  speakingKey = null;
 }
 
 function chunkText(text, max = 180) {
@@ -329,13 +365,24 @@ function chunkText(text, max = 180) {
   return out;
 }
 
-function speak(text, lang, statusEl) {
+async function speak(text, lang, statusEl, key) {
   const synth = window.speechSynthesis;
-  synth.cancel();
-  isPaused = false;
+  resetSynth();
   const meta = LANGS.find((l) => l.code === lang) || LANGS[0];
-  const voice = pickVoice(meta.speech);
+  const voices = await loadVoices();
+  const voice = pickVoice(meta.speech, voices);
+  // The device lists voices but none for this language: reading it with another voice would be wrong, so say so instead.
+  if (voices.length && !voice) {
+    setWavePlaying(false);
+    const msg = t('speech.noVoice', { l: meta.label });
+    if (statusEl) statusEl.textContent = msg;
+    toast(msg, 'info');
+    return;
+  }
+  // a language switch while voices were loading wins over this older request
+  if (lang !== state.lang) { setWavePlaying(false); return; }
   const chunks = chunkText(text);
+  speakingKey = key;
   setWavePlaying(true);
   chunks.forEach((chunk, i) => {
     const u = new SpeechSynthesisUtterance(chunk);
@@ -504,7 +551,7 @@ export function initLens() {
   });
 
   on('lang:changed', () => {
-    window.speechSynthesis?.cancel();
+    if (window.speechSynthesis) resetSynth();
     setWavePlaying(false);
     renderHeritage();
     if (menuCtx && document.querySelector('#menu-result .menu-list')) menuCtx.redraw();
