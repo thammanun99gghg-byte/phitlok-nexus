@@ -1511,3 +1511,23 @@ html:not([lang="th"]) #for-merchants { display: none; }
 .district-places { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 8px; }
 /* On /app the map fills the first screen and the dock links onward, so the floating cue would only cover map tools. */
 .page-app .scroll-cue { display: none; }
+
+/* Map spans the full width on top; the place card sits underneath, laid out sideways (photo | details). */
+@media (min-width: 1024px) {
+  .map-layout { grid-template-columns: minmax(0, 1fr); }
+  .map-layout > .map-card { max-height: none; overflow: visible; }
+  .map-card:has(> .map-card__media) { display: grid; grid-template-columns: minmax(320px, 38%) minmax(0, 1fr); column-gap: 32px; align-items: start; }
+  .map-card:has(> .map-card__media) > * { grid-column: 2; }
+  .map-card:has(> .map-card__media) > .map-card__media {
+    grid-column: 1; grid-row: 1 / span 20; align-self: stretch;
+    margin: -22px 0 -22px -22px; border-radius: var(--radius) 0 0 var(--radius);
+    aspect-ratio: auto; min-height: 320px;
+  }
+  /* the photo follows the text height instead of its own */
+  .map-card:has(> .map-card__media) > .map-card__media img { position: absolute; inset: 0; }
+  .map-card .nearby { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; }
+  .district-places { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+  .map-layout.is-fullscreen { grid-template-rows: minmax(0, 1fr) auto; }
+  .map-layout.is-fullscreen .map-card { max-height: 34vh; overflow-y: auto; }
+  .map-layout.is-fullscreen .map-card:has(> .map-card__media) > .map-card__media { min-height: 0; }
+}
