@@ -7,7 +7,7 @@ const { buildKitchenTicket, buildBookingTicket } = require('./tickets');
 
 const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, '..', 'data');
 const DB_FILE = path.join(DATA_DIR, 'phitlok_nexus.sqlite');
-const SCHEMA_VERSION = 25; // v2.4: hotel bookings are booking slips (BK-, check-in/nights/guests), not kitchen tickets
+const SCHEMA_VERSION = 26; // v2.4: room types carry bed / size / guests / amenities (room_json) // v2.4: hotel bookings are booking slips (BK-, check-in/nights/guests), not kitchen tickets
 
 const SCHEMA = `
 CREATE TABLE IF NOT EXISTS landmarks (
@@ -66,6 +66,7 @@ CREATE TABLE IF NOT EXISTS menu_items (
   source TEXT NOT NULL DEFAULT 'seed',
   active INTEGER NOT NULL DEFAULT 1,
   available INTEGER NOT NULL DEFAULT 1,
+  room_json TEXT,
   created_at TEXT NOT NULL
 );
 CREATE TABLE IF NOT EXISTS visitors (
@@ -253,13 +254,13 @@ function seed(db) {
     const merchantIdBySlug = Object.fromEntries(db.prepare('SELECT id, slug FROM merchants').all().map((r) => [r.slug, r.id]));
     const insItem = db.prepare(`INSERT INTO menu_items
       (merchant_id, code, name_json, desc_json, image_url, fallback_image, price_satang, unit, category,
-       allergens_json, spicy, vegetarian, halal, source, active, available, created_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'seed', 1, 1, ?)`);
+       allergens_json, spicy, vegetarian, halal, source, active, available, room_json, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'seed', 1, 1, ?, ?)`);
     for (const it of MENU_ITEMS) {
       insItem.run(
         merchantIdBySlug[it.merchant], it.code, JSON.stringify(it.name), JSON.stringify(it.desc),
         it.imageUrl, it.fallbackImage, it.price * 100, it.unit, it.category,
-        JSON.stringify(it.allergens), it.spicy, it.vegetarian, it.halal, now
+        JSON.stringify(it.allergens), it.spicy, it.vegetarian, it.halal, it.room ? JSON.stringify(it.room) : null, now
       );
     }
 

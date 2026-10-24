@@ -168,13 +168,13 @@ await step('Hotel booking: 2 rooms × 3 nights priced correctly, dates on slip p
   await page.fill('#bk-checkin', future);
   await page.dispatchEvent('#bk-checkin', 'change');
   await page.selectOption('#bk-nights', '3');
-  await page.selectOption('#bk-guests', '5');
+  await page.selectOption('#bk-guests', '4'); // 2 twin rooms × 2 guests
   await page.fill('#bk-note', 'ขอห้องติดกัน');
   await page.waitForTimeout(900);
   const row = await page.textContent('#cart-quote table');
   expect(row.includes('× 2 ห้อง × 3 คืน'), `breakdown: ${row.slice(0, 120)}`);
   const slip = await page.textContent('#cart-ticket');
-  expect(slip.includes('เช็คอิน') && slip.includes('เช็คเอาต์') && slip.includes('3 คืน · 5 ท่าน') && slip.includes('ขอห้องติดกัน'), `slip: ${slip.slice(0, 160)}`);
+  expect(slip.includes('เช็คอิน') && slip.includes('เช็คเอาต์') && slip.includes('3 คืน · 4 ท่าน') && slip.includes('ขอห้องติดกัน'), `slip: ${slip.slice(0, 160)}`);
 });
 await step('Hotel booking: past check-in date is reset to today', async () => {
   await page.fill('#bk-checkin', '2020-01-01');

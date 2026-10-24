@@ -391,6 +391,7 @@ async function scanMenu(buildForm) {
   if (btn) btn.disabled = true;
   try {
     const r = await animatePipeline('menu', api('/api/scan-menu', { method: 'POST', form: buildForm() }));
+    syncMenuSelect(r.merchant?.id);
     menuCtx = renderDigitalMenu(out, {
       merchant: r.merchant, items: r.items, source: r.source, latencyMs: r.latencyMs,
       notice: r.notice, ocrText: r.ocrText, scanId: r.scanId, orderable: true
@@ -405,10 +406,13 @@ async function scanMenu(buildForm) {
 }
 
 /** Show a merchant's published menu or hotel room packages (from map card or directory). */
-export function openMerchantMenu(merchantId) {
+export function openMerchantMenu(merchantId, { scroll = true } = {}) {
   const merchant = state.data.merchants.find((m) => m.id === Number(merchantId) || m.slug === String(merchantId));
   if (!merchant) return;
-  const items = state.data.menuItems.filter((i) => i.merchantId === merchant.id);
+  syncMenuSelect(merchant.id);
+  // hotel rooms read cheapest to most expensive
+  const items = state.data.menuItems.filter((i) => i.merchantId === merchant.id)
+    .sort((a, b) => (a.room && b.room ? a.priceSatang - b.priceSatang : 0));
   selectTab('menu');
   const prev = document.getElementById('menu-preview');
   const pipe = document.getElementById('menu-pipeline');
@@ -422,7 +426,12 @@ export function openMerchantMenu(merchantId) {
   } else {
     menuCtx = renderDigitalMenu(out, { merchant, items, source: 'database', orderable: true });
   }
-  document.getElementById('lens')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  if (scroll) document.getElementById('lens')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function syncMenuSelect(id) {
+  const sel = document.getElementById('menu-merchant');
+  if (sel && id != null) sel.value = String(id);
 }
 
 // ------------------------------------------------------------------ wiring
@@ -438,6 +447,8 @@ export function initLens() {
     runHeritage({ file });
   });
   document.getElementById('menu-preset')?.addEventListener('click', runMenuPreset);
+  // choosing a shop or hotel from the list shows its own menu or rooms right away
+  document.getElementById('menu-merchant')?.addEventListener('change', (e) => openMerchantMenu(e.target.value, { scroll: false }));
   document.getElementById('menu-file')?.addEventListener('change', (e) => {
     const file = e.target.files[0];
     const err = validateFile(file);

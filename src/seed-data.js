@@ -1036,6 +1036,7 @@ const MENU_ITEMS = [
   // 6. Yodia Heritage Hotel
   {
     merchant: 'yodia-heritage', code: 'YH01', price: 1850, unit: 'คืน', category: 'stay',
+    room: { tier: 'deluxe', bed: 'double', sizeSqm: 28, maxGuests: 2, breakfast: true, view: 'river', amenities: ['wifi', 'aircon', 'tv', 'fridge', 'kettle', 'shower'] },
     allergens: [], spicy: 0, vegetarian: 1, halal: 1,
     imageUrl: '/assets/photos/yodia-heritage.jpg',
     fallbackImage: '/assets/photos/yodia-heritage.jpg',
@@ -1060,6 +1061,7 @@ const MENU_ITEMS = [
   // 7. Topland Hotel & Convention Centre
   {
     merchant: 'topland-hotel', code: 'TL01', price: 1290, unit: 'คืน', category: 'stay',
+    room: { tier: 'superior', bed: 'double', sizeSqm: 30, maxGuests: 2, breakfast: true, view: 'city', amenities: ['wifi', 'aircon', 'tv', 'fridge', 'kettle', 'safe', 'shower'] },
     allergens: [], spicy: 0, vegetarian: 1, halal: 1,
     imageUrl: '/assets/photos/topland-hotel.jpg',
     fallbackImage: '/assets/photos/topland-hotel.jpg',
@@ -1084,6 +1086,7 @@ const MENU_ITEMS = [
   // 8. The Imperial Hotel & Convention Centre Phitsanulok
   {
     merchant: 'imperial-hotel', code: 'IM01', price: 1450, unit: 'คืน', category: 'stay',
+    room: { tier: 'deluxe', bed: 'king', sizeSqm: 34, maxGuests: 2, breakfast: true, view: 'pool', amenities: ['wifi', 'aircon', 'tv', 'fridge', 'kettle', 'safe', 'balcony', 'bathtub'] },
     allergens: [], spicy: 0, vegetarian: 1, halal: 1,
     imageUrl: '/assets/photos/imperial-hotel.jpg',
     fallbackImage: '/assets/photos/imperial-hotel.jpg',
@@ -1103,6 +1106,62 @@ const MENU_ITEMS = [
       ko: '대형 수영장과 열대 정원이 내려다보이는 넓은 4성급 객실로 피트니스 센터 이용과 조식 뷔페가 포함되어 있습니다.',
       fr: 'Vaste chambre 4 étoiles donnant sur la grande piscine et les jardins, avec accès fitness et petit-déjeuner buffet.'
     }
+  },
+
+  // Extra room types (sample data, shown with a "sample price" badge): each has its own bed, size, guests and amenities
+  {
+    merchant: 'yodia-heritage', code: 'YH00', price: 1450, unit: 'คืน', category: 'stay',
+    room: { tier: 'standard', bed: 'twin', sizeSqm: 24, maxGuests: 2, breakfast: false, view: null, amenities: ['wifi', 'aircon', 'tv', 'shower'] },
+    allergens: [], spicy: 0, vegetarian: 0, halal: 0,
+    imageUrl: '/assets/photos/yodia-heritage.jpg',
+    fallbackImage: '/assets/photos/yodia-heritage.jpg',
+    name: { th: 'ห้องสแตนดาร์ด เตียงเดี่ยว 2 เตียง', en: 'Standard Twin Room', zh: '标准双床房', ja: 'スタンダードツイン', ko: '스탠더드 트윈룸', fr: 'Chambre Standard lits jumeaux' },
+    desc: { th: 'ห้องพักมาตรฐานเตียงเดี่ยว 2 เตียง เหมาะกับเพื่อนหรือครอบครัวเล็ก ไม่รวมอาหารเช้า', en: 'Standard room with two single beds, good for friends or a small family. Breakfast not included.', zh: '两张单人床的标准客房，适合朋友或小家庭，不含早餐。', ja: 'シングルベッド2台の標準客室。友人同士や少人数の家族に。朝食なし。', ko: '싱글 침대 2개가 있는 스탠더드 객실로 친구나 소가족에게 알맞습니다. 조식 불포함.', fr: 'Chambre standard avec deux lits simples, idéale entre amis ou en petite famille. Petit-déjeuner non inclus.' }
+  },
+  {
+    merchant: 'yodia-heritage', code: 'YH02', price: 3200, unit: 'คืน', category: 'stay',
+    room: { tier: 'suite', bed: 'king', sizeSqm: 48, maxGuests: 3, breakfast: true, view: null, amenities: ['wifi', 'aircon', 'tv', 'fridge', 'kettle', 'safe', 'bathtub', 'living', 'minibar'] },
+    allergens: [], spicy: 0, vegetarian: 0, halal: 0,
+    imageUrl: '/assets/photos/yodia-heritage.jpg',
+    fallbackImage: '/assets/photos/yodia-heritage.jpg',
+    name: { th: 'ห้องสวีท VIP เตียงคิงไซซ์ (รวมอาหารเช้า)', en: 'VIP Suite, King Bed (Breakfast Included)', zh: 'VIP 套房 · 特大床（含早餐）', ja: 'VIPスイート・キングベッド（朝食付）', ko: 'VIP 스위트 킹베드 (조식 포함)', fr: 'Suite VIP lit king size (petit-déjeuner inclus)' },
+    desc: { th: 'ห้องสวีทแยกส่วนนั่งเล่น เตียงคิงไซซ์ อ่างอาบน้ำ พักได้ 3 ท่าน (เสริมเตียงได้) รวมอาหารเช้า', en: 'Suite with a separate living area, king bed and bathtub. Sleeps 3 with an extra bed. Breakfast included.', zh: '带独立客厅的套房，特大床与浴缸，加床可住 3 人，含早餐。', ja: 'リビング付きスイート。キングベッドとバスタブ、エキストラベッドで3名まで。朝食付き。', ko: '거실이 분리된 스위트로 킹베드와 욕조를 갖췄고 엑스트라 베드로 3인까지 숙박 가능합니다. 조식 포함.', fr: 'Suite avec salon séparé, lit king size et baignoire, jusqu’à 3 personnes avec lit d’appoint. Petit-déjeuner inclus.' }
+  },
+  {
+    merchant: 'topland-hotel', code: 'TL00', price: 990, unit: 'คืน', category: 'stay',
+    room: { tier: 'standard', bed: 'twin', sizeSqm: 26, maxGuests: 2, breakfast: false, view: null, amenities: ['wifi', 'aircon', 'tv', 'shower'] },
+    allergens: [], spicy: 0, vegetarian: 0, halal: 0,
+    imageUrl: '/assets/photos/topland-hotel.jpg',
+    fallbackImage: '/assets/photos/topland-hotel.jpg',
+    name: { th: 'ห้องสแตนดาร์ด เตียงเดี่ยว 2 เตียง', en: 'Standard Twin Room', zh: '标准双床房', ja: 'スタンダードツイン', ko: '스탠더드 트윈룸', fr: 'Chambre Standard lits jumeaux' },
+    desc: { th: 'ห้องพักมาตรฐานเตียงเดี่ยว 2 เตียง เหมาะกับเพื่อนหรือครอบครัวเล็ก ไม่รวมอาหารเช้า', en: 'Standard room with two single beds, good for friends or a small family. Breakfast not included.', zh: '两张单人床的标准客房，适合朋友或小家庭，不含早餐。', ja: 'シングルベッド2台の標準客室。友人同士や少人数の家族に。朝食なし。', ko: '싱글 침대 2개가 있는 스탠더드 객실로 친구나 소가족에게 알맞습니다. 조식 불포함.', fr: 'Chambre standard avec deux lits simples, idéale entre amis ou en petite famille. Petit-déjeuner non inclus.' }
+  },
+  {
+    merchant: 'topland-hotel', code: 'TL02', price: 2900, unit: 'คืน', category: 'stay',
+    room: { tier: 'suite', bed: 'king', sizeSqm: 56, maxGuests: 3, breakfast: true, view: null, amenities: ['wifi', 'aircon', 'tv', 'fridge', 'kettle', 'safe', 'bathtub', 'living', 'minibar'] },
+    allergens: [], spicy: 0, vegetarian: 0, halal: 0,
+    imageUrl: '/assets/photos/topland-hotel.jpg',
+    fallbackImage: '/assets/photos/topland-hotel.jpg',
+    name: { th: 'ห้องสวีท VIP เตียงคิงไซซ์ (รวมอาหารเช้า)', en: 'VIP Suite, King Bed (Breakfast Included)', zh: 'VIP 套房 · 特大床（含早餐）', ja: 'VIPスイート・キングベッド（朝食付）', ko: 'VIP 스위트 킹베드 (조식 포함)', fr: 'Suite VIP lit king size (petit-déjeuner inclus)' },
+    desc: { th: 'ห้องสวีทแยกส่วนนั่งเล่น เตียงคิงไซซ์ อ่างอาบน้ำ พักได้ 3 ท่าน (เสริมเตียงได้) รวมอาหารเช้า', en: 'Suite with a separate living area, king bed and bathtub. Sleeps 3 with an extra bed. Breakfast included.', zh: '带独立客厅的套房，特大床与浴缸，加床可住 3 人，含早餐。', ja: 'リビング付きスイート。キングベッドとバスタブ、エキストラベッドで3名まで。朝食付き。', ko: '거실이 분리된 스위트로 킹베드와 욕조를 갖췄고 엑스트라 베드로 3인까지 숙박 가능합니다. 조식 포함.', fr: 'Suite avec salon séparé, lit king size et baignoire, jusqu’à 3 personnes avec lit d’appoint. Petit-déjeuner inclus.' }
+  },
+  {
+    merchant: 'imperial-hotel', code: 'IM00', price: 1100, unit: 'คืน', category: 'stay',
+    room: { tier: 'standard', bed: 'twin', sizeSqm: 30, maxGuests: 2, breakfast: false, view: null, amenities: ['wifi', 'aircon', 'tv', 'shower'] },
+    allergens: [], spicy: 0, vegetarian: 0, halal: 0,
+    imageUrl: '/assets/photos/imperial-hotel.jpg',
+    fallbackImage: '/assets/photos/imperial-hotel.jpg',
+    name: { th: 'ห้องสแตนดาร์ด เตียงเดี่ยว 2 เตียง', en: 'Standard Twin Room', zh: '标准双床房', ja: 'スタンダードツイン', ko: '스탠더드 트윈룸', fr: 'Chambre Standard lits jumeaux' },
+    desc: { th: 'ห้องพักมาตรฐานเตียงเดี่ยว 2 เตียง เหมาะกับเพื่อนหรือครอบครัวเล็ก ไม่รวมอาหารเช้า', en: 'Standard room with two single beds, good for friends or a small family. Breakfast not included.', zh: '两张单人床的标准客房，适合朋友或小家庭，不含早餐。', ja: 'シングルベッド2台の標準客室。友人同士や少人数の家族に。朝食なし。', ko: '싱글 침대 2개가 있는 스탠더드 객실로 친구나 소가족에게 알맞습니다. 조식 불포함.', fr: 'Chambre standard avec deux lits simples, idéale entre amis ou en petite famille. Petit-déjeuner non inclus.' }
+  },
+  {
+    merchant: 'imperial-hotel', code: 'IM02', price: 2600, unit: 'คืน', category: 'stay',
+    room: { tier: 'suite', bed: 'king', sizeSqm: 52, maxGuests: 3, breakfast: true, view: null, amenities: ['wifi', 'aircon', 'tv', 'fridge', 'kettle', 'safe', 'bathtub', 'living', 'minibar'] },
+    allergens: [], spicy: 0, vegetarian: 0, halal: 0,
+    imageUrl: '/assets/photos/imperial-hotel.jpg',
+    fallbackImage: '/assets/photos/imperial-hotel.jpg',
+    name: { th: 'ห้องสวีท VIP เตียงคิงไซซ์ (รวมอาหารเช้า)', en: 'VIP Suite, King Bed (Breakfast Included)', zh: 'VIP 套房 · 特大床（含早餐）', ja: 'VIPスイート・キングベッド（朝食付）', ko: 'VIP 스위트 킹베드 (조식 포함)', fr: 'Suite VIP lit king size (petit-déjeuner inclus)' },
+    desc: { th: 'ห้องสวีทแยกส่วนนั่งเล่น เตียงคิงไซซ์ อ่างอาบน้ำ พักได้ 3 ท่าน (เสริมเตียงได้) รวมอาหารเช้า', en: 'Suite with a separate living area, king bed and bathtub. Sleeps 3 with an extra bed. Breakfast included.', zh: '带独立客厅的套房，特大床与浴缸，加床可住 3 人，含早餐。', ja: 'リビング付きスイート。キングベッドとバスタブ、エキストラベッドで3名まで。朝食付き。', ko: '거실이 분리된 스위트로 킹베드와 욕조를 갖췄고 엑스트라 베드로 3인까지 숙박 가능합니다. 조식 포함.', fr: 'Suite avec salon séparé, lit king size et baignoire, jusqu’à 3 personnes avec lit d’appoint. Petit-déjeuner inclus.' }
   }
 ];
 

@@ -258,7 +258,10 @@ const PNG_1PX = Buffer.from('89504e470d0a1a0a0000000d494844520000000100000001080
   await test('Hotel booking: check-in/nights/guests priced per night → booking slip BK- (no table, no kitchen banners)', async () => {
     const init = (await call('GET', '/api/init-data')).json;
     const hotel = init.merchants.find((m) => m.slug === 'imperial-hotel');
-    const room = init.menuItems.find((i) => i.merchantId === hotel.id);
+    // the suite sleeps 3, so 2 suites hold 5 guests; a twin room sleeps 2
+    const room = init.menuItems.find((i) => i.merchantId === hotel.id && i.room?.tier === 'suite');
+    const twin = init.menuItems.find((i) => i.merchantId === hotel.id && i.room?.bed === 'twin');
+    assert.ok(room && twin && room.room.maxGuests === 3 && twin.room.maxGuests === 2, 'room types carry their own guest limits');
     const today = new Date(Date.now() + 7 * 3600000).toISOString().slice(0, 10);
     const plus = (d, n) => { const x = new Date(`${d}T00:00:00Z`); x.setUTCDate(x.getUTCDate() + n); return x.toISOString().slice(0, 10); };
     const checkIn = plus(today, 3);
@@ -274,10 +277,12 @@ const PNG_1PX = Buffer.from('89504e470d0a1a0a0000000d494844520000000100000001080
     assert.equal(q.json.ticketPreview.kind, 'booking');
     assert.equal(q.json.ticketPreview.checkOut, plus(checkIn, 3));
     assert.ok(!('tableTh' in q.json.ticketPreview) && !q.json.ticketPreview.warningsTh, 'a booking has no table number or kitchen banners');
-    for (const bad of [{ checkIn: plus(today, -1) }, { checkIn: plus(today, 400) }, { checkIn: '2027-02-30' }, { nights: 0 }, { nights: 15 }, { guests: 9 }]) {
+    for (const bad of [{ checkIn: plus(today, -1) }, { checkIn: plus(today, 400) }, { checkIn: '2027-02-30' }, { nights: 0 }, { nights: 15 }, { guests: 7 }]) {
       const r = await call('POST', '/api/quote', { body: { ...body, booking: { ...body.booking, ...bad } } });
       assert.equal(r.status, 400, `booking ${JSON.stringify(bad)} must be rejected`);
     }
+    const tooMany = await call('POST', '/api/quote', { body: { ...body, items: [{ id: twin.id, qty: 2 }] } });
+    assert.equal(tooMany.status, 400, '2 twin rooms cannot take 5 guests');
     const co = await call('POST', '/api/checkout', { body: { type: 'order', ...body } });
     assert.equal(co.status, 200);
     assert.ok(co.json.title.startsWith('จองห้องพักโรงแรม'));

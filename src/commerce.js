@@ -90,6 +90,7 @@ function publicItem(row) {
     vegetarian: !!row.vegetarian,
     halal: !!row.halal,
     available: row.available !== 0,
+    room: row.room_json ? parse(row.room_json, null) : null,
     isSample: (row.source || 'seed') === 'seed',
     source: row.source
   };
@@ -160,7 +161,7 @@ function resolveLine(db, merchantId, rawId) {
     if (!row) return null;
     if (row.available === 0) throw new HttpError(409, `เมนู "${parse(row.name_json, {}).th}" ของหมดชั่วคราว กรุณาเลือกเมนูอื่น`);
     const it = publicItem(row);
-    return { key: String(it.id), name: it.name, unit: it.unit, priceSatang: it.priceSatang, allergens: it.allergens, spicy: it.spicy, vegetarian: it.vegetarian ? 1 : 0 };
+    return { key: String(it.id), name: it.name, unit: it.unit, priceSatang: it.priceSatang, allergens: it.allergens, spicy: it.spicy, vegetarian: it.vegetarian ? 1 : 0, maxGuests: it.room?.maxGuests || BOOKING_GUESTS_PER_ROOM };
   }
   const m = typeof rawId === 'string' ? rawId.match(SCAN_ITEM_RE) : null;
   if (!m) return null;
@@ -188,7 +189,8 @@ function addDays(day, n) {
 }
 
 /** Validate check-in, nights, guests and note for a hotel booking; missing fields get sensible defaults. */
-function normalizeBooking(raw, rooms) {
+/** capacity = how many guests the chosen rooms hold (each room type has its own limit). */
+function normalizeBooking(raw, capacity) {
   const b = raw && typeof raw === 'object' ? raw : {};
   const today = bangkokToday();
   const checkIn = b.checkIn === undefined || b.checkIn === '' ? today : b.checkIn;
@@ -199,9 +201,9 @@ function normalizeBooking(raw, rooms) {
   if (checkIn > addDays(today, BOOKING_MAX_DAYS_AHEAD)) throw new HttpError(400, 'จองล่วงหน้าได้ไม่เกิน 1 ปี');
   const nights = b.nights === undefined ? 1 : Number(b.nights);
   if (!Number.isInteger(nights) || nights < 1 || nights > BOOKING_MAX_NIGHTS) throw new HttpError(400, `จำนวนคืนต้องอยู่ระหว่าง 1–${BOOKING_MAX_NIGHTS} คืน`);
-  const maxGuests = rooms * BOOKING_GUESTS_PER_ROOM;
+  const maxGuests = capacity;
   const guests = b.guests === undefined ? Math.min(2, maxGuests) : Number(b.guests);
-  if (!Number.isInteger(guests) || guests < 1 || guests > maxGuests) throw new HttpError(400, `ผู้เข้าพักต้องอยู่ระหว่าง 1–${maxGuests} ท่าน (ห้องละไม่เกิน ${BOOKING_GUESTS_PER_ROOM} ท่าน)`);
+  if (!Number.isInteger(guests) || guests < 1 || guests > maxGuests) throw new HttpError(400, `ผู้เข้าพักต้องอยู่ระหว่าง 1–${maxGuests} ท่าน ตามประเภทห้องที่เลือก`);
   const note = typeof b.note === 'string' ? b.note.replace(/[<>\u0000-\u001f]/g, '').trim().slice(0, 80) : '';
   return { checkIn, checkOut: addDays(checkIn, nights), nights, guests, note };
 }
@@ -229,7 +231,7 @@ function quoteOrder(db, visitorId, body) {
   }
   // Hotels price per room per night and need booking details; restaurants never do.
   const isHotel = merchant.kind === 'hotel' || merchant.category === 'stay';
-  const booking = isHotel ? normalizeBooking(body.booking, lines.reduce((s, l) => s + l.qty, 0)) : null;
+  const booking = isHotel ? normalizeBooking(body.booking, lines.reduce((s, l) => s + l.qty * (l.maxGuests || BOOKING_GUESTS_PER_ROOM), 0)) : null;
   const nights = booking ? booking.nights : 1;
   const subtotal = lines.reduce((s, l) => s + l.priceSatang * l.qty * nights, 0);
 

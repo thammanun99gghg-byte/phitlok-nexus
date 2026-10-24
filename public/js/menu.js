@@ -40,6 +40,24 @@ function itemTags(item, lang) {
   return tags.join('');
 }
 
+const ROOM_AMENITIES = ['wifi', 'aircon', 'tv', 'fridge', 'kettle', 'safe', 'shower', 'bathtub', 'balcony', 'living', 'minibar'];
+
+// Bed, size, guests, breakfast and amenities differ by room type, so each room shows its own.
+function roomFacts(r) {
+  const facts = [
+    `<li><i data-lucide="bed-double"></i>${esc(t(`room.bed.${r.bed}`))}</li>`,
+    `<li><i data-lucide="users"></i>${esc(t('room.guests', { n: r.maxGuests }))}</li>`,
+    r.sizeSqm ? `<li><i data-lucide="ruler"></i>${esc(t('room.size', { n: r.sizeSqm }))}</li>` : '',
+    `<li><i data-lucide="${r.breakfast ? 'coffee' : 'circle-slash'}"></i>${esc(t(r.breakfast ? 'room.breakfast' : 'room.noBreakfast'))}</li>`,
+    r.view ? `<li><i data-lucide="eye"></i>${esc(t(`room.view.${r.view}`))}</li>` : ''
+  ].join('');
+  const amen = (r.amenities || []).filter((a) => ROOM_AMENITIES.includes(a))
+    .map((a) => `<span class="tag">${esc(t(`room.a.${a}`))}</span>`).join('');
+  return `<p class="room-tier">${esc(t(`room.tier.${r.tier}`))}</p>
+    <ul class="room-facts">${facts}</ul>
+    <div class="menu-item__tags">${amen}</div>`;
+}
+
 function itemRow(item, lang, { reason, orderable, isHotel }) {
   const name = tr(item.name, lang);
   const desc = tr(item.desc, lang) || item.desc?.en || '';
@@ -57,7 +75,7 @@ function itemRow(item, lang, { reason, orderable, isHotel }) {
       <p class="menu-item__name" lang="${lang}">${esc(name)} ${sampleBadge}</p>
       ${lang !== 'th' ? `<p class="menu-item__th" lang="th">${esc(item.name.th)}</p>` : ''}
       ${desc ? `<p class="menu-item__desc">${esc(desc)}</p>` : ''}
-      <div class="menu-item__tags">${itemTags(item, lang)}</div>
+      ${item.room ? roomFacts(item.room) : `<div class="menu-item__tags">${itemTags(item, lang)}</div>`}
     </div>
     <div class="menu-item__actions">
       <span class="menu-item__price">${baht(item.priceSatang)} <small class="muted">/ ${esc(unitName(item.unit))}</small></span>
@@ -179,7 +197,7 @@ export function addToCart(item, merchant) {
   cart.merchantKind = kind;
   const line = cart.items.find((x) => String(x.id) === String(item.id));
   if (line) line.qty = Math.min(20, line.qty + 1);
-  else cart.items.push({ id: item.id, qty: 1, item: { name: item.name, priceSatang: item.priceSatang, unit: item.unit } });
+  else cart.items.push({ id: item.id, qty: 1, item: { name: item.name, priceSatang: item.priceSatang, unit: item.unit, maxGuests: item.room?.maxGuests } });
   saveCart();
   toast(t('cart.added', { name: tr(item.name) }), 'ok');
 }
@@ -200,7 +218,8 @@ function addDays(day, n) {
   return d.toISOString().slice(0, 10);
 }
 const defaultBooking = () => ({ checkIn: bangkokToday(), nights: 1, guests: 2, note: '' });
-const roomCount = (cart) => cart.items.reduce((s, l) => s + l.qty, 0);
+// Guests the chosen rooms can hold: each room type has its own limit (older carts fall back to 4 per room).
+const guestCapacity = (cart) => cart.items.reduce((s, l) => s + l.qty * (l.item?.maxGuests || GUESTS_PER_ROOM), 0);
 
 /** The order request for the current cart: booking details for a hotel, table and dietary flags for a restaurant. */
 function orderRequest(cart) {
@@ -242,7 +261,7 @@ function renderCart() {
   if (isHotel && !cart.booking) { cart.booking = defaultBooking(); saveCart(); }
   const bk = cart.booking;
   const today = bangkokToday();
-  const maxGuests = roomCount(cart) * GUESTS_PER_ROOM;
+  const maxGuests = guestCapacity(cart);
 
   const detailsForm = isHotel ? `
     <fieldset class="booking-form">
@@ -312,8 +331,8 @@ function renderCart() {
       line.qty += Number(q.dataset.d);
       if (line.qty <= 0) cart.items.splice(Number(q.dataset.qty), 1);
       line.qty = Math.min(20, line.qty);
-      // Fewer rooms can hold fewer guests (4 per room).
-      if (cart.booking && cart.items.length) cart.booking.guests = Math.min(cart.booking.guests, roomCount(cart) * GUESTS_PER_ROOM);
+      // Fewer rooms can hold fewer guests.
+      if (cart.booking && cart.items.length) cart.booking.guests = Math.min(cart.booking.guests, guestCapacity(cart));
       saveCart();
       renderCart();
       return;

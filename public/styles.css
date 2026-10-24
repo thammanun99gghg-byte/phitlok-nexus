@@ -1656,3 +1656,9 @@ html:not([lang="th"]) #for-merchants { display: none; }
 [data-theme="dark"] .pp-d--mueang { fill: #2C5A40; }
 [data-theme="dark"] .pp-t { fill: #E2E8F0; stroke: #0F172A; }
 input[type="file"] { padding: 10px; font-size: .9rem; }
+
+/* hotel room types: bed, size, guests, breakfast, view */
+.room-tier { margin: 2px 0 4px; font-size: .875rem; font-weight: 800; color: var(--gold); text-transform: none; }
+.room-facts { list-style: none; margin: 4px 0 6px; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: .9rem; }
+.room-facts li { display: inline-flex; align-items: center; gap: 5px; }
+.room-facts svg { width: 16px; height: 16px; color: var(--emerald); flex: none; }
