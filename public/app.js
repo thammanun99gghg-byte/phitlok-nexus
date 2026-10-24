@@ -65,12 +65,17 @@ function renderStatic() {
   populateMerchantSelect();
 }
 
+// Food shops and hotels live in separate tabs, so each list only ever holds its own kind.
 function populateMenuMerchantSelect() {
-  const sel = document.getElementById('menu-merchant');
-  if (!sel) return;
-  const current = sel.value;
-  sel.innerHTML = state.data.merchants.map((m) => `<option value="${m.id}">${esc(tr(m.name))}</option>`).join('');
-  if (current) sel.value = current;
+  const fill = (id, keep) => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    const current = sel.value;
+    sel.innerHTML = state.data.merchants.filter(keep).map((m) => `<option value="${m.id}">${esc(tr(m.name))}</option>`).join('');
+    if (current && [...sel.options].some((o) => o.value === current)) sel.value = current;
+  };
+  fill('menu-merchant', (m) => merchantLayer(m) !== 'hotel');
+  fill('stay-merchant', (m) => merchantLayer(m) === 'hotel');
 }
 
 async function refreshHeroStats() {
@@ -88,6 +93,12 @@ function applyHash({ initial = false } = {}) {
   if (!hash) return;
   if (hash === 'merchant' || hash === 'admin' || hash === 'tourist') {
     setRole(hash, { skipDataLoad: initial && !state.data });
+    return;
+  }
+  if (hash === 'lens-stay') {
+    setRoleIfNeeded('tourist');
+    selectTab('stay');
+    document.getElementById('lens')?.scrollIntoView({ block: 'start' });
     return;
   }
   if (hash === 'lens-menu') {

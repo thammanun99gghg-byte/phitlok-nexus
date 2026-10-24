@@ -158,7 +158,7 @@
       <section class="section" id="lens" aria-labelledby="lens-title">
         <div class="container">
           <div class="section__head">
-            <h2 id="lens-title" data-i18n="lens.title">ฟังเรื่องเล่าและสั่งอาหาร 6 ภาษา</h2>
+            <h2 id="lens-title" data-i18n="lens.title">ฟังเรื่องเล่า สั่งอาหาร และจองที่พัก 6 ภาษา</h2>
             <p class="section__lead"><span data-i18n="lens.lead">ข้อมูลโบราณสถานจากกรมศิลปากร กรองอาหารที่แพ้ และจ่ายด้วยพร้อมเพย์</span> <span class="ai-status-badge" id="ai-badge" hidden></span></p>
           </div>
 
@@ -167,7 +167,10 @@
               <i data-lucide="headphones"></i> <span data-i18n="lens.tabA">ฟังเรื่องเล่าโบราณสถาน</span>
             </button>
             <button class="tab" role="tab" type="button" id="tab-menu" aria-controls="panel-menu" aria-selected="false" tabindex="-1">
-              <i data-lucide="utensils"></i> <span data-i18n="lens.tabB">สั่งอาหารและจองที่พัก</span>
+              <i data-lucide="utensils"></i> <span data-i18n="lens.tabB">สั่งอาหาร</span>
+            </button>
+            <button class="tab" role="tab" type="button" id="tab-stay" aria-controls="panel-stay" aria-selected="false" tabindex="-1">
+              <i data-lucide="bed-double"></i> <span data-i18n="lens.tabC">จองที่พัก</span>
             </button>
           </div>
 
@@ -220,7 +223,7 @@
           <div class="tabpanel" role="tabpanel" id="panel-menu" aria-labelledby="tab-menu" hidden>
             <div class="lens-grid">
               <div class="card lens-input">
-                <h3 data-i18n="menu.pick">เลือกร้านอาหารหรือที่พัก</h3>
+                <h3 data-i18n="menu.pick">เลือกร้านอาหารหรือร้านของฝาก</h3>
                 <div class="preset-list">
                   <button class="btn btn--preset" type="button" id="menu-preset">
                     <span class="preset-no">1</span><span data-i18n="menu.presetBtn">ลองดูเมนูร้านก๋วยเตี๋ยวห้อยขา</span>
@@ -228,7 +231,7 @@
                 </div>
                 <div class="divider"><span data-i18n="menu.or">หรือเลือกจากรายการ</span></div>
                 <div class="field">
-                  <label for="menu-merchant" data-i18n="menu.selectLabel">ร้านอาหารหรือโรงแรม</label>
+                  <label for="menu-merchant" data-i18n="menu.selectLabel">ร้านอาหาร / ร้านของฝาก</label>
                   <select id="menu-merchant"></select>
                 </div>
                 <label class="upload" for="menu-file">
@@ -248,8 +251,31 @@
               </div>
               <div class="card lens-output" id="menu-result" aria-live="polite">
                 <div class="empty">
-                  <p class="empty__title" data-i18n="menu.emptyTitle">เมนู 6 ภาษาและการจองห้องพักจะแสดงที่นี่</p>
+                  <p class="empty__title" data-i18n="menu.emptyTitle">เมนู 6 ภาษาจะแสดงที่นี่</p>
                   <p class="muted" data-i18n="menu.emptyText">กรองอาหารที่แพ้ จ่ายด้วยพร้อมเพย์ แล้วร้านได้รับใบสั่งภาษาไทยทันที</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tabpanel" role="tabpanel" id="panel-stay" aria-labelledby="tab-stay" hidden>
+            <div class="lens-grid">
+              <div class="card lens-input">
+                <h3 data-i18n="stay.pick">เลือกโรงแรมหรือที่พัก</h3>
+                <div class="field">
+                  <label for="stay-merchant" data-i18n="stay.selectLabel">โรงแรม / ที่พัก</label>
+                  <select id="stay-merchant"></select>
+                </div>
+                <ul class="stay-points">
+                  <li><i data-lucide="bed-double"></i><span data-i18n="stay.p1">ดูประเภทห้อง เตียง ขนาด และสิ่งอำนวยความสะดวกของแต่ละห้อง</span></li>
+                  <li><i data-lucide="calendar-days"></i><span data-i18n="stay.p2">เลือกวันเช็คอิน จำนวนคืน และผู้เข้าพักตามความจุจริงของห้อง</span></li>
+                  <li><i data-lucide="qr-code"></i><span data-i18n="stay.p3">จ่ายด้วยพร้อมเพย์ แล้วรับใบจองสองภาษา (BK-)</span></li>
+                </ul>
+              </div>
+              <div class="card lens-output" id="stay-result" aria-live="polite">
+                <div class="empty">
+                  <p class="empty__title" data-i18n="stay.emptyTitle">ห้องพักของโรงแรมที่เลือกจะแสดงที่นี่</p>
+                  <p class="muted" data-i18n="stay.emptyText">เลือกโรงแรมจากรายการด้านซ้าย</p>
                 </div>
               </div>
             </div>

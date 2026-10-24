@@ -75,19 +75,20 @@ try {
     for (const category of ['restaurant', 'hotel']) {
       const hotel = category === 'hotel';
       await page.locator(`[data-dir-cat="${category}"] [data-dir-menu]`).first().click();
-      await page.waitForSelector('#menu-result [data-add]');
-      await noThaiUi(page, '#menu-result', lang);
+      const result = hotel ? '#stay-result' : '#menu-result';
+      await page.waitForSelector(`${result} [data-add]`);
+      await noThaiUi(page, result, lang);
       if (!hotel) {
         await page.click('#menu-result [data-filter="nopeanut"]');
         await noThaiUi(page, '#menu-result', lang);
         await page.click('#menu-result [data-filter="all"]');
       }
-      await page.locator('#menu-result [data-add]').first().click();
+      await page.locator(`${result} [data-add]`).first().click();
       await page.click('#open-cart');
       await page.waitForSelector('#cart-quote table');
       if (hotel) {
         await page.selectOption('#bk-nights', '3');
-        await page.selectOption('#bk-guests', '3');
+        await page.selectOption('#bk-guests', '2'); // the cheapest room is a twin for 2
         await page.fill('#bk-note', 'Late arrival 18:00');
         await page.waitForFunction(() => document.querySelector('#cart-ticket')?.textContent.includes('Late arrival 18:00'));
         assert.equal(await page.locator('#cart-table-input').count(), 0);

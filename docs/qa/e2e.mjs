@@ -120,9 +120,11 @@ await step('Lens: VIP member can request the full audio guide', async () => {
 });
 
 // ---------------------------------------------------------------- restaurant order
+// food shops open in the "order food" tab (#menu-result), hotels in the "book a stay" tab (#stay-result)
+const resultSel = (cat) => (cat === 'hotel' ? '#stay-result' : '#menu-result');
 async function openMenu(cat) {
   await page.evaluate((c) => document.querySelector(`[data-dir-cat="${c}"] [data-dir-menu]`).click(), cat);
-  await page.waitForSelector('#menu-result [data-add]', { timeout: 15000 });
+  await page.waitForSelector(`${resultSel(cat)} [data-add]`, { timeout: 15000 });
 }
 await step('Food order: add dish → cart has table field + dietary flags, no booking form', async () => {
   await openMenu('restaurant');
@@ -152,7 +154,7 @@ await step('Food order: peanut flag → pay → kitchen ticket PN- with red alle
 // ---------------------------------------------------------------- hotel booking
 await step('Hotel booking: cart shows stay form only (no table, no food flags)', async () => {
   await openMenu('hotel');
-  await page.evaluate(() => document.querySelector('#menu-result [data-add]').click());
+  await page.evaluate(() => document.querySelector('#stay-result [data-add]').click());
   await page.click('#open-cart');
   await page.waitForSelector('#cart-quote table', { timeout: 10000 });
   expect(await page.locator('#cart-table-input').count() === 0, 'table field on hotel booking');
@@ -202,7 +204,7 @@ await step('Cart switch: food → hotel → food never leaks table/booking field
   await openMenu('restaurant');
   await page.evaluate(() => document.querySelector('#menu-result [data-add]').click());
   await openMenu('hotel');
-  await page.evaluate(() => document.querySelector('#menu-result [data-add]').click());
+  await page.evaluate(() => document.querySelector('#stay-result [data-add]').click());
   await page.click('#open-cart');
   await page.waitForSelector('#cart-quote table', { timeout: 10000 });
   expect(await page.locator('#bk-checkin').count() === 1 && await page.locator('#cart-table-input').count() === 0, 'hotel cart wrong');
@@ -347,8 +349,8 @@ await mp.goto(BASE + '/app#tourist', { waitUntil: 'networkidle' });
 await mp.waitForTimeout(1500);
 await step('Mobile: hotel booking form fits the screen', async () => {
   await mp.evaluate(() => document.querySelector('[data-dir-cat="hotel"] [data-dir-menu]').click());
-  await mp.waitForSelector('#menu-result [data-add]', { timeout: 15000 });
-  await mp.evaluate(() => document.querySelector('#menu-result [data-add]').click());
+  await mp.waitForSelector('#stay-result [data-add]', { timeout: 15000 });
+  await mp.evaluate(() => document.querySelector('#stay-result [data-add]').click());
   await mp.evaluate(() => document.getElementById('open-cart').click());
   await mp.waitForSelector('#bk-checkin');
   await mp.waitForTimeout(600);

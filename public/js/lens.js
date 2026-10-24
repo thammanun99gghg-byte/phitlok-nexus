@@ -17,12 +17,15 @@ const ALLOWED = ['image/jpeg', 'image/png', 'image/webp'];
 
 let lastHeritage = null;
 let menuCtx = null;
+let stayCtx = null;
+const TABS = ['heritage', 'menu', 'stay'];
+const isStay = (m) => m.kind === 'hotel' || m.category === 'stay';
 let previewUrl = null;
 let isPaused = false;
 
 // ------------------------------------------------------------------ tabs
 export function selectTab(which, { focus = false } = {}) {
-  const tabs = [document.getElementById('tab-heritage'), document.getElementById('tab-menu')].filter(Boolean);
+  const tabs = TABS.map((id) => document.getElementById(`tab-${id}`)).filter(Boolean);
   tabs.forEach((t) => {
     const onTab = t.id === `tab-${which}`;
     t.setAttribute('aria-selected', String(onTab));
@@ -31,6 +34,11 @@ export function selectTab(which, { focus = false } = {}) {
     if (panel) panel.hidden = !onTab;
     if (onTab && focus) t.focus();
   });
+  // the stay tab opens on the hotel already chosen in its list
+  if (which === 'stay' && !document.querySelector('#stay-result .menu-list')) {
+    const sel = document.getElementById('stay-merchant');
+    if (sel?.value) openMerchantMenu(sel.value, { scroll: false });
+  }
 }
 
 function bindTabs() {
@@ -43,8 +51,9 @@ function bindTabs() {
   list.addEventListener('keydown', (e) => {
     if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return;
     e.preventDefault();
-    const current = document.getElementById('tab-heritage').getAttribute('aria-selected') === 'true' ? 'heritage' : 'menu';
-    selectTab(current === 'heritage' ? 'menu' : 'heritage', { focus: true });
+    const current = TABS.findIndex((id) => document.getElementById(`tab-${id}`)?.getAttribute('aria-selected') === 'true');
+    const next = e.key === 'Home' ? 0 : e.key === 'End' ? TABS.length - 1 : (current + (e.key === 'ArrowRight' ? 1 : -1) + TABS.length) % TABS.length;
+    selectTab(TABS[next], { focus: true });
   });
 }
 
@@ -405,14 +414,13 @@ async function scanMenu(buildForm) {
   }
 }
 
-/** Show a merchant's published menu or hotel room packages (from map card or directory). */
+/** Show a shop's menu (food tab) or a hotel's rooms (stay tab) — never both in one place. */
 export function openMerchantMenu(merchantId, { scroll = true } = {}) {
   const merchant = state.data.merchants.find((m) => m.id === Number(merchantId) || m.slug === String(merchantId));
   if (!merchant) return;
+  if (isStay(merchant)) { openStay(merchant, scroll); return; }
   syncMenuSelect(merchant.id);
-  // hotel rooms read cheapest to most expensive
-  const items = state.data.menuItems.filter((i) => i.merchantId === merchant.id)
-    .sort((a, b) => (a.room && b.room ? a.priceSatang - b.priceSatang : 0));
+  const items = state.data.menuItems.filter((i) => i.merchantId === merchant.id);
   selectTab('menu');
   const prev = document.getElementById('menu-preview');
   const pipe = document.getElementById('menu-pipeline');
@@ -425,6 +433,31 @@ export function openMerchantMenu(merchantId, { scroll = true } = {}) {
     out.onclick = (e) => { if (e.target.closest('[data-try-preset]')) runMenuPreset(); };
   } else {
     menuCtx = renderDigitalMenu(out, { merchant, items, source: 'database', orderable: true });
+  }
+  if (scroll) document.getElementById('lens')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function openStay(hotel, scroll) {
+  const sel = document.getElementById('stay-merchant');
+  if (sel) sel.value = String(hotel.id);
+  if (document.getElementById('tab-stay')?.getAttribute('aria-selected') !== 'true') {
+    const tabs = TABS.map((id) => document.getElementById(`tab-${id}`)).filter(Boolean);
+    tabs.forEach((tb) => {
+      const on = tb.id === 'tab-stay';
+      tb.setAttribute('aria-selected', String(on));
+      tb.tabIndex = on ? 0 : -1;
+      const panel = document.getElementById(tb.getAttribute('aria-controls'));
+      if (panel) panel.hidden = !on;
+    });
+  }
+  // rooms read cheapest to most expensive
+  const rooms = state.data.menuItems.filter((i) => i.merchantId === hotel.id).sort((a, b) => a.priceSatang - b.priceSatang);
+  const out = document.getElementById('stay-result');
+  if (!rooms.length) {
+    out.innerHTML = `<div class="empty"><p class="empty__title">${esc(t('menu.noItems', { name: tr(hotel.name) }))}</p></div>`;
+    stayCtx = null;
+  } else {
+    stayCtx = renderDigitalMenu(out, { merchant: hotel, items: rooms, source: 'database', orderable: true });
   }
   if (scroll) document.getElementById('lens')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
@@ -449,6 +482,7 @@ export function initLens() {
   document.getElementById('menu-preset')?.addEventListener('click', runMenuPreset);
   // choosing a shop or hotel from the list shows its own menu or rooms right away
   document.getElementById('menu-merchant')?.addEventListener('change', (e) => openMerchantMenu(e.target.value, { scroll: false }));
+  document.getElementById('stay-merchant')?.addEventListener('change', (e) => openMerchantMenu(e.target.value, { scroll: false }));
   document.getElementById('menu-file')?.addEventListener('change', (e) => {
     const file = e.target.files[0];
     const err = validateFile(file);
@@ -474,8 +508,12 @@ export function initLens() {
     setWavePlaying(false);
     renderHeritage();
     if (menuCtx && document.querySelector('#menu-result .menu-list')) menuCtx.redraw();
+    if (stayCtx && document.querySelector('#stay-result .menu-list')) stayCtx.redraw();
   });
-  on('cart:changed', () => { if (menuCtx && document.querySelector('#menu-result .menu-list')) menuCtx.redraw(); });
+  on('cart:changed', () => {
+    if (menuCtx && document.querySelector('#menu-result .menu-list')) menuCtx.redraw();
+    if (stayCtx && document.querySelector('#stay-result .menu-list')) stayCtx.redraw();
+  });
   on('visitor:changed', () => renderHeritage());
   window.addEventListener('phitlok:vip-activated', () => renderHeritage());
   on('menu:open-preset', () => { runMenuPreset(); document.getElementById('lens')?.scrollIntoView({ behavior: 'smooth' }); });
