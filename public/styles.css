@@ -1424,3 +1424,90 @@ html.map-fs-lock, html.map-fs-lock body { overflow: hidden; }
 /* The partner sign-up form is for Thai businesses (Thai phone number and PromptPay), so travellers using
    another language do not see a form they cannot use. */
 html:not([lang="th"]) #for-merchants { display: none; }
+
+/* ---------------- Province view HUD: dock · view switch · progress · round tools · district labels ---------------- */
+.map-stage { --dock-w: 0px; }
+@media (min-width: 900px) { .map-stage { --dock-w: 92px; } }
+.map-toolbar { left: calc(12px + var(--dock-w)); }
+.map-toolbar > :first-child { margin-left: 0; }
+
+.map-viewswitch { display: flex; gap: 4px; padding: 4px; flex: none; border-radius: 16px; background: var(--bg-surface); box-shadow: var(--e1); pointer-events: auto; }
+.map-view {
+  min-width: 44px; min-height: 44px; padding: 0 14px; display: inline-flex; align-items: center; gap: 6px;
+  border: 0; border-radius: 12px; background: transparent; color: var(--text);
+  font-family: var(--font-display); font-size: .95rem; font-weight: 700; white-space: nowrap; cursor: pointer;
+}
+.map-view svg { width: 18px; height: 18px; }
+.map-view[aria-pressed="true"] { background: var(--emerald); color: #FFFFFF; box-shadow: 0 6px 16px rgba(15, 61, 62, .3); }
+
+.map-dock { display: none; }
+@media (min-width: 900px) {
+  .map-dock {
+    position: absolute; z-index: 4; left: 12px; top: 12px; width: 80px; max-height: calc(100% - 24px);
+    display: flex; flex-direction: column; gap: 6px; padding: 10px 6px; overflow-y: auto; scrollbar-width: none;
+    border-radius: 20px; background: var(--bg-surface); box-shadow: var(--e2);
+  }
+}
+.map-dock__item {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  min-width: 44px; min-height: 64px; padding: 6px 2px; border: 0; border-radius: 14px;
+  background: transparent; color: var(--text); text-align: center; text-decoration: none; cursor: pointer;
+  font-family: var(--font-display); font-size: .875rem; font-weight: 700; line-height: 1.15;
+}
+.map-dock__item svg { width: 24px; height: 24px; }
+.map-dock__item:hover { background: var(--bg-elevated); }
+.map-dock__item.is-active { background: rgba(23, 128, 124, .14); color: var(--emerald); }
+
+.map-progress { display: none; }
+@media (min-width: 900px) {
+  .map-progress {
+    display: block; position: absolute; z-index: 3; left: calc(12px + var(--dock-w)); top: 72px; width: 250px;
+    padding: 12px 14px; border-radius: 16px; background: var(--bg-surface); color: var(--text); box-shadow: var(--e2);
+  }
+}
+.map-progress p { margin: 0; }
+.map-progress__title { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-family: var(--font-display); font-size: .95rem; font-weight: 700; }
+.map-progress__vip { font-size: .875rem; color: var(--gold); }
+.map-progress .map-progress__row { margin-top: 6px; font-size: .875rem; }
+.map-progress__bar { height: 8px; margin-top: 6px; border-radius: 999px; background: var(--bg-elevated); overflow: hidden; }
+.map-progress__bar span { display: block; width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #FACC15, #E6B422); transition: width .4s var(--ease); }
+.map-progress__cta {
+  width: 100%; min-height: 44px; margin-top: 10px; border: 0; border-radius: 12px; cursor: pointer;
+  background: #FDF3C4; color: #6B4E00; font-family: var(--font-display); font-size: .875rem; font-weight: 700;
+}
+[data-theme="dark"] .map-progress__cta { background: rgba(250, 204, 21, .16); color: #FACC15; }
+
+.map-fabs { position: absolute; z-index: 4; right: 12px; bottom: 12px; display: flex; flex-direction: column; gap: 10px; }
+.map-fabs .map-tool { width: 48px; height: 48px; padding: 0; border-radius: 50%; box-shadow: var(--e2); }
+.map-legend { left: calc(12px + var(--dock-w)); }
+
+.province-labels { position: absolute; inset: 0; z-index: 2; pointer-events: none; overflow: hidden; }
+.province-labels[hidden] { display: none; }
+.prov-label {
+  position: absolute; left: 0; top: 0; pointer-events: auto; transform: translate(-50%, -100%);
+  min-width: 46px; min-height: 46px; padding: 0 4px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  border: 0; border-radius: 999px; background: transparent; color: #1E293B; cursor: pointer; white-space: nowrap;
+  font-family: var(--font-display); font-size: .95rem; font-weight: 800;
+  text-shadow: 0 0 3px #FFFFFF, 0 0 3px #FFFFFF, 0 1px 2px #FFFFFF;
+}
+.prov-label__name { padding: 4px 10px; border-radius: 999px; transition: background .15s var(--ease); }
+.prov-label:hover .prov-label__name { background: rgba(255, 255, 255, .85); }
+.prov-label.is-active .prov-label__name { background: var(--emerald); color: #FFFFFF; text-shadow: none; box-shadow: var(--e1); }
+.prov-label__count {
+  min-width: 24px; height: 24px; padding: 0 6px; display: inline-grid; place-items: center; border-radius: 999px;
+  background: #FACC15; color: #3B2F00; font-size: .875rem; text-shadow: none; box-shadow: 0 2px 6px rgba(0, 0, 0, .18);
+}
+.prov-label--neighbor { pointer-events: none; min-height: 0; color: #64748B; font-weight: 700; letter-spacing: .02em; }
+.prov-pin {
+  position: absolute; left: 0; top: 0; pointer-events: auto; transform: translate(-50%, -100%);
+  min-height: 46px; padding: 0 14px; display: inline-flex; align-items: center; gap: 6px;
+  border: 0; border-radius: 999px; background: #FACC15; color: #2B2100; cursor: pointer; white-space: nowrap;
+  font-family: var(--font-display); font-size: .95rem; font-weight: 800; box-shadow: 0 8px 20px rgba(120, 90, 0, .35);
+}
+.prov-pin::after { content: ''; position: absolute; left: 50%; bottom: -7px; margin-left: -7px; border: 7px solid transparent; border-bottom: 0; border-top-color: #FACC15; }
+[data-theme="dark"] .prov-label { color: #E2E8F0; text-shadow: 0 0 3px #0F172A, 0 0 3px #0F172A, 0 1px 2px #0F172A; }
+[data-theme="dark"] .prov-label:hover .prov-label__name { background: rgba(15, 23, 42, .85); }
+[data-theme="dark"] .prov-label--neighbor { color: #94A3B8; }
+.district-places { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 8px; }
+/* On /app the map fills the first screen and the dock links onward, so the floating cue would only cover map tools. */
+.page-app .scroll-cue { display: none; }

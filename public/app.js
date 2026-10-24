@@ -1,6 +1,7 @@
 // PHITLOK NEXUS v2.3 — Application Entry (Real-World Geospatial & Strict 3-Role Edition)
 import { state, api, esc, tr, baht, num, on, emit, toast, openDialog, closeDialog, LANGS, langSwitcher, refreshIcons, svgFallbackUrl, shortLabel } from './js/core.js';
-import { initMap, focusEntity, syncMerchants, refreshLabels, setMapLayers, merchantLayer, setMapLabelsVisible, areMapLabelsVisible } from './js/map3d.js';
+import { initMap, focusEntity, syncMerchants, refreshLabels, setMapLayers, merchantLayer, setMapLabelsVisible, areMapLabelsVisible, showProvince, showCity, getMapMode } from './js/map3d.js';
+import { DISTRICT_LIST, districtName, placesByDistrict } from './js/province3d.js';
 import { isVipActive, setVipActive, syncVipHeaderButtons, openVipUpgradeModal, setLang } from './js/site.js';
 import { t, applyStatic, builtYear, errText, locale } from './js/i18n.js';
 import { initLens, runHeritage, runMenuPreset, openMerchantMenu, speakGuide, selectTab } from './js/lens.js';
@@ -43,7 +44,7 @@ async function boot() {
   // Show Wat Yai card by default so judges immediately see real photo + GPS + Google Maps button
   const firstLm = state.data.landmarks[0];
   if (firstLm) renderMapCard({ kind: 'landmark', subKind: 'heritage', data: firstLm });
-  await initMap({ onSelect: renderMapCard });
+  await initMap({ onSelect: renderMapCard, onDistrict: renderDistrictCard, onMode: syncViewSwitch });
   refreshIcons();
 }
 
@@ -122,6 +123,7 @@ function setCount(el, n) {
 
 function renderVisitorBits() {
   const v = state.data.visitor;
+  renderProgress();
   if (v.vip.active) setVipActive(true);
   else syncVipHeaderButtons();
   const vipActiveNow = v.vip.active || isVipActive();
@@ -143,10 +145,57 @@ function renderVisitorBits() {
   }
 }
 
+// ------------------------------------------------------------------ province view: district card, progress, view switch
+let currentDistrict = null;
+
+function renderDistrictCard(id) {
+  const card = document.getElementById('map-card');
+  const d = DISTRICT_LIST.find((x) => x.id === id);
+  if (!card || !d) return;
+  currentDistrict = id;
+  const places = placesByDistrict()[id];
+  const item = (p) => {
+    const attr = p.key.startsWith('landmark:') ? `data-focus-landmark="${esc(p.data.id)}"` : `data-focus-merchant="${esc(p.data.slug)}"`;
+    return `<li><button class="btn btn--outline btn--block" type="button" ${attr}>${esc(tr(p.data.name))}</button></li>`;
+  };
+  card.innerHTML = `<p class="kicker">${esc(t('prov.kicker'))}</p>
+    <h3>${esc(districtName(d))}</h3>
+    <p class="muted">${esc(state.lang === 'th' ? d.en : d.th)}</p>
+    ${places.length ? `<p><b>${esc(t('prov.places', { n: places.length }))}</b></p>
+      ${id === 'mueang' ? `<button class="btn btn--primary btn--block" type="button" data-open-city>${esc(t('prov.openCity'))}</button>` : ''}
+      <ul class="district-places">${places.map(item).join('')}</ul>`
+      : `<p class="muted">${esc(t('prov.none'))}</p>`}
+    <p class="fineprint">${esc(t('prov.source'))}</p>`;
+}
+
+// Real numbers only: stamps this visitor has collected and how the demo's places spread over the 9 districts.
+function renderProgress() {
+  const el = document.getElementById('map-progress');
+  if (!el || !state.data) return;
+  const v = state.data.visitor;
+  const total = state.data.landmarks.length;
+  const got = new Set(v.stamps.map((st) => st.landmarkId)).size;
+  const byDistrict = Object.values(placesByDistrict());
+  const places = byDistrict.reduce((a, l) => a + l.length, 0);
+  const covered = byDistrict.filter((l) => l.length).length;
+  const stamps = t('hud.stamps', { n: got, t: total });
+  el.innerHTML = `<p class="map-progress__title">${esc(t('hud.title'))}${v.vip.active ? ` <span class="map-progress__vip">👑 ${esc(t('hud.vip'))}</span>` : ''}</p>
+    <p class="map-progress__row"><b>${esc(stamps)}</b></p>
+    <div class="map-progress__bar" role="progressbar" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${got}" aria-label="${esc(stamps)}"><span></span></div>
+    <p class="map-progress__row">${esc(t('hud.places', { n: places, d: covered }))}</p>
+    ${got < total ? `<button class="map-progress__cta" type="button" data-progress-scan>${esc(t('hud.scan'))}</button>` : ''}`;
+  el.querySelector('.map-progress__bar span').style.width = `${total ? Math.round((got / total) * 100) : 0}%`;
+}
+
+function syncViewSwitch(mode) {
+  document.querySelectorAll('[data-map-view]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mapView === mode)));
+}
+
 // ------------------------------------------------------------------ Location Detail Card (Real Photo + GPS + Google Maps / Earth 3D)
 function renderMapCard(ent) {
   const card = document.getElementById('map-card');
   if (!card || !ent) return;
+  currentDistrict = null;
   const lang = state.lang;
   const d = ent.data;
   const gmapsUrl = d.googleMapsUrl || `https://www.google.com/maps/search/?api=1&query=${d.lat},${d.lng}`;
@@ -378,6 +427,7 @@ function bindGlobal() {
     if (scan) { goScan(scan.dataset.scan); return; }
     const speak = e.target.closest('[data-speak]');
     if (speak) { speakGuide(speak.dataset.speak, 'summary', state.lang, null); return; }
+    if (e.target.closest('[data-open-city]')) { showCity(); return; }
     const fm = e.target.closest('[data-focus-merchant]');
     if (fm) { focusEntity(`merchant:${fm.dataset.focusMerchant}`); return; }
     const fl = e.target.closest('[data-focus-landmark]');
@@ -460,7 +510,8 @@ function bindGlobal() {
     refreshLabels();
     renderDirectoryCards();
     const active = document.querySelector('.map-label--active');
-    if (active) active.click();
+    if (currentDistrict && getMapMode() === 'province') renderDistrictCard(currentDistrict);
+    else if (active) active.click();
     else if (state.data?.landmarks?.[0]) renderMapCard({ kind: 'landmark', subKind: 'heritage', data: state.data.landmarks[0] });
   });
   on('data:reload', () => reloadData().catch(() => {}));
@@ -535,6 +586,20 @@ function applyLayerFilter() {
 
 function bindMapTools() {
   updateLayerCounts();
+  document.querySelectorAll('[data-map-view]').forEach((b) => b.addEventListener('click', () => {
+    if (b.dataset.mapView === 'city') showCity();
+    else showProvince();
+  }));
+  // Settings in the map dock opens the header language picker (it lives in the sticky bar).
+  document.querySelector('[data-open-settings]')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    document.getElementById('lang-btn')?.click();
+  });
+  document.getElementById('map-progress')?.addEventListener('click', (e) => {
+    if (!e.target.closest('[data-progress-scan]')) return;
+    const next = state.data.landmarks.find((l) => !state.data.visitor.stamps.some((st) => st.landmarkId === l.id));
+    if (next) goScan(next.id);
+  });
   document.querySelectorAll('[data-map-layer]').forEach((chip) => chip.addEventListener('click', () => {
     chip.setAttribute('aria-pressed', String(chip.getAttribute('aria-pressed') !== 'true'));
     applyLayerFilter();

@@ -3,6 +3,7 @@
 // East-West = X (+East, -West), North-South = Z (-North, +South)
 import { state, tr, esc, reducedMotion, shortLabel } from './core.js';
 import { t } from './i18n.js';
+import { createProvince } from './province3d.js';
 
 const THREE_URLS = [
   'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js',
@@ -61,6 +62,7 @@ export function setMapLabelsVisible(show) {
     labelsEl.classList.toggle('is-labels-hidden', !labelsVisible);
   }
   updateLabelStates();
+  start();
   return labelsVisible;
 }
 
@@ -71,11 +73,14 @@ export function areMapLabelsVisible() {
 export function applyMapTheme(theme) {
   const isDark = (theme || document.documentElement.dataset.theme) === 'dark';
   if (stage) {
-    stage.style.background = isDark
-      ? 'linear-gradient(180deg, #080B0C 0%, #101618 55%, #172124 100%)'
-      : 'linear-gradient(180deg, #D9ECFF 0%, #EAF3E2 55%, #DCE5D2 100%)';
+    stage.style.background = mode === 'province'
+      ? (isDark ? 'linear-gradient(180deg, #0B1220 0%, #0F172A 60%, #131C31 100%)' : 'linear-gradient(180deg, #DCE4EF 0%, #C8D3E3 100%)')
+      : isDark
+        ? 'linear-gradient(180deg, #080B0C 0%, #101618 55%, #172124 100%)'
+        : 'linear-gradient(180deg, #D9ECFF 0%, #EAF3E2 55%, #DCE5D2 100%)';
   }
   if (!THREE || !scene) return;
+  if (prov) prov.applyTheme(isDark);
   if (hemiLight) {
     hemiLight.color.setHex(isDark ? 0xB8D8F8 : 0xFFFDF8);
     hemiLight.groundColor.setHex(isDark ? 0x101618 : 0x7A8B7B);
@@ -104,12 +109,79 @@ window.addEventListener('phitlok:theme', (e) => applyMapTheme(e.detail));
 // Camera rig in spherical coordinates around a target.
 const rig = { target: null, radius: 34, theta: 0.35, phi: 0.90, anim: null };
 
+// Two views share one renderer: the whole province (real district borders) and the detailed city.
+let mode = 'city';
+let prov = null;
+let provLabelsEl = null;
+let onDistrictCb = () => {};
+let onModeCb = () => {};
+const LIMITS = { city: { zoom: [8, 58], pan: 16 }, province: { zoom: [12, 72], pan: 24 } };
+// Wide stages leave room on the left for the dock and progress card, so the board sits right and lower.
+function provinceView() {
+  const wide = (stage?.clientWidth || 0) >= 700;
+  return {
+    target: new THREE.Vector3(wide ? -3.5 : 0, 0, wide ? -1.5 : 0.5),
+    radius: (wide ? 50 : 36) / Math.min(1, (camera?.aspect || 1.6) * 1.3),
+    phi: 0.66
+  };
+}
+
+export const getMapMode = () => mode;
+
+function setMode(next) {
+  mode = next;
+  stage?.classList.toggle('is-province', next === 'province');
+  if (provLabelsEl) provLabelsEl.hidden = next !== 'province';
+  if (labelsEl) labelsEl.hidden = next === 'province';
+  applyMapTheme(document.documentElement.dataset.theme || 'light');
+  onModeCb(next);
+}
+
+/** Whole-province view. Zooms out from the city when coming from there. */
+export function showProvince({ instant = false } = {}) {
+  if (!THREE || !prov) return;
+  const from = mode;
+  if (from !== 'province') {
+    activeKey = null;
+    updateLabelStates();
+    setMode('province');
+    rig.target.copy(prov.cityCenter); rig.radius = 14; rig.theta = 0; rig.phi = 0.7;
+  }
+  prov.setActive(null);
+  const v = provinceView();
+  if (instant) { rig.anim = null; rig.target.copy(v.target); rig.radius = v.radius; rig.theta = 0; rig.phi = v.phi; start(); }
+  else flyTo(v.target, v.radius, 0, v.phi);
+}
+
+/** Detailed city map (Wat Yai, Chan Palace, Nan riverside shops). */
+export function showCity() {
+  if (!THREE) return;
+  if (mode !== 'city') {
+    prov?.setActive(null);
+    setMode('city');
+    rig.target.set(0, 0, 0); rig.radius = 58; rig.theta = 0.1; rig.phi = 0.55;
+  }
+  flyTo(new THREE.Vector3(0, 0, 0), 34, 0.35, 0.90);
+}
+
+/** Highlight one district on the province view and report it to the page. */
+export function focusDistrict(id, { silent = false } = {}) {
+  if (!THREE || !prov) return;
+  if (mode !== 'province') showProvince({ instant: true });
+  prov.setActive(id);
+  flyTo(prov.districtCenter(id), id === 'mueang' ? 24 : 30, 0, 0.7);
+  if (!silent) onDistrictCb(id);
+}
+
 // --------------------------------------------------------------- public API
-export async function initMap({ onSelect }) {
+export async function initMap({ onSelect, onDistrict, onMode, startIn = 'province' }) {
   onSelectCb = onSelect;
+  if (onDistrict) onDistrictCb = onDistrict;
+  if (onMode) onModeCb = onMode;
   canvas = document.getElementById('map-canvas');
   stage = document.getElementById('map-stage');
   labelsEl = document.getElementById('map-labels');
+  provLabelsEl = document.getElementById('province-labels');
   statusEl = document.getElementById('map-status');
   if (!canvas || !stage) return;
 
@@ -128,8 +200,14 @@ export async function initMap({ onSelect }) {
     return;
   }
   buildWorld();
+  if (provLabelsEl) {
+    prov = createProvince(THREE, { labelsEl: provLabelsEl, onDistrict: (id) => focusDistrict(id), onCity: () => showCity() });
+    prov.applyTheme((document.documentElement.dataset.theme || 'light') === 'dark');
+  }
   bindControls();
   if (statusEl) statusEl.hidden = true;
+  if (prov && startIn === 'province') { setMode('province'); showProvince({ instant: true }); }
+  else setMode('city');
   start();
 }
 
@@ -166,11 +244,17 @@ export function focusEntity(key, { silent = false } = {}) {
   if (key === 'overview') {
     activeKey = null;
     updateLabelStates();
+    if (mode === 'province') { showProvince(); return; }
     if (THREE) flyTo(new THREE.Vector3(0, 0, 0), 34, 0.35, 0.90);
     return;
   }
   const ent = entities.get(key) || fallbackEntity(key);
   if (!ent) return;
+  if (mode === 'province' && THREE) {
+    prov?.setActive(null);
+    setMode('city');
+    rig.target.set(0, 0, 0); rig.radius = 58; rig.theta = 0.1; rig.phi = 0.55;
+  }
   activeKey = key;
   updateLabelStates();
   if (THREE && ent.anchor) {
@@ -198,10 +282,12 @@ export function syncMerchants(merchants, highlightId) {
     }
   }
   if (!THREE) renderFallbackLabels();
+  prov?.refreshLabels();
 }
 
 export function refreshLabels() {
   if (!THREE) { renderFallbackLabels(); return; }
+  prov?.refreshLabels();
   for (const ent of entities.values()) {
     if (!ent.label) continue;
     ent.label.querySelector('.txt').textContent = shortName(ent);
@@ -806,17 +892,32 @@ function pinchDistance(pointers) {
   return Math.hypot(a.x - b.x, a.y - b.y) || 1;
 }
 
-function zoom(factor) { rig.radius = clamp(rig.radius * factor, 8, 58); }
+function zoom(factor) { const [lo, hi] = LIMITS[mode].zoom; rig.radius = clamp(rig.radius * factor, lo, hi); }
 
 function pan(dx, dy) {
   const speed = rig.radius * 0.0018;
   const sin = Math.sin(rig.theta), cos = Math.cos(rig.theta);
-  rig.target.x = clamp(rig.target.x - (dx * cos + dy * sin) * speed, -16, 16);
-  rig.target.z = clamp(rig.target.z - (-dx * sin + dy * cos) * speed, -16, 16);
+  const lim = LIMITS[mode].pan;
+  rig.target.x = clamp(rig.target.x - (dx * cos + dy * sin) * speed, -lim, lim);
+  rig.target.z = clamp(rig.target.z - (-dx * sin + dy * cos) * speed, -lim, lim);
+}
+
+function provinceHit(e) {
+  const rect = canvas.getBoundingClientRect();
+  if (!rect.width || !rect.height) return null;
+  const ndc = new THREE.Vector2(((e.clientX - rect.left) / rect.width) * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1);
+  raycaster.setFromCamera(ndc, camera);
+  return raycaster.intersectObjects(prov.pickables, false)[0]?.object.userData || null;
 }
 
 function hoverPick(e) {
   if (!THREE || !camera || !raycaster) return;
+  if (mode === 'province') {
+    const hit = provinceHit(e);
+    canvas.style.cursor = hit ? 'pointer' : 'grab';
+    if (prov.setHover(hit?.district || null)) start();
+    return;
+  }
   const rect = canvas.getBoundingClientRect();
   if (!rect.width || !rect.height) return;
   const ndc = new THREE.Vector2(((e.clientX - rect.left) / rect.width) * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1);
@@ -835,6 +936,12 @@ function hoverPick(e) {
 }
 
 function pick(e) {
+  if (mode === 'province') {
+    const hit = provinceHit(e);
+    if (hit?.city) showCity();
+    else if (hit?.district) focusDistrict(hit.district);
+    return;
+  }
   const rect = canvas.getBoundingClientRect();
   const ndc = new THREE.Vector2(((e.clientX - rect.left) / rect.width) * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1);
   raycaster.setFromCamera(ndc, camera);
@@ -895,6 +1002,14 @@ function frame(now) {
   );
   camera.lookAt(rig.target);
 
+  if (mode === 'province') {
+    prov.tick(dt, t, reducedMotion());
+    renderer.render(prov.scene, camera);
+    prov.positionLabels(camera, canvas.clientWidth, canvas.clientHeight, labelsVisible);
+    requestAnimationFrame(frame);
+    return;
+  }
+
   if (!reducedMotion()) {
     if (water) water.material.map.offset.y -= dt * 0.05;
     for (const trObj of trails) {
@@ -922,6 +1037,10 @@ function frame(now) {
 }
 
 const tmp = { v: null };
+let lastAnchors = [];
+window.__PHITLOK_DEBUG__ = Object.assign(window.__PHITLOK_DEBUG__ || {}, {
+  labelAnchors: () => (mode === 'province' ? [...entities.keys()].map((key) => ({ key, visible: false })) : lastAnchors)
+});
 function positionLabels() {
   if (!tmp.v) tmp.v = new THREE.Vector3();
   const w = canvas.clientWidth;
@@ -945,6 +1064,9 @@ function positionLabels() {
     }
     const priority = key === activeKey ? 3 : ent.kind === 'landmark' ? 2 : 1;
     visibleItems.push({
+      key,
+      ax: x,
+      ay: y,
       ent,
       x,
       y,
@@ -979,9 +1101,11 @@ function positionLabels() {
     }
   }
 
+  lastAnchors = [];
   for (const item of visibleItems) {
     const cx = clamp(item.x, item.halfW + 6, Math.max(item.halfW + 6, w - item.halfW - 6));
     const cy = clamp(item.y, item.halfH * 2 + 6, Math.max(item.halfH * 2 + 6, h - 8));
+    lastAnchors.push({ key: item.key, visible: true, ax: item.ax, ay: item.ay, lx: cx, ly: cy });
     item.ent.label.style.visibility = 'visible';
     item.ent.label.style.transform = `translate(${cx.toFixed(1)}px, ${cy.toFixed(1)}px) translate(-50%, -100%)`;
   }

@@ -85,8 +85,8 @@
         <div class="container">
           <div class="section__head section__head--row">
             <div>
-              <h1 id="map-title" data-i18n="map.title">แผนที่ 3 มิติ พิษณุโลก</h1>
-              <p class="section__lead" data-i18n="map.lead">แตะหมุดเพื่อดูเรื่องเล่า เมนู และที่พัก</p>
+              <h1 id="map-title" data-i18n="map.title">แผนที่ 3 มิติ จังหวัดพิษณุโลก</h1>
+              <p class="section__lead" data-i18n="map.lead">แตะอำเภอเพื่อดูสถานที่ แตะหมุดเพื่อดูเรื่องเล่า เมนู และที่พัก</p>
             </div>
           </div>
 
@@ -94,17 +94,32 @@
             <div class="map-stage" id="map-stage">
               <canvas id="map-canvas" aria-label="แผนที่ 3 มิติของพิษณุโลก" data-i18n-aria="map.canvas" role="img"></canvas>
               <div class="map-labels" id="map-labels"></div>
+              <div class="province-labels" id="province-labels" hidden></div>
+              <nav class="map-dock" aria-label="เมนูลัด" data-i18n-aria="dock.aria">
+                <a class="map-dock__item is-active" href="#map" aria-current="true"><i data-lucide="map"></i><span data-i18n="dock.map">แผนที่</span></a>
+                <a class="map-dock__item" href="#directory"><i data-lucide="map-pin"></i><span data-i18n="dock.places">สถานที่</span></a>
+                <button class="map-dock__item" type="button" data-open-wallet-menu><i data-lucide="book-open"></i><span data-i18n="dock.passport">สมุดสะสม</span></button>
+                <a class="map-dock__item" href="#vip"><i data-lucide="shopping-bag"></i><span data-i18n="dock.shop">ร้าน &amp; VIP</span></a>
+                <button class="map-dock__item" type="button" data-open-settings><i data-lucide="settings"></i><span data-i18n="dock.settings">ตั้งค่า</span></button>
+              </nav>
+              <div class="map-progress" id="map-progress" aria-live="polite"></div>
               <div class="map-status" id="map-status" role="status" data-i18n="map.loading">กำลังโหลดแผนที่ 3 มิติ…</div>
               <div class="map-toolbar" role="toolbar" aria-label="เครื่องมือแผนที่" data-i18n-aria="map.tools">
+                <div class="map-viewswitch" role="group" aria-label="เลือกมุมมองแผนที่" data-i18n-aria="map.viewAria">
+                  <button class="map-view" type="button" data-map-view="province" aria-pressed="true"><i data-lucide="map"></i><span data-i18n="map.viewProvince">ทั้งจังหวัด</span></button>
+                  <button class="map-view" type="button" data-map-view="city" aria-pressed="false"><i data-lucide="landmark"></i><span data-i18n="map.viewCity">ตัวเมือง</span></button>
+                </div>
                 <div class="map-toolbar__chips" role="group" aria-label="เลือกหมวดที่แสดงบนแผนที่" data-i18n-aria="map.layers">
                   <button class="map-chip map-chip--heritage" type="button" data-map-layer="heritage" aria-pressed="true"><i data-lucide="landmark"></i><span class="map-chip__name" data-i18n="cat.heritage">โบราณสถาน</span><b class="map-chip__count" data-layer-count="heritage"></b></button>
                   <button class="map-chip map-chip--restaurant" type="button" data-map-layer="restaurant" aria-pressed="true"><i data-lucide="utensils"></i><span class="map-chip__name" data-i18n="cat.restaurant">ร้านอาหาร</span><b class="map-chip__count" data-layer-count="restaurant"></b></button>
                   <button class="map-chip map-chip--souvenir" type="button" data-map-layer="souvenir" aria-pressed="true"><i data-lucide="gift"></i><span class="map-chip__name" data-i18n="cat.souvenir">ของฝาก</span><b class="map-chip__count" data-layer-count="souvenir"></b></button>
                   <button class="map-chip map-chip--hotel" type="button" data-map-layer="hotel" aria-pressed="true"><i data-lucide="bed-double"></i><span class="map-chip__name" data-i18n="cat.hotel">ที่พัก</span><b class="map-chip__count" data-layer-count="hotel"></b></button>
                 </div>
-                <button class="map-tool map-tool--labels" type="button" id="map-labels-toggle" aria-pressed="true"><i data-lucide="tag"></i><span id="map-labels-toggle-text">🏷️ ชื่อสถานที่: เปิด</span></button>
-                <button class="map-tool" type="button" id="map-legend-toggle" aria-expanded="false" aria-controls="map-legend"><i data-lucide="info"></i><span data-i18n="map.legend">สัญลักษณ์</span></button>
-                <button class="map-tool" type="button" id="map-reset" aria-label="กลับมุมมองเริ่มต้น" title="กลับมุมมองเริ่มต้น" data-i18n-aria="map.reset" data-i18n-title="map.reset"><i data-lucide="rotate-ccw"></i></button>
+              </div>
+              <div class="map-fabs" role="toolbar" aria-label="เครื่องมือแผนที่" data-i18n-aria="map.tools">
+                <button class="map-tool map-tool--labels" type="button" id="map-labels-toggle" aria-pressed="true"><i data-lucide="tag"></i><span class="sr-only" id="map-labels-toggle-text">🏷️ ชื่อสถานที่: เปิด</span></button>
+                <button class="map-tool" type="button" id="map-legend-toggle" aria-expanded="false" aria-controls="map-legend"><i data-lucide="info"></i><span class="sr-only" data-i18n="map.legend">สัญลักษณ์</span></button>
+                <button class="map-tool" type="button" id="map-reset" aria-label="กลับมุมมองเริ่มต้น" title="กลับมุมมองเริ่มต้น" data-i18n-aria="map.reset" data-i18n-title="map.reset"><i data-lucide="crosshair"></i></button>
                 <button class="map-tool" type="button" id="map-fullscreen" aria-label="เปิดเต็มจอ" title="เปิดเต็มจอ"><i data-lucide="maximize" class="ico-enter"></i><i data-lucide="minimize" class="ico-exit"></i></button>
               </div>
               <div class="map-legend" id="map-legend" hidden>
@@ -118,7 +133,7 @@
               </div>
             </div>
             <aside class="map-card card" id="map-card" aria-live="polite" tabindex="-1">
-              <p class="muted" data-i18n="map.cardHint">แตะหมุดบนแผนที่เพื่อดูรูปและรายละเอียด</p>
+              <p class="muted" data-i18n="map.cardHint">แตะอำเภอหรือหมุดบนแผนที่เพื่อดูรูปและรายละเอียด</p>
             </aside>
           </div>
 
