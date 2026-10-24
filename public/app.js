@@ -1,7 +1,8 @@
 // PHITLOK NEXUS v2.3 — Application Entry (Real-World Geospatial & Strict 3-Role Edition)
 import { state, api, esc, tr, baht, num, on, emit, toast, openDialog, closeDialog, LANGS, langSwitcher, refreshIcons, svgFallbackUrl, shortLabel } from './js/core.js';
-import { initMap, focusEntity, syncMerchants, refreshLabels, setMapLayers, merchantLayer, setMapLabelsVisible, areMapLabelsVisible, showProvince, showCity, getMapMode } from './js/map3d.js';
+import { initMap, focusEntity, syncMerchants, refreshLabels, setMapLayers, merchantLayer, setMapLabelsVisible, areMapLabelsVisible, showProvince, showCity, getMapMode, focusDistrict } from './js/map3d.js';
 import { DISTRICT_LIST, districtName, placesByDistrict } from './js/province3d.js';
+import { ATTRACTIONS } from './js/attractions-data.js';
 import { isVipActive, setVipActive, syncVipHeaderButtons, openVipUpgradeModal, setLang } from './js/site.js';
 import { t, applyStatic, builtYear, errText, locale } from './js/i18n.js';
 import { initLens, runHeritage, runMenuPreset, openMerchantMenu, speakGuide, selectTab } from './js/lens.js';
@@ -164,25 +165,64 @@ function renderVisitorBits() {
 
 // ------------------------------------------------------------------ province view: district card, progress, view switch
 let currentDistrict = null;
+let currentHighlight = null;
 
-function renderDistrictCard(id) {
+const gmapsUrl = (lat, lng) => `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+const attractionType = (a) => t(`att.${a.type}`);
+
+/** One attraction as a card: its own photo (or a name card), type, district, facts, map links and the source. */
+function attractionCard(a, lang, { compact = false } = {}) {
+  const name = tr(a.name, lang);
+  const district = DISTRICT_LIST.find((d) => d.id === a.district);
+  // no usable photo → a name card (plain markup, nothing to download), never another place's picture
+  const media = a.photo
+    ? `<img src="${esc(a.photo.src)}" onerror="this.onerror=null;this.src='${esc(svgFallbackUrl(name))}'" alt="${esc(name)}" loading="lazy">`
+    : `<div class="dir-card__namecard" role="img" aria-label="${esc(name)}"><i data-lucide="map-pin"></i><span>${esc(name)}</span></div>`;
+  return `<article class="dir-card dir-card--attraction${compact ? ' dir-card--compact' : ''}" data-attraction="${esc(a.id)}">
+      <div class="dir-card__img-wrap">
+        ${media}
+        <span class="dir-card__tag dir-card__tag--gold">${esc(attractionType(a))}</span>
+      </div>
+      <div class="dir-card__body">
+        <p class="dir-card__district"><i data-lucide="map-pin"></i> ${esc(t('att.district', { d: districtName(district, lang) }))}</p>
+        <h3 lang="${lang}">${esc(name)}</h3>
+        <p class="dir-card__desc">${esc(tr(a.desc, lang))}</p>
+        <p class="dir-card__src">${esc(t('att.source'))}: <a href="${esc(a.source.url)}" target="_blank" rel="noopener">${esc(a.source.label)} ↗</a>${a.photo ? ` · ${esc(t('att.photo', { a: a.photo.author, l: a.photo.license }))} <a href="${esc(a.photo.page)}" target="_blank" rel="noopener">Commons ↗</a>` : ` · ${esc(t('att.noPhoto'))}`}</p>
+        <div class="dir-card__actions">
+          <button class="btn btn--primary btn--sm" type="button" data-attr-district="${esc(a.district)}" data-attr-id="${esc(a.id)}"><i data-lucide="map"></i> ${esc(t('att.onMap'))}</button>
+          <a class="btn btn--ghost btn--sm" href="${esc(gmapsUrl(a.lat, a.lng))}" target="_blank" rel="noopener"><i data-lucide="external-link"></i> Google Maps</a>
+        </div>
+      </div>
+    </article>`;
+}
+
+function renderDistrictCard(id, highlight = null) {
   const card = document.getElementById('map-card');
   const d = DISTRICT_LIST.find((x) => x.id === id);
   if (!card || !d) return;
   currentDistrict = id;
+  currentHighlight = highlight;
+  const lang = state.lang;
   const places = placesByDistrict()[id];
+  const cityPlaces = places.filter((p) => !p.key.startsWith('attraction:'));
+  const attractions = places.filter((p) => p.key.startsWith('attraction:')).map((p) => p.data)
+    .sort((x, y) => (x.id === highlight ? -1 : y.id === highlight ? 1 : 0));
   const item = (p) => {
     const attr = p.key.startsWith('landmark:') ? `data-focus-landmark="${esc(p.data.id)}"` : `data-focus-merchant="${esc(p.data.slug)}"`;
     return `<li><button class="btn btn--outline btn--block" type="button" ${attr}>${esc(tr(p.data.name))}</button></li>`;
   };
   card.innerHTML = `<p class="kicker">${esc(t('prov.kicker'))}</p>
     <h3>${esc(districtName(d))}</h3>
-    <p class="muted">${esc(state.lang === 'th' ? d.en : d.th)}</p>
-    ${places.length ? `<p><b>${esc(t('prov.places', { n: places.length }))}</b></p>
+    <p class="muted">${esc(lang === 'th' ? d.en : d.th)}</p>
+    <p><b>${esc(t('prov.places', { n: places.length }))}</b></p>
+    ${attractions.length ? `<h4 class="district-sub">${esc(t('att.title'))}</h4>
+      <div class="district-attractions">${attractions.map((a) => attractionCard(a, lang, { compact: true })).join('')}</div>` : ''}
+    ${cityPlaces.length ? `<h4 class="district-sub">${esc(t('att.cityPlaces'))}</h4>
       ${id === 'mueang' ? `<button class="btn btn--primary btn--block" type="button" data-open-city>${esc(t('prov.openCity'))}</button>` : ''}
-      <ul class="district-places">${places.map(item).join('')}</ul>`
-      : `<p class="muted">${esc(t('prov.none'))}</p>`}
+      <ul class="district-places">${cityPlaces.map(item).join('')}</ul>` : ''}
+    ${places.length ? '' : `<p class="muted">${esc(t('prov.none'))}</p>`}
     <p class="fineprint">${esc(t('prov.source'))}</p>`;
+  refreshIcons();
 }
 
 // Real numbers only: stamps this visitor has collected and how the demo's places spread over the 9 districts.
@@ -202,6 +242,12 @@ function renderProgress() {
     <p class="map-progress__row">${esc(t('hud.places', { n: places, d: covered }))}</p>
     ${got < total ? `<button class="map-progress__cta" type="button" data-progress-scan>${esc(t('hud.scan'))}</button>` : ''}`;
   el.querySelector('.map-progress__bar span').style.width = `${total ? Math.round((got / total) * 100) : 0}%`;
+}
+
+/** Province view zoomed to the attraction's district, with that place first in the card. */
+function showAttraction(districtId, attractionId) {
+  document.getElementById('map')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  setTimeout(() => focusDistrict(districtId, { highlight: attractionId }), 300);
 }
 
 function syncViewSwitch(mode) {
@@ -355,10 +401,29 @@ function renderDirectoryCards() {
     </article>`;
   });
 
-  box.innerHTML = [...heritageCards, ...merchantCards].join('');
+  const foodCards = merchantCards.filter((c) => !c.includes('data-dir-cat="hotel"'));
+  const hotelCards = merchantCards.filter((c) => c.includes('data-dir-cat="hotel"'));
+  const group = (key, icon, cards) => `<section class="dir-group" data-dir-group="${key}" aria-labelledby="dir-g-${key}">
+      <h3 class="dir-group__title" id="dir-g-${key}"><i data-lucide="${icon}"></i> ${esc(t(`dir.g.${key}`))} <span class="dir-group__count">${cards.length}</span></h3>
+      <div class="dir-row">${cards.join('')}</div>
+    </section>`;
+  const byDistrict = DISTRICT_LIST.map((d) => ({ d, items: ATTRACTIONS.filter((a) => a.district === d.id) })).filter((x) => x.items.length);
+  const districts = `<section class="dir-group dir-group--districts" data-dir-group="districts" aria-labelledby="dir-g-districts">
+      <h3 class="dir-group__title" id="dir-g-districts"><i data-lucide="mountain"></i> ${esc(t('dir.g.districts'))} <span class="dir-group__count">${ATTRACTIONS.length}</span></h3>
+      <p class="muted">${esc(t('dir.g.districtsLead'))}</p>
+      ${byDistrict.map(({ d, items }) => `<div class="dir-district">
+        <h4 class="dir-district__title">${esc(t('att.district', { d: districtName(d, lang) }))} <span class="dir-group__count">${items.length}</span></h4>
+        <div class="dir-row">${items.map((a) => attractionCard(a, lang)).join('')}</div>
+      </div>`).join('')}
+    </section>`;
+  box.innerHTML = group('heritage', 'landmark', heritageCards) + group('food', 'utensils', foodCards) + group('hotel', 'bed-double', hotelCards) + districts;
   // Keep the map's category filter applied after a re-render (e.g. on a language change).
   const layers = state.mapLayers;
   box.querySelectorAll('[data-dir-cat]').forEach((card) => { card.hidden = !layers.has(card.dataset.dirCat); });
+  box.querySelectorAll('[data-dir-group]').forEach((g) => {
+    const cards = g.querySelectorAll('[data-dir-cat]');
+    g.hidden = cards.length > 0 && [...cards].every((c) => c.hidden);
+  });
   refreshIcons();
 }
 
@@ -445,6 +510,8 @@ function bindGlobal() {
     const speak = e.target.closest('[data-speak]');
     if (speak) { speakGuide(speak.dataset.speak, 'summary', state.lang, null); return; }
     if (e.target.closest('[data-open-city]')) { showCity(); return; }
+    const attr = e.target.closest('[data-attr-district]');
+    if (attr) { showAttraction(attr.dataset.attrDistrict, attr.dataset.attrId); return; }
     const fm = e.target.closest('[data-focus-merchant]');
     if (fm) { focusEntity(`merchant:${fm.dataset.focusMerchant}`); return; }
     const fl = e.target.closest('[data-focus-landmark]');
@@ -458,6 +525,8 @@ function bindGlobal() {
     if (scan) { goScan(scan.dataset.dirScan); return; }
     const menu = e.target.closest('[data-dir-menu]');
     if (menu) { openMerchantMenu(menu.dataset.dirMenu); return; }
+    const attr = e.target.closest('[data-attr-district]');
+    if (attr) { showAttraction(attr.dataset.attrDistrict, attr.dataset.attrId); return; }
     const focus = e.target.closest('[data-dir-focus]');
     if (focus) {
       document.getElementById('map')?.scrollIntoView({ behavior: 'smooth' });
@@ -494,7 +563,7 @@ function bindGlobal() {
     refreshLabels();
     renderDirectoryCards();
     const active = document.querySelector('.map-label--active');
-    if (currentDistrict && getMapMode() === 'province') renderDistrictCard(currentDistrict);
+    if (currentDistrict && getMapMode() === 'province') renderDistrictCard(currentDistrict, currentHighlight);
     else if (active) active.click();
     else if (state.data?.landmarks?.[0]) renderMapCard({ kind: 'landmark', subKind: 'heritage', data: state.data.landmarks[0] });
   });
@@ -566,6 +635,10 @@ function applyLayerFilter() {
   const layers = [...document.querySelectorAll('[data-map-layer][aria-pressed="true"]')].map((b) => b.dataset.mapLayer);
   setMapLayers(layers);
   document.querySelectorAll('[data-dir-cat]').forEach((card) => { card.hidden = !layers.includes(card.dataset.dirCat); });
+  document.querySelectorAll('#directory-grid [data-dir-group]').forEach((g) => {
+    const cards = g.querySelectorAll('[data-dir-cat]');
+    g.hidden = cards.length > 0 && [...cards].every((c) => c.hidden);
+  });
 }
 
 function bindMapTools() {

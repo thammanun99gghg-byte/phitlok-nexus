@@ -165,12 +165,12 @@ export function showCity() {
 }
 
 /** Highlight one district on the province view and report it to the page. */
-export function focusDistrict(id, { silent = false } = {}) {
+export function focusDistrict(id, { silent = false, highlight = null } = {}) {
   if (!THREE || !prov) return;
   if (mode !== 'province') showProvince({ instant: true });
   prov.setActive(id);
   flyTo(prov.districtCenter(id), id === 'mueang' ? 24 : 30, 0, 0.7);
-  if (!silent) onDistrictCb(id);
+  if (!silent) onDistrictCb(id, highlight);
 }
 
 // --------------------------------------------------------------- public API
@@ -939,7 +939,7 @@ function pick(e) {
   if (mode === 'province') {
     const hit = provinceHit(e);
     if (hit?.city) showCity();
-    else if (hit?.district) focusDistrict(hit.district);
+    else if (hit?.district) focusDistrict(hit.district, { highlight: hit.attraction || null });
     return;
   }
   const rect = canvas.getBoundingClientRect();

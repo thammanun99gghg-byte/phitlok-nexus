@@ -3,6 +3,7 @@
 import { state, esc } from './core.js';
 import { t } from './i18n.js';
 import { CLIP, DISTRICTS, NEIGHBORS, NAN_RIVER } from './province-data.js';
+import { ATTRACTIONS } from './attractions-data.js';
 
 const CENTER = { lng: 100.48, lat: 17.03 };
 const K = 22;
@@ -37,12 +38,13 @@ export function districtAt(lat, lng) {
 export const districtName = (d, lang = state.lang) => (lang === 'th' ? d.th : d.en);
 export const DISTRICT_LIST = DISTRICTS;
 
-/** Places (landmarks + shops/hotels) of the demo that fall inside each district. */
+/** Places of the demo inside each district: city sites, shops/hotels and the district attractions. */
 export function placesByDistrict() {
   const out = Object.fromEntries(DISTRICTS.map((d) => [d.id, []]));
   const all = [
     ...(state.data?.landmarks || []).map((l) => ({ key: `landmark:${l.id}`, data: l })),
-    ...(state.data?.merchants || []).map((m) => ({ key: `merchant:${m.slug}`, data: m }))
+    ...(state.data?.merchants || []).map((m) => ({ key: `merchant:${m.slug}`, data: m })),
+    ...ATTRACTIONS.map((a) => ({ key: `attraction:${a.id}`, data: a }))
   ];
   for (const p of all) {
     const id = districtAt(p.data.lat, p.data.lng);
@@ -181,6 +183,25 @@ export function createProvince(THREE, { labelsEl, onDistrict, onCity }) {
   scene.add(cityGroup);
   labels.push({ kind: 'city', el: makeCityLabel(), anchor: new THREE.Vector3(cityPos.x, TOP + 1.95, cityPos.z) });
 
+  // Attraction pins outside the city (the golden prang already stands for the city's places)
+  const pinHead = new THREE.SphereGeometry(0.22, 12, 8);
+  const pinStick = new THREE.CylinderGeometry(0.035, 0.035, 0.7, 6);
+  const pinMat = new THREE.MeshStandardMaterial({ color: 0xFACC15, emissive: 0x6B4E00, emissiveIntensity: 0.35, roughness: 0.4 });
+  const stickMat = new THREE.MeshStandardMaterial({ color: 0x334155 });
+  for (const a of ATTRACTIONS) {
+    if (a.district === 'mueang') continue;
+    const p = project(a.lng, a.lat);
+    const g = new THREE.Group();
+    g.position.set(p.x, TOP, p.z);
+    const stick = new THREE.Mesh(pinStick, stickMat);
+    stick.position.y = 0.35;
+    const head = new THREE.Mesh(pinHead, pinMat);
+    head.position.y = 0.8;
+    [stick, head].forEach((o) => { o.castShadow = true; o.userData.district = a.district; o.userData.attraction = a.id; pickables.push(o); });
+    g.add(stick, head);
+    scene.add(g);
+  }
+
   // A few low-poly clouds drifting over the board
   const cloudMat = new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 1, flatShading: true, transparent: true, opacity: 0.92 });
   [[-17, -14], [15, -16], [-19, 10], [17, 12], [3, 19]].forEach(([x, z], i) => {
@@ -223,7 +244,8 @@ export function createProvince(THREE, { labelsEl, onDistrict, onCity }) {
 
   function refreshLabels() {
     const counts = placesByDistrict();
-    const total = Object.values(counts).reduce((s, v) => s + v.length, 0);
+    // the city pin counts what the detailed city map shows: heritage sites, shops and hotels
+    const total = (state.data?.landmarks?.length || 0) + (state.data?.merchants?.length || 0);
     for (const l of labels) {
       if (l.kind === 'district') {
         const n = counts[l.item.id].length;
@@ -291,13 +313,22 @@ export function createProvince(THREE, { labelsEl, onDistrict, onCity }) {
       const bw = l.el.offsetWidth || 80, bh = l.el.offsetHeight || 30;
       // Mueang shares its spot with the city pin, so its name hangs below the anchor instead of above it.
       const below = l.kind === 'district' && l.item.id === 'mueang';
-      const box = below ? { l: x - bw / 2, r: x + bw / 2, t: y + 10, b: y + 10 + bh } : { l: x - bw / 2, r: x + bw / 2, t: y - bh, b: y };
-      const off = v.z > 1 || box.r < 0 || box.l > w || box.b < 0 || box.t > h;
-      const clash = placed.some((p) => box.l < p.r && p.l < box.r && box.t < p.b && p.t < box.b);
-      if (off || clash) { l.el.style.visibility = 'hidden'; continue; }
+      const base = below ? y + 10 + bh : y;
+      if (v.z > 1 || x + bw / 2 < 0 || x - bw / 2 > w || base < 0 || base - bh > h) { l.el.style.visibility = 'hidden'; continue; }
+      // a district name that would overlap another label steps up or down a little instead of disappearing
+      // never let a name drift into a neighbouring district: small nudges only, and Mueang stays put (the city pin names it anyway)
+      const shifts = l.kind === 'neighbor' || below ? [[0, 0]]
+        : [[0, 0], [0, -0.8], [0, 0.8], [-0.4, 0], [0.4, 0], [-0.4, -0.8], [0.4, -0.8], [-0.4, 0.8], [0.4, 0.8]];
+      let box = null;
+      for (const [sx, sy] of shifts) {
+        const cx = x + sx * bw, dy = sy * bh;
+        const c = { l: cx - bw / 2, r: cx + bw / 2, t: base - bh + dy, b: base + dy };
+        if (!placed.some((p) => c.l < p.r && p.l < c.r && c.t < p.b && p.t < c.b)) { box = c; break; }
+      }
+      if (!box) { l.el.style.visibility = 'hidden'; continue; }
       placed.push(box);
       l.el.style.visibility = 'visible';
-      l.el.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px) translate(-50%, ${below ? '10px' : '-100%'})`;
+      l.el.style.transform = `translate(${Math.round((box.l + box.r) / 2)}px, ${Math.round(box.b)}px) translate(-50%, -100%)`;
     }
   }
   const prio = (l) => (l.kind === 'city' ? 3 : l.kind === 'district' ? (l.item.id === activeId ? 2.5 : 2) : 1);
