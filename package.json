@@ -9,7 +9,8 @@
     "dev": "node --disable-warning=ExperimentalWarning --watch server.js",
     "reset-db": "node --disable-warning=ExperimentalWarning scripts/reset-db.js",
     "test": "node --disable-warning=ExperimentalWarning scripts/smoke-test.js",
-    "qa:ui": "node docs/qa/qa-ui.mjs"
+    "qa:ui": "node docs/qa/qa-ui.mjs",
+    "qa:e2e": "node docs/qa/e2e.mjs"
   },
   "engines": {
     "node": ">=22.13.0"

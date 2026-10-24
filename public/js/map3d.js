@@ -1,7 +1,8 @@
 // Geospatial 3D Map of Phitsanulok (Three.js) — PHITLOK NEXUS v2.0
 // Origin (0,0,0) = Naresuan Bridge (Lat: 16.8228, Lng: 100.2612)
 // East-West = X (+East, -West), North-South = Z (-North, +South)
-import { state, tr, esc, reducedMotion } from './core.js';
+import { state, tr, esc, reducedMotion, shortLabel } from './core.js';
+import { t } from './i18n.js';
 
 const THREE_URLS = [
   'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js',
@@ -51,31 +52,46 @@ const entities = new Map();   // key -> { kind, subKind, data, group, anchor: Ve
 const trails = [];            // { curve, tube, pulses: [], speed, offset, targetSubKind }
 const boats = [];
 let activeKey = null;
+let hoveredKey = null;
+let labelsVisible = true;
+
+export function setMapLabelsVisible(show) {
+  labelsVisible = Boolean(show);
+  if (labelsEl) {
+    labelsEl.classList.toggle('is-labels-hidden', !labelsVisible);
+  }
+  updateLabelStates();
+  return labelsVisible;
+}
+
+export function areMapLabelsVisible() {
+  return labelsVisible;
+}
 
 export function applyMapTheme(theme) {
   const isDark = (theme || document.documentElement.dataset.theme) === 'dark';
   if (stage) {
     stage.style.background = isDark
-      ? 'linear-gradient(180deg, #061014 0%, #0B1D22 55%, #0F262A 100%)'
+      ? 'linear-gradient(180deg, #080B0C 0%, #101618 55%, #172124 100%)'
       : 'linear-gradient(180deg, #D9ECFF 0%, #EAF3E2 55%, #DCE5D2 100%)';
   }
   if (!THREE || !scene) return;
   if (hemiLight) {
-    hemiLight.color.setHex(isDark ? 0x9CC5E8 : 0xFFFDF8);
-    hemiLight.groundColor.setHex(isDark ? 0x162629 : 0x7A8B7B);
-    hemiLight.intensity = isDark ? 0.78 : 1.25;
+    hemiLight.color.setHex(isDark ? 0xB8D8F8 : 0xFFFDF8);
+    hemiLight.groundColor.setHex(isDark ? 0x101618 : 0x7A8B7B);
+    hemiLight.intensity = isDark ? 0.85 : 1.25;
   }
   if (rimLight) {
-    rimLight.color.setHex(isDark ? 0x38BDF8 : 0x90C2FF);
-    rimLight.intensity = isDark ? 0.85 : 0.55;
+    rimLight.color.setHex(isDark ? 0xF5B841 : 0x90C2FF);
+    rimLight.intensity = isDark ? 0.90 : 0.55;
   }
   if (sunLight) {
-    sunLight.color.setHex(isDark ? 0xFFD27D : 0xFFF2D6);
-    sunLight.intensity = isDark ? 1.45 : 2.1;
+    sunLight.color.setHex(isDark ? 0xFFD97D : 0xFFF2D6);
+    sunLight.intensity = isDark ? 1.55 : 2.1;
   }
-  if (eastBankMesh) eastBankMesh.material.color.setHex(isDark ? 0x132824 : COLORS.bankEast);
-  if (westBankMesh) westBankMesh.material.color.setHex(isDark ? 0x102320 : COLORS.bankWest);
-  const darkCityPalette = [0x1C3236, 0x21383D, 0x182B2F, 0x243D42];
+  if (eastBankMesh) eastBankMesh.material.color.setHex(isDark ? 0x111A1C : COLORS.bankEast);
+  if (westBankMesh) westBankMesh.material.color.setHex(isDark ? 0x0E1618 : COLORS.bankWest);
+  const darkCityPalette = [0x172124, 0x1B272B, 0x141D20, 0x1F2D31];
   const lightCityPalette = [0xEAE4D7, 0xDFD8C8, 0xD5CEBE, 0xCFC7B6];
   cityMeshes.forEach((m, idx) => {
     m.material.color.setHex((isDark ? darkCityPalette : lightCityPalette)[idx % 4]);
@@ -104,7 +120,8 @@ export async function initMap({ onSelect }) {
     console.warn('3D map unavailable:', err);
     THREE = null;
     if (statusEl) {
-      statusEl.textContent = 'โหมดแผนที่พิกัด 2D (อุปกรณ์ไม่รองรับ WebGL) — กดเลือกหมุดเพื่อดูพิกัดจริงได้ทันที';
+      statusEl.dataset.i18n = 'map.no3d'; // re-translated on a language change
+      statusEl.textContent = t('map.no3d');
       statusEl.hidden = false;
     }
     renderFallbackLabels();
@@ -184,8 +201,11 @@ export function syncMerchants(merchants, highlightId) {
 }
 
 export function refreshLabels() {
+  if (!THREE) { renderFallbackLabels(); return; }
   for (const ent of entities.values()) {
-    if (ent.label) ent.label.querySelector('.txt').textContent = shortName(ent);
+    if (!ent.label) continue;
+    ent.label.querySelector('.txt').textContent = shortName(ent);
+    ent.label.setAttribute('aria-label', t('map.labelAria', { name: tr(ent.data.name) }));
   }
 }
 
@@ -655,10 +675,9 @@ function addTrail(from, to, targetSubKind) {
 }
 
 // --------------------------------------------------------------- labels
+// Map labels use the curated short name in the visitor's language (full names stay in the place card).
 function shortName(ent) {
-  const d = ent.data;
-  const raw = tr(d.name);
-  return raw.split(' (')[0];
+  return shortLabel(ent.data);
 }
 
 function makeLabel(key, ent) {
@@ -668,7 +687,7 @@ function makeLabel(key, ent) {
   b.dataset.filteredOut = 'false';
   b.innerHTML = `<span class="dot" aria-hidden="true"></span><span class="txt"></span>`;
   b.querySelector('.txt').textContent = shortName(ent);
-  b.setAttribute('aria-label', `ดูข้อมูล ${tr(ent.data.name, 'th')}`);
+  b.setAttribute('aria-label', t('map.labelAria', { name: tr(ent.data.name) }));
   b.addEventListener('click', () => focusEntity(key));
   labelsEl.appendChild(b);
   return b;
@@ -676,7 +695,10 @@ function makeLabel(key, ent) {
 
 function updateLabelStates() {
   for (const [key, ent] of entities) {
-    if (ent.label) ent.label.classList.toggle('map-label--active', key === activeKey);
+    if (ent.label) {
+      ent.label.classList.toggle('map-label--active', key === activeKey);
+      ent.label.classList.toggle('is-hover-peek', key === hoveredKey);
+    }
   }
 }
 
@@ -734,7 +756,10 @@ function bindControls() {
   });
   canvas.addEventListener('pointermove', (e) => {
     const prev = pointers.get(e.pointerId);
-    if (!prev) return;
+    if (!prev) {
+      hoverPick(e);
+      return;
+    }
     const dx = e.clientX - prev.x;
     const dy = e.clientY - prev.y;
     pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
@@ -750,6 +775,12 @@ function bindControls() {
       rig.phi = clamp(rig.phi - dy * 0.005, 0.28, 1.38);
     }
     start();
+  });
+  canvas.addEventListener('pointerleave', () => {
+    if (hoveredKey) {
+      hoveredKey = null;
+      updateLabelStates();
+    }
   });
   const end = (e) => {
     pointers.delete(e.pointerId);
@@ -782,6 +813,25 @@ function pan(dx, dy) {
   const sin = Math.sin(rig.theta), cos = Math.cos(rig.theta);
   rig.target.x = clamp(rig.target.x - (dx * cos + dy * sin) * speed, -16, 16);
   rig.target.z = clamp(rig.target.z - (-dx * sin + dy * cos) * speed, -16, 16);
+}
+
+function hoverPick(e) {
+  if (!THREE || !camera || !raycaster) return;
+  const rect = canvas.getBoundingClientRect();
+  if (!rect.width || !rect.height) return;
+  const ndc = new THREE.Vector2(((e.clientX - rect.left) / rect.width) * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1);
+  raycaster.setFromCamera(ndc, camera);
+  const pickables = [];
+  for (const ent of entities.values()) {
+    if (!ent.group || ent.group.visible) pickables.push(...ent.meshes);
+  }
+  const hit = raycaster.intersectObjects(pickables, false)[0];
+  const nextHover = hit && hit.object.userData.key ? hit.object.userData.key : null;
+  if (nextHover !== hoveredKey) {
+    hoveredKey = nextHover;
+    canvas.style.cursor = hoveredKey ? 'pointer' : 'grab';
+    updateLabelStates();
+  }
 }
 
 function pick(e) {

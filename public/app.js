@@ -1,21 +1,22 @@
-// PHITLOK NEXUS v2.2 — Application Entry (Real-World Geospatial & Strict 3-Role Edition)
+// PHITLOK NEXUS v2.3 — Application Entry (Real-World Geospatial & Strict 3-Role Edition)
 import { state, api, esc, tr, baht, num, on, emit, toast, openDialog, closeDialog, LANGS, langSwitcher, refreshIcons, svgFallbackUrl, shortLabel } from './js/core.js';
-import { initMap, focusEntity, syncMerchants, refreshLabels, setMapLayers, merchantLayer } from './js/map3d.js';
+import { initMap, focusEntity, syncMerchants, refreshLabels, setMapLayers, merchantLayer, setMapLabelsVisible, areMapLabelsVisible } from './js/map3d.js';
+import { isVipActive, setVipActive, syncVipHeaderButtons, openVipUpgradeModal, setLang } from './js/site.js';
+import { t, applyStatic, builtYear, errText, locale } from './js/i18n.js';
 import { initLens, runHeritage, runMenuPreset, openMerchantMenu, speakGuide, selectTab } from './js/lens.js';
 import { openCart, cartCount } from './js/menu.js';
 import { startCheckout } from './js/payment.js';
 import { initMerchant, populateMerchantSelect, startMerchantView, stopMerchantView, refreshMerchantData } from './js/merchant.js';
 import { initAdmin, startAdminView, stopAdminView, fetchMetrics, refreshAdminData } from './js/admin.js';
 
-const CATEGORY_TH = {
-  food: 'ร้านอาหารดังพิษณุโลก',
-  cafe: 'คาเฟ่ / เครื่องดื่ม',
-  souvenir: 'ของฝาก OTOP พิษณุโลก',
-  tour: 'ทัวร์ / เรือนำเที่ยว',
-  stay: 'โรงแรมที่พักชั้นนำ'
-};
+// Category word for a shop or hotel, in the visitor's language.
+const CATEGORY_KEY = { food: 'cat.restaurant', cafe: 'cat.cafe', souvenir: 'cat.souvenir', tour: 'cat.tour', stay: 'cat.hotel' };
+const catName = (m) => t(CATEGORY_KEY[m.category] || (m.kind === 'hotel' ? 'cat.hotel' : 'cat.restaurant'));
+const distanceText = (metres) => `${num(metres)} ${t('unit.m')}`;
 
 async function boot() {
+  applyLanguageChrome();
+  bindLanguagePicker();
   // Apply hash immediately on DOMContentLoaded so role/tab switches before async network/WebGL boot
   applyHash({ initial: true });
   window.addEventListener('hashchange', () => applyHash({ initial: false }));
@@ -24,7 +25,7 @@ async function boot() {
     state.data = await api('/api/init-data');
   } catch (err) {
     document.getElementById('main').insertAdjacentHTML('afterbegin',
-      `<div class="container"><p class="notice notice--warn">โหลดข้อมูลไม่สำเร็จ: ${esc(err.message)} <button class="btn btn--sm btn--primary" type="button" id="retry-boot">ลองใหม่</button></p></div>`);
+      `<div class="container"><p class="notice notice--warn">${esc(t('err.boot'))}: ${esc(errText(err))} <button class="btn btn--sm btn--primary" type="button" id="retry-boot">${esc(t('retry'))}</button></p></div>`);
     document.getElementById('retry-boot')?.addEventListener('click', () => location.reload());
     return;
   }
@@ -52,11 +53,11 @@ function renderStatic() {
   const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
   set('hero-vip-price', p.vipPassSatang / 100);
   set('vip-price', p.vipPassSatang / 100);
-  set('vip-voucher-total', num(p.vipVoucherTotalSatang / 100));
   set('saas-price', p.saasMonthlySatang / 100);
   set('saas-price-btn', p.saasMonthlySatang / 100);
-  const ai = state.data.ai;
-  set('ai-badge', ai.configured ? `AI พร้อมใช้: Gemini (${ai.model})` : 'ฐานข้อมูลจริงกรมศิลปากร + โหมดสำรองความแม่นยำสูง');
+  // Only claim AI when a model is actually configured on the server.
+  const badge = document.getElementById('ai-badge');
+  if (badge) { badge.hidden = !state.data.ai.configured; badge.textContent = `● ${t('lens.ai')}`; }
   populateMenuMerchantSelect();
   populateMerchantSelect();
 }
@@ -65,7 +66,7 @@ function populateMenuMerchantSelect() {
   const sel = document.getElementById('menu-merchant');
   if (!sel) return;
   const current = sel.value;
-  sel.innerHTML = state.data.merchants.map((m) => `<option value="${m.id}">${esc(m.name.th)}</option>`).join('');
+  sel.innerHTML = state.data.merchants.map((m) => `<option value="${m.id}">${esc(tr(m.name))}</option>`).join('');
   if (current) sel.value = current;
 }
 
@@ -116,23 +117,29 @@ function setCount(el, n) {
   el.textContent = n;
   el.hidden = !n;
   const btn = el.closest('button');
-  if (btn) btn.setAttribute('aria-label', `${btn.id === 'open-cart' ? 'ตะกร้า' : 'คูปองของฉัน'} (${n})`);
+  if (btn) btn.setAttribute('aria-label', `${t(btn.id === 'open-cart' ? 'aria.cart' : 'aria.wallet')} (${n})`);
 }
 
 function renderVisitorBits() {
   const v = state.data.visitor;
+  if (v.vip.active) setVipActive(true);
+  else syncVipHeaderButtons();
+  const vipActiveNow = v.vip.active || isVipActive();
   const active = v.coupons.filter((c) => c.status === 'active').length;
   const wc = document.getElementById('wallet-count');
   const cc = document.getElementById('cart-count');
   setCount(wc, active);
   setCount(cc, cartCount());
+  const vipTitle = document.getElementById('vip-title');
+  if (vipTitle) vipTitle.textContent = t('vip.title', { v: baht(state.data.pricing.vipVoucherTotalSatang) });
   const box = document.getElementById('vip-action');
   if (!box) return;
-  if (v.vip.active) {
-    box.innerHTML = `<div class="vip-status"><p><b>✓ ใช้ได้ถึง ${new Date(v.vip.until).toLocaleString('th-TH', { dateStyle: 'medium', timeStyle: 'short' })}</b></p>
-      <button class="btn btn--gold btn--block" type="button" data-open-wallet>ดูคูปอง (${active})</button></div>`;
+  if (vipActiveNow) {
+    const until = v.vip.until ? new Date(v.vip.until).toLocaleDateString(locale(), { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+    box.innerHTML = `<div class="vip-status">${until ? `<p><b>${esc(t('vip.active', { d: until }))}</b></p>` : ''}
+      <button class="btn btn--gold btn--block" type="button" data-open-wallet>${esc(t('vip.coupons', { n: active }))}</button></div>`;
   } else {
-    box.innerHTML = `<button class="btn btn--gold btn--lg btn--block" type="button" data-buy-vip>ซื้อ VIP Pass</button>`;
+    box.innerHTML = `<button class="btn btn--vip-cta btn--lg btn--block" type="button" data-open-vip-modal>${esc(t('vip.buy'))}</button>`;
   }
 }
 
@@ -141,137 +148,84 @@ function renderMapCard(ent) {
   const card = document.getElementById('map-card');
   if (!card || !ent) return;
   const lang = state.lang;
-  if (ent.kind === 'landmark') {
-    const lm = ent.data;
-    const nearby = state.data.merchants.filter((m) => m.nearest === lm.id).slice(0, 4);
-    const gmapsUrl = lm.googleMapsUrl || `https://www.google.com/maps/search/?api=1&query=${lm.lat},${lm.lng}`;
-    const satUrl = `https://www.google.com/maps/@?api=1&map_action=map&center=${lm.lat},${lm.lng}&zoom=18&basemap=satellite`;
-    const gearthUrl = lm.googleEarthUrl || `https://earth.google.com/web/search/${lm.lat},${lm.lng}`;
-    const imgUrl = lm.imageUrl || lm.fallbackImage || '/assets/photos/wat-yai.jpg';
-    const fallback = lm.fallbackImage || '/assets/photos/wat-yai.jpg';
-    const svgFb = svgFallbackUrl(shortLabel(lm, lang));
+  const d = ent.data;
+  const gmapsUrl = d.googleMapsUrl || `https://www.google.com/maps/search/?api=1&query=${d.lat},${d.lng}`;
+  const gearthUrl = d.googleEarthUrl || `https://earth.google.com/web/search/${d.lat},${d.lng}`;
+  const svgFb = svgFallbackUrl(shortLabel(d, lang));
+  // Coordinates and map links live under "details" so the card stays short (v2.4 X1).
+  const details = `<details class="map-card__details">
+      <summary>${esc(t('card.details'))}</summary>
+      <p class="small">${esc(t('card.gps'))}: <code>${d.lat.toFixed(4)}, ${d.lng.toFixed(4)}</code></p>
+      <div class="actions">
+        <a class="btn btn--outline btn--sm" href="${esc(gmapsUrl)}" target="_blank" rel="noopener"><i data-lucide="map-pin"></i> ${esc(t('card.gmaps'))}</a>
+        <a class="btn btn--ghost btn--sm" href="${esc(gearthUrl)}" target="_blank" rel="noopener"><i data-lucide="globe"></i> ${esc(t('card.gearth'))}</a>
+      </div>
+    </details>`;
 
+  if (ent.kind === 'landmark') {
+    const lm = d;
+    const nearby = state.data.merchants.filter((m) => m.nearest === lm.id).slice(0, 4);
     card.innerHTML = `
       <div class="map-card__media">
-        <img src="${esc(imgUrl)}"
-             data-fallback="${esc(fallback)}"
+        <img src="${esc(lm.imageUrl || lm.fallbackImage || '/assets/photos/wat-yai.jpg')}"
+             data-fallback="${esc(lm.fallbackImage || '/assets/photos/wat-yai.jpg')}"
              onerror="this.onerror=null;this.src='${esc(svgFb)}'"
-             alt="${esc(tr(lm.name, lang))}" loading="lazy">
-        <span class="map-card__badge map-card__badge--gold">โบราณสถาน · พ.ศ. ${esc(lm.builtYearBe || '-')}</span>
+             alt="${esc(tr(lm.name, lang))}">
+        <span class="map-card__badge map-card__badge--gold">${esc(t('card.heritageYear', { y: builtYear(lm.builtYearBe) }))}</span>
       </div>
       <div class="map-card__header-row">
-        <a class="kicker kicker--link" href="/credits#sources" title="คลิกดูรายละเอียดแหล่งอ้างอิงทะเบียนโบราณสถาน กรมศิลปากร">
-          <i data-lucide="shield-check"></i> อ้างอิงข้อมูล: กรมศิลปากร ↗
-        </a>
+        <a class="kicker kicker--link" href="/credits#sources"><i data-lucide="shield-check"></i> ${esc(t('ref.fad'))}</a>
         ${langSwitcher(lang, 'card-lang')}
       </div>
       <h3 lang="${lang}">${esc(tr(lm.name, lang))}</h3>
       <p lang="${lang}">${esc(tr(lm.summary, lang))}</p>
-
-      <div class="gps-proof-box">
-        <div class="gps-proof-box__coords">
-          <i data-lucide="map-pin"></i>
-          <div>
-            <span class="small muted">พิกัด GPS จริง (คลิกเพื่อเปิดแผนที่ดาวเทียม):</span>
-            <a class="gps-link" href="${esc(satUrl)}" target="_blank" rel="noopener">
-              <code>GPS: ${lm.lat.toFixed(4)}, ${lm.lng.toFixed(4)} ↗</code>
-            </a>
-          </div>
-        </div>
-        <div class="gps-proof-box__links">
-          <a class="btn btn--outline btn--sm btn--block" href="${esc(gmapsUrl)}" target="_blank" rel="noopener">
-            <i data-lucide="globe"></i> เปิดดูสถานที่จริงบน Google Maps / Google Earth 3D
-          </a>
-          <a class="btn btn--ghost btn--sm btn--block" href="${esc(gearthUrl)}" target="_blank" rel="noopener">
-            <i data-lucide="compass"></i> เปิดมุมมองดาวเทียม Google Earth 3D ↗
-          </a>
-        </div>
-      </div>
-
       <div class="actions">
-        <button class="btn btn--primary" type="button" data-scan="${lm.id}">
-          <i data-lucide="scan-line"></i> ส่องป้าย &amp; ประวัติ 6 ภาษา
-        </button>
-        <button class="btn btn--outline" type="button" data-speak="${lm.id}">
-          <i data-lucide="volume-2"></i> ▶ ฟังเสียงบรรยาย (${esc(lang.toUpperCase())})
-        </button>
+        <button class="btn btn--primary" type="button" data-scan="${lm.id}"><i data-lucide="book-open"></i> ${esc(t('card.history'))}</button>
+        <button class="btn btn--outline" type="button" data-speak="${lm.id}"><i data-lucide="volume-2"></i> ${esc(t('card.listen'))}</button>
         <div class="soundwave" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
       </div>
-      ${nearby.length ? `<p class="mt small"><b>ร้านอาหารและโรงแรมใกล้เคียง:</b></p>
+      ${nearby.length ? `<p class="mt small"><b>${esc(t('card.nearby'))}</b></p>
       <div class="nearby">${nearby.map((m) => `<button class="btn btn--ghost btn--sm btn--list" type="button" data-focus-merchant="${esc(m.slug)}">
-        <i data-lucide="${m.kind === 'hotel' ? 'building-2' : 'utensils'}"></i> ${esc(m.name.th.split(' (')[0])} · ${num(m.distanceM)} ม.
-      </button>`).join('')}</div>` : ''}`;
+        <i data-lucide="${m.kind === 'hotel' ? 'bed-double' : 'utensils'}"></i> ${esc(shortLabel(m, lang))} · ${esc(distanceText(m.distanceM))}
+      </button>`).join('')}</div>` : ''}
+      ${details}`;
   } else {
-    const m = ent.data;
+    const m = d;
     const isHotel = m.kind === 'hotel' || m.category === 'stay';
     const lm = state.data.landmarks.find((l) => l.id === m.nearest);
     const items = state.data.menuItems.filter((i) => i.merchantId === m.id);
-    const gmapsUrl = m.googleMapsUrl || `https://www.google.com/maps/search/?api=1&query=${m.lat},${m.lng}`;
-    const satUrl = `https://www.google.com/maps/@?api=1&map_action=map&center=${m.lat},${m.lng}&zoom=18&basemap=satellite`;
-    const gearthUrl = m.googleEarthUrl || `https://earth.google.com/web/search/${m.lat},${m.lng}`;
-    const imgUrl = m.imageUrl || m.fallbackImage || '/assets/photos/hoi-kha-noodles.jpg';
-    const fallback = m.fallbackImage || '/assets/photos/hoi-kha-noodles.jpg';
-    const svgFb = svgFallbackUrl(shortLabel(m, lang));
-
     const isDemoPartner = m.partnerStatus !== 'confirmed';
-    const partnerBadgeText = isDemoPartner ? 'ยังไม่ใช่พาร์ทเนอร์ · ข้อมูลสาธิต' : 'พาร์ทเนอร์ที่ยืนยันแล้ว';
-    const sampleLabel = isHotel ? 'ราคาตัวอย่าง' : 'เมนูตัวอย่าง / ราคาตัวอย่าง';
-
     card.innerHTML = `
       <div class="map-card__media">
-        <img src="${esc(imgUrl)}"
-             data-fallback="${esc(fallback)}"
+        <img src="${esc(m.imageUrl || m.fallbackImage || '/assets/photos/hoi-kha-noodles.jpg')}"
+             data-fallback="${esc(m.fallbackImage || '/assets/photos/hoi-kha-noodles.jpg')}"
              onerror="this.onerror=null;this.src='${esc(svgFb)}'"
-             alt="${esc(tr(m.name, lang))}" loading="lazy">
-        <span class="map-card__badge ${isHotel ? 'map-card__badge--blue' : 'map-card__badge--emerald'}">
-          ${isHotel ? 'ที่พักบนแผนที่' : 'สถานที่บนแผนที่'}
-        </span>
+             alt="${esc(tr(m.name, lang))}">
+        <span class="map-card__badge ${isHotel ? 'map-card__badge--blue' : 'map-card__badge--emerald'}">${esc(catName(m))}</span>
       </div>
       <div class="map-card__header-row">
         <div class="badges">
-          <span class="badge badge--warn">${partnerBadgeText}</span>
-          <span class="badge badge--gold">${sampleLabel}</span>
+          <span class="badge badge--warn">${esc(t(isDemoPartner ? 'demo.partner' : 'demo.verified'))}</span>
+          <span class="badge badge--gold">${esc(t(isHotel ? 'demo.price' : 'demo.menu'))}</span>
         </div>
         ${langSwitcher(lang, 'card-lang')}
       </div>
       <h3 lang="${lang}">${esc(tr(m.name, lang))}</h3>
       <p lang="${lang}">${esc(tr(m.blurb, lang))}</p>
-
-      <div class="gps-proof-box">
-        <div class="gps-proof-box__coords">
-          <i data-lucide="map-pin"></i>
-          <div>
-            <span class="small muted">พิกัด GPS จริง (คลิกเพื่อเปิดแผนที่ดาวเทียม):</span>
-            <a class="gps-link" href="${esc(satUrl)}" target="_blank" rel="noopener">
-              <code>GPS: ${m.lat.toFixed(4)}, ${m.lng.toFixed(4)} ↗</code>
-            </a>
-          </div>
-        </div>
-        <div class="gps-proof-box__links">
-          <a class="btn btn--outline btn--sm btn--block" href="${esc(gmapsUrl)}" target="_blank" rel="noopener">
-            <i data-lucide="globe"></i> เปิดดูสถานที่จริงบน Google Maps / Google Earth 3D
-          </a>
-          <a class="btn btn--ghost btn--sm btn--block" href="${esc(gearthUrl)}" target="_blank" rel="noopener">
-            <i data-lucide="compass"></i> เปิดมุมมองดาวเทียม Google Earth 3D ↗
-          </a>
-        </div>
-      </div>
-
       <ul class="meta-list">
-        <li>${esc(CATEGORY_TH[m.category] || m.category)}</li>
-        <li>${m.shopStatus === 'busy' ? '🟠 คิวเต็มชั่วคราว' : '🟢 เปิดรับลูกค้า'}</li>
-        <li>ห่างจาก${esc(lm ? lm.name.th.split(' (')[0] : 'โบราณสถาน')} ${num(m.distanceM)} ม.</li>
-        ${items.length ? `<li>รองรับ 6 ภาษา (${items.length} รายการ)</li>` : ''}
+        <li>${m.shopStatus === 'busy' ? '🟠' : '🟢'} ${esc(t(m.shopStatus === 'busy' ? 'status.busy' : 'status.open'))}</li>
+        ${lm ? `<li>${esc(t('card.distance', { place: shortLabel(lm, lang), d: distanceText(m.distanceM) }))}</li>` : ''}
+        ${items.length ? `<li>${esc(t(isHotel ? 'card.roomCount' : 'card.menuCount', { n: items.length }))}</li>` : ''}
       </ul>
       <div class="actions">
         ${items.length
           ? `<button class="btn btn--primary btn--block" type="button" data-menu="${m.id}">
-              <i data-lucide="${isHotel ? 'calendar-check' : 'shopping-bag'}"></i>
-              ${isHotel ? 'ดูห้องพัก & จองโรงแรม (6 ภาษา)' : 'ดูเมนู 6 ภาษา & สั่งอาหารล่วงหน้า'}
+              <i data-lucide="${isHotel ? 'calendar-check' : 'shopping-bag'}"></i> ${esc(t(isHotel ? 'card.book' : 'card.order'))}
             </button>`
-          : `<p class="muted small">ยังไม่มีรายการดิจิทัล</p>`}
-        ${lm ? `<button class="btn btn--outline btn--sm btn--block" type="button" data-focus-landmark="${lm.id}">ดูโบราณสถานใกล้เคียง (${esc(lm.name.th.split(' (')[0])})</button>` : ''}
-      </div>`;
+          : `<p class="muted small">${esc(t('card.noItems'))}</p>`}
+        ${lm ? `<button class="btn btn--outline btn--sm btn--block" type="button" data-focus-landmark="${lm.id}">${esc(t('card.nearHeritage', { name: shortLabel(lm, lang) }))}</button>` : ''}
+      </div>
+      ${details}`;
   }
   refreshIcons();
 }
@@ -281,38 +235,25 @@ function renderDirectoryCards() {
   const box = document.getElementById('directory-grid');
   if (!box || !state.data) return;
   const lang = state.lang;
+  const gmapsBtn = (url) => `<a class="btn btn--ghost btn--sm" href="${esc(url)}" target="_blank" rel="noopener"><i data-lucide="external-link"></i> Google Maps</a>`;
 
   const heritageCards = state.data.landmarks.map((lm) => {
     const gmaps = lm.googleMapsUrl || `https://www.google.com/maps/search/?api=1&query=${lm.lat},${lm.lng}`;
-    const satUrl = `https://www.google.com/maps/@?api=1&map_action=map&center=${lm.lat},${lm.lng}&zoom=18&basemap=satellite`;
-    const svgFb = svgFallbackUrl(shortLabel(lm, lang));
     return `<article class="dir-card dir-card--heritage" data-dir-cat="heritage">
       <div class="dir-card__img-wrap">
-        <img src="${esc(lm.imageUrl || lm.fallbackImage)}"
-             data-fallback="${esc(lm.fallbackImage)}"
-             onerror="this.onerror=null;this.src='${esc(svgFb)}'"
+        <img src="${esc(lm.imageUrl || lm.fallbackImage)}" data-fallback="${esc(lm.fallbackImage)}"
+             onerror="this.onerror=null;this.src='${esc(svgFallbackUrl(shortLabel(lm, lang)))}'"
              alt="${esc(tr(lm.name, lang))}" loading="lazy">
-        <span class="dir-card__tag dir-card__tag--gold">โบราณสถาน · พ.ศ. ${esc(lm.builtYearBe)}</span>
+        <span class="dir-card__tag dir-card__tag--gold">${esc(t('card.heritageYear', { y: builtYear(lm.builtYearBe) }))}</span>
       </div>
       <div class="dir-card__body">
-        <a class="dir-card__gps dir-card__gps--link" href="${esc(satUrl)}" target="_blank" rel="noopener" title="คลิกเปิดดูพิกัดจริงบน Google Maps Satellite">
-          <i data-lucide="map-pin"></i> <b>GPS: <code>${lm.lat.toFixed(4)}, ${lm.lng.toFixed(4)}</code> ↗</b>
-        </a>
         <h3 lang="${lang}">${esc(tr(lm.name, lang))}</h3>
         <p class="muted small" lang="${lang}">${esc(tr(lm.summary, lang))}</p>
-        <a class="dir-card__ref dir-card__ref--link" href="/credits#sources" title="คลิกดูรายละเอียดทะเบียนโบราณสถาน กรมศิลปากร">
-          <i data-lucide="book-open-check"></i> อ้างอิงข้อมูล: กรมศิลปากร ↗
-        </a>
+        <a class="dir-card__ref dir-card__ref--link" href="/credits#sources"><i data-lucide="book-open-check"></i> ${esc(t('ref.fad'))}</a>
         <div class="dir-card__actions">
-          <button class="btn btn--primary btn--sm" type="button" data-dir-scan="${lm.id}">
-            <i data-lucide="volume-2"></i> เสียงบรรยาย 6 ภาษา
-          </button>
-          <button class="btn btn--outline btn--sm" type="button" data-dir-focus="landmark:${lm.id}">
-            <i data-lucide="box"></i> ดูบนแผนที่ 3D
-          </button>
-          <a class="btn btn--ghost btn--sm" href="${esc(gmaps)}" target="_blank" rel="noopener">
-            <i data-lucide="external-link"></i> Google Maps
-          </a>
+          <button class="btn btn--primary btn--sm" type="button" data-dir-scan="${lm.id}"><i data-lucide="volume-2"></i> ${esc(t('card.listen'))}</button>
+          <button class="btn btn--outline btn--sm" type="button" data-dir-focus="landmark:${lm.id}"><i data-lucide="box"></i> ${esc(t('dir.onMap'))}</button>
+          ${gmapsBtn(gmaps)}
         </div>
       </div>
     </article>`;
@@ -321,50 +262,37 @@ function renderDirectoryCards() {
   const merchantCards = state.data.merchants.map((m) => {
     const isHotel = m.kind === 'hotel' || m.category === 'stay';
     const gmaps = m.googleMapsUrl || `https://www.google.com/maps/search/?api=1&query=${m.lat},${m.lng}`;
-    const satUrl = `https://www.google.com/maps/@?api=1&map_action=map&center=${m.lat},${m.lng}&zoom=18&basemap=satellite`;
     const items = state.data.menuItems.filter((i) => i.merchantId === m.id);
     const minPrice = items.length ? Math.min(...items.map((i) => i.priceSatang)) : m.roomRateSatang || 5000;
-    const svgFb = svgFallbackUrl(shortLabel(m, lang));
     const isDemoPartner = m.partnerStatus !== 'confirmed';
     return `<article class="dir-card dir-card--${isHotel ? 'hotel' : 'restaurant'}" data-dir-cat="${merchantLayer(m)}">
       <div class="dir-card__img-wrap">
-        <img src="${esc(m.imageUrl || m.fallbackImage)}"
-             data-fallback="${esc(m.fallbackImage)}"
-             onerror="this.onerror=null;this.src='${esc(svgFb)}'"
+        <img src="${esc(m.imageUrl || m.fallbackImage)}" data-fallback="${esc(m.fallbackImage)}"
+             onerror="this.onerror=null;this.src='${esc(svgFallbackUrl(shortLabel(m, lang)))}'"
              alt="${esc(tr(m.name, lang))}" loading="lazy">
-        <span class="dir-card__tag ${isHotel ? 'dir-card__tag--blue' : 'dir-card__tag--emerald'}">
-          ${isHotel ? `ที่พัก · ราคาตัวอย่าง ${baht(minPrice)}` : `ร้านค้า · เมนูตัวอย่าง ${baht(minPrice)}`}
-        </span>
+        <span class="dir-card__tag ${isHotel ? 'dir-card__tag--blue' : 'dir-card__tag--emerald'}">${esc(t(isHotel ? 'dir.stayFrom' : 'dir.foodFrom', { p: baht(minPrice) }))}</span>
       </div>
       <div class="dir-card__body">
-        <a class="dir-card__gps dir-card__gps--link" href="${esc(satUrl)}" target="_blank" rel="noopener" title="คลิกเปิดดูพิกัดจริงบน Google Maps Satellite">
-          <i data-lucide="map-pin"></i> <b>GPS: <code>${m.lat.toFixed(4)}, ${m.lng.toFixed(4)}</code> ↗</b>
-        </a>
         <div class="badges" style="margin:4px 0">
-          <span class="badge badge--warn">${isDemoPartner ? 'ยังไม่ใช่พาร์ทเนอร์ · ข้อมูลสาธิต' : 'พาร์ทเนอร์ที่ยืนยันแล้ว'}</span>
-          <span class="badge badge--gold">${isHotel ? 'ราคาตัวอย่าง' : 'เมนูตัวอย่าง / ราคาตัวอย่าง'}</span>
+          <span class="badge badge--warn">${esc(t(isDemoPartner ? 'demo.partner' : 'demo.verified'))}</span>
+          <span class="badge badge--gold">${esc(t(isHotel ? 'demo.price' : 'demo.menu'))}</span>
+          <span class="badge ${m.shopStatus === 'busy' ? 'badge--warn' : 'badge--ok'}">${esc(t(m.shopStatus === 'busy' ? 'status.busy' : 'status.open'))}</span>
         </div>
         <h3 lang="${lang}">${esc(tr(m.name, lang))}</h3>
         <p class="muted small" lang="${lang}">${esc(tr(m.blurb, lang))}</p>
-        <a class="dir-card__ref dir-card__ref--link" href="${esc(gmaps)}" target="_blank" rel="noopener">
-          <i data-lucide="external-link"></i> ดูหน้าร้านใน Google Maps · ${m.shopStatus === 'busy' ? 'คิวเต็มชั่วคราว' : 'เปิดรับลูกค้า'} ↗
-        </a>
         <div class="dir-card__actions">
-          <button class="btn btn--primary btn--sm" type="button" data-dir-menu="${m.id}">
-            <i data-lucide="${isHotel ? 'calendar' : 'utensils'}"></i> ${isHotel ? 'จองห้องพัก' : 'สั่งอาหาร 6 ภาษา'}
-          </button>
-          <button class="btn btn--outline btn--sm" type="button" data-dir-focus="merchant:${m.slug}">
-            <i data-lucide="box"></i> ดูบนแผนที่ 3D
-          </button>
-          <a class="btn btn--ghost btn--sm" href="${esc(gmaps)}" target="_blank" rel="noopener">
-            <i data-lucide="external-link"></i> Google Maps
-          </a>
+          <button class="btn btn--primary btn--sm" type="button" data-dir-menu="${m.id}"><i data-lucide="${isHotel ? 'calendar' : 'utensils'}"></i> ${esc(t(isHotel ? 'dir.book' : 'dir.order'))}</button>
+          <button class="btn btn--outline btn--sm" type="button" data-dir-focus="merchant:${m.slug}"><i data-lucide="box"></i> ${esc(t('dir.onMap'))}</button>
+          ${gmapsBtn(gmaps)}
         </div>
       </div>
     </article>`;
   });
 
   box.innerHTML = [...heritageCards, ...merchantCards].join('');
+  // Keep the map's category filter applied after a re-render (e.g. on a language change).
+  const layers = state.mapLayers;
+  box.querySelectorAll('[data-dir-cat]').forEach((card) => { card.hidden = !layers.has(card.dataset.dirCat); });
   refreshIcons();
 }
 
@@ -389,19 +317,25 @@ function openWallet() {
   const v = state.data.visitor;
   const body = document.getElementById('wallet-body');
   const stamps = state.data.landmarks;
+  const couponLine = (c) => [
+    c.kind === 'percent' ? t('coupon.pct', { v: c.value }) : t('coupon.fixed', { v: baht(c.value) }),
+    c.minSpendSatang ? t('coupon.min', { v: baht(c.minSpendSatang) }) : '',
+    t(c.source === 'vip_pass' ? 'coupon.vip' : 'coupon.stamp'),
+    c.status !== 'active' ? t('coupon.used') : ''
+  ].filter(Boolean).join(' · ');
   body.innerHTML = `
-    <div class="dialog__head"><h2 id="wallet-title">กระเป๋าคูปอง &amp; ตราประทับมรดกพิษณุโลก</h2><button class="btn btn--icon btn--ghost" type="button" data-close aria-label="ปิด">✕</button></div>
-    <p><b>ตราประทับ 5 โบราณสถานพิษณุโลก</b></p>
+    <div class="dialog__head"><h2 id="wallet-title">${esc(t('wallet.title'))}</h2><button class="btn btn--icon btn--ghost" type="button" data-close aria-label="${esc(t('close'))}">✕</button></div>
+    <p><b>${esc(t('wallet.stamps'))}</b></p>
     <div class="actions">${stamps.map((l) => {
-      const got = v.stamps.some((s) => s.landmarkId === l.id);
-      return `<span class="badge ${got ? 'badge--ok' : ''}">${got ? '✓' : '○'} ${esc(l.name.th.split(' (')[0])}</span>`;
+      const got = v.stamps.some((st) => st.landmarkId === l.id);
+      return `<span class="badge ${got ? 'badge--ok' : ''}">${got ? '✓' : '○'} ${esc(shortLabel(l))}</span>`;
     }).join(' ')}</div>
-    <p class="mt"><b>คูปองส่วนลดของฉัน</b></p>
+    <p class="mt"><b>${esc(t('wallet.coupons'))}</b></p>
     ${v.coupons.length ? v.coupons.map((c) => `<div class="coupon-card${c.status !== 'active' ? ' coupon-card--used' : ''}">
-      <span>${esc(tr(c.merchantName, 'th'))}<br><small>${c.kind === 'percent' ? `ลด ${c.value}%` : `ลด ${baht(c.value)}`}${c.minSpendSatang ? ` · ขั้นต่ำ ${baht(c.minSpendSatang)}` : ''} · ${c.source === 'vip_pass' ? 'VIP Pass' : 'ตราประทับมรดก'}${c.status !== 'active' ? ' · ใช้แล้ว' : ''}</small></span>
-      ${c.status === 'active' ? `<button class="btn btn--sm btn--primary" type="button" data-use="${c.merchantId}">ใช้คูปอง</button>` : `<code>${esc(c.code)}</code>`}
-    </div>`).join('') : `<p class="muted">ยังไม่มีคูปอง — กดส่องป้ายโบราณสถาน หรือซื้อบัตร Phitsanulok VIP Pass (99฿)</p>
-      <button class="btn btn--primary" type="button" data-scan-now>ทดลองส่องป้ายวัดใหญ่</button>`}`;
+      <span>${esc(tr(c.merchantName))}<br><small>${esc(couponLine(c))}</small></span>
+      ${c.status === 'active' ? `<button class="btn btn--sm btn--primary" type="button" data-use="${c.merchantId}">${esc(t('coupon.use'))}</button>` : `<code>${esc(c.code)}</code>`}
+    </div>`).join('') : `<p class="muted">${esc(t('wallet.none'))}</p>
+      <button class="btn btn--primary" type="button" data-scan-now>${esc(t('wallet.try'))}</button>`}`;
   body.onclick = (e) => {
     if (e.target.closest('[data-close]')) { closeDialog('wallet-dialog'); return; }
     const use = e.target.closest('[data-use]');
@@ -508,8 +442,7 @@ function bindGlobal() {
   on('checkout:field-errors', showFieldErrors);
   on('wallet:open', openWallet);
   on('vip:prompt', () => {
-    setRoleIfNeeded('tourist');
-    document.getElementById('vip')?.scrollIntoView({ behavior: 'smooth' });
+    openVipUpgradeModal();
   });
   on('cart:changed', () => {
     setCount(document.getElementById('cart-count'), cartCount());
@@ -519,6 +452,11 @@ function bindGlobal() {
     renderVisitorBits();
   });
   on('lang:changed', () => {
+    applyLanguageChrome();
+    setLang(state.lang);
+    renderVisitorBits();
+    renderStatic();
+    updateLayerCounts();
     refreshLabels();
     renderDirectoryCards();
     const active = document.querySelector('.map-label--active');
@@ -527,8 +465,20 @@ function bindGlobal() {
   });
   on('data:reload', () => reloadData().catch(() => {}));
 
+  window.addEventListener('phitlok:vip-activated', async (ev) => {
+    const r = ev.detail;
+    if (r && r.visitor) state.data.visitor = r.visitor;
+    setVipActive(true);
+    await reloadData().catch(() => {});
+    emit('visitor:changed');
+    refreshHeroStats();
+    refreshAdminData().catch(() => {});
+    toast(t('toast.vipOn'), 'ok');
+  });
+
   on('payment:success', async (r) => {
     if (r.visitor) state.data.visitor = r.visitor;
+    if (r.type === 'vip_pass') setVipActive(true);
     if (r.type === 'saas' || r.type === 'hotel_saas') {
       form?.reset();
       const fresh = await reloadData();
@@ -542,7 +492,9 @@ function bindGlobal() {
     const mId = r.order?.breakdown?.merchantId || r.merchant?.id || null;
     refreshMerchantData(mId).catch(() => {});
     refreshAdminData().catch(() => {});
-    toast(r.type === 'order' ? `ชำระเงินสำเร็จ — ส่งออเดอร์ ${r.order.orderNo} เข้าหน้าจอร้านค้าแล้ว` : 'ชำระเงินสำเร็จ — บันทึกยอดในแดชบอร์ดแล้ว', 'ok');
+    const doneMsg = r.type !== 'order' ? t('toast.paid')
+      : t(r.order.ticket.kind === 'booking' ? 'toast.booked' : 'toast.ordered', { no: r.order.orderNo });
+    toast(doneMsg, 'ok');
   });
 
   on('navigate', ({ to, result }) => {
@@ -571,7 +523,7 @@ function updateLayerCounts() {
     const layer = el.dataset.layerCount;
     el.textContent = counts[layer];
     const chip = el.closest('.map-chip');
-    chip.setAttribute('aria-label', `${chip.querySelector('.map-chip__name').textContent} ${counts[layer]} แห่ง`);
+    chip.setAttribute('aria-label', t('map.count', { name: chip.querySelector('.map-chip__name').textContent, n: counts[layer] }));
   });
 }
 
@@ -587,6 +539,16 @@ function bindMapTools() {
     chip.setAttribute('aria-pressed', String(chip.getAttribute('aria-pressed') !== 'true'));
     applyLayerFilter();
   }));
+
+  const labelsToggleBtn = document.getElementById('map-labels-toggle');
+  const labelsToggleText = document.getElementById('map-labels-toggle-text');
+  labelsToggleBtn?.addEventListener('click', () => {
+    const next = setMapLabelsVisible(!areMapLabelsVisible());
+    labelsToggleBtn.setAttribute('aria-pressed', String(next));
+    if (labelsToggleText) {
+      labelsToggleText.textContent = t(next ? 'map.labelsOn' : 'map.labelsOff');
+    }
+  });
 
   const legend = document.getElementById('map-legend');
   const legendBtn = document.getElementById('map-legend-toggle');
@@ -608,7 +570,7 @@ function bindMapTools() {
     const on = isOn();
     layout.classList.toggle('is-fullscreen', on);
     document.documentElement.classList.toggle('map-fs-lock', layout.classList.contains('is-pseudo-fullscreen'));
-    const label = on ? 'ออกจากเต็มจอ' : 'เปิดเต็มจอ';
+    const label = t(on ? 'map.fsOff' : 'map.fsOn');
     fsBtn.setAttribute('aria-label', label);
     fsBtn.title = label;
   };
@@ -631,6 +593,57 @@ function bindMapTools() {
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && layout.classList.contains('is-pseudo-fullscreen') && !document.querySelector('dialog[open]')) exitPseudo();
   });
+}
+
+// ------------------------------------------------------------------ language: page chrome + header picker
+const LANG_CODE = { th: 'TH', en: 'EN', zh: '中', ja: '日', ko: '한', fr: 'FR' };
+
+function applyLanguageChrome() {
+  document.documentElement.lang = state.lang;
+  document.title = t('title');
+  applyStatic();
+  const code = document.getElementById('lang-btn-code');
+  if (code) code.textContent = LANG_CODE[state.lang] || 'TH';
+  const btn = document.getElementById('lang-btn');
+  if (btn) btn.setAttribute('aria-label', t('lang.button', { l: LANGS.find((l) => l.code === state.lang)?.label || state.lang }));
+  document.querySelectorAll('[data-app-lang]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.appLang === state.lang)));
+  const labelsToggle = document.getElementById('map-labels-toggle');
+  const labelsText = document.getElementById('map-labels-toggle-text');
+  if (labelsText && labelsToggle) labelsText.textContent = t(labelsToggle.getAttribute('aria-pressed') === 'false' ? 'map.labelsOff' : 'map.labelsOn');
+  const fs = document.getElementById('map-fullscreen');
+  if (fs) {
+    const on = document.querySelector('.map-layout')?.classList.contains('is-fullscreen');
+    fs.setAttribute('aria-label', t(on ? 'map.fsOff' : 'map.fsOn'));
+    fs.title = t(on ? 'map.fsOff' : 'map.fsOn');
+  }
+}
+
+function bindLanguagePicker() {
+  const btn = document.getElementById('lang-btn');
+  const menu = document.getElementById('lang-menu');
+  if (!btn || !menu) return;
+  const close = (focusBtn) => {
+    menu.hidden = true;
+    btn.setAttribute('aria-expanded', 'false');
+    if (focusBtn) btn.focus();
+  };
+  btn.addEventListener('click', () => {
+    const open = menu.hidden;
+    menu.hidden = !open;
+    btn.setAttribute('aria-expanded', String(open));
+    if (open) menu.querySelector('[aria-pressed="true"]')?.focus();
+  });
+  menu.addEventListener('click', (e) => {
+    const item = e.target.closest('[data-app-lang]');
+    if (!item) return;
+    close(true);
+    if (item.dataset.appLang !== state.lang) {
+      state.lang = item.dataset.appLang;
+      emit('lang:changed', state.lang);
+    }
+  });
+  document.addEventListener('click', (e) => { if (!menu.hidden && !e.target.closest('.lang-picker')) close(false); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !menu.hidden) close(true); });
 }
 
 function clearFieldErrors() {

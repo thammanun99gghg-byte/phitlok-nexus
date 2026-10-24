@@ -6,14 +6,18 @@
 const crypto = require('node:crypto');
 const { transaction } = require('./db');
 const { PRICING, gpsTo3D, haversineM, SHORT_NAMES } = require('./seed-data');
-const { buildKitchenTicket, sanitizeFlags, LANGS } = require('./tickets');
+const { buildKitchenTicket, buildBookingTicket, sanitizeFlags, LANGS } = require('./tickets');
 const { buildQr, maskTarget } = require('./promptpay');
+const { validateLock, recordOrder, safetyFor } = require('./trip-service');
 
 const PLATFORM_PROMPTPAY_ID = (process.env.DEMO_PROMPTPAY_ID || process.env.PROMPTPAY_ID || '').trim();
 const CHECKOUT_TTL_MS = 15 * 60 * 1000;
 const VIP_DAYS = 7;
 const MAX_LINES = 30;
 const MAX_QTY = 20;
+const BOOKING_MAX_NIGHTS = 14;
+const BOOKING_GUESTS_PER_ROOM = 4;
+const BOOKING_MAX_DAYS_AHEAD = 365;
 
 class HttpError extends Error {
   constructor(status, message, extra) {
@@ -173,10 +177,40 @@ function couponDiscount(coupon, subtotal) {
   return Math.min(coupon.value, subtotal);
 }
 
+// ---------- hotel booking details ----------
+const ymd = (date) => date.toISOString().slice(0, 10);
+// Calendar dates are Thailand dates (UTC+7, no DST).
+const bangkokToday = () => ymd(new Date(Date.now() + 7 * 3600000));
+function addDays(day, n) {
+  const d = new Date(`${day}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + n);
+  return ymd(d);
+}
+
+/** Validate check-in, nights, guests and note for a hotel booking; missing fields get sensible defaults. */
+function normalizeBooking(raw, rooms) {
+  const b = raw && typeof raw === 'object' ? raw : {};
+  const today = bangkokToday();
+  const checkIn = b.checkIn === undefined || b.checkIn === '' ? today : b.checkIn;
+  if (typeof checkIn !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(checkIn) || ymd(new Date(`${checkIn}T00:00:00Z`)) !== checkIn) {
+    throw new HttpError(400, 'วันเช็คอินไม่ถูกต้อง');
+  }
+  if (checkIn < today) throw new HttpError(400, 'วันเช็คอินต้องเป็นวันนี้หรือหลังจากนี้');
+  if (checkIn > addDays(today, BOOKING_MAX_DAYS_AHEAD)) throw new HttpError(400, 'จองล่วงหน้าได้ไม่เกิน 1 ปี');
+  const nights = b.nights === undefined ? 1 : Number(b.nights);
+  if (!Number.isInteger(nights) || nights < 1 || nights > BOOKING_MAX_NIGHTS) throw new HttpError(400, `จำนวนคืนต้องอยู่ระหว่าง 1–${BOOKING_MAX_NIGHTS} คืน`);
+  const maxGuests = rooms * BOOKING_GUESTS_PER_ROOM;
+  const guests = b.guests === undefined ? Math.min(2, maxGuests) : Number(b.guests);
+  if (!Number.isInteger(guests) || guests < 1 || guests > maxGuests) throw new HttpError(400, `ผู้เข้าพักต้องอยู่ระหว่าง 1–${maxGuests} ท่าน (ห้องละไม่เกิน ${BOOKING_GUESTS_PER_ROOM} ท่าน)`);
+  const note = typeof b.note === 'string' ? b.note.replace(/[<>\u0000-\u001f]/g, '').trim().slice(0, 80) : '';
+  return { checkIn, checkOut: addDays(checkIn, nights), nights, guests, note };
+}
+
 function quoteOrder(db, visitorId, body) {
   const merchantId = Number(body.merchantId);
   const merchant = db.prepare("SELECT * FROM merchants WHERE id = ? AND status = 'active'").get(merchantId);
   if (!merchant) throw new HttpError(404, 'ไม่พบร้านค้าหรือโรงแรมนี้');
+  const fastTrack = validateLock(db,visitorId,merchantId,body.reservationId);
   if (merchant.shop_status === 'busy') {
     throw new HttpError(409, 'ขณะนี้ร้านคิวเต็มชั่วคราว กรุณารอสักครู่หรือเลือกร้านอื่น');
   }
@@ -193,10 +227,28 @@ function quoteOrder(db, visitorId, body) {
     if (existing) existing.qty = Math.min(MAX_QTY, existing.qty + qty);
     else lines.push({ ...line, qty });
   }
-  const subtotal = lines.reduce((s, l) => s + l.priceSatang * l.qty, 0);
+  // Hotels price per room per night and need booking details; restaurants never do.
+  const isHotel = merchant.kind === 'hotel' || merchant.category === 'stay';
+  const booking = isHotel ? normalizeBooking(body.booking, lines.reduce((s, l) => s + l.qty, 0)) : null;
+  const nights = booking ? booking.nights : 1;
+  const subtotal = lines.reduce((s, l) => s + l.priceSatang * l.qty * nights, 0);
 
-  ensureVisitor(db, visitorId);
+  const v = ensureVisitor(db, visitorId);
+  const vipActive = !!v.vip_until && Date.parse(v.vip_until) > Date.now();
   const couponRows = db.prepare("SELECT * FROM coupons WHERE visitor_id = ? AND merchant_id = ? AND status = 'active'").all(visitorId, merchantId);
+  if (vipActive) {
+    couponRows.unshift({
+      id: null,
+      code: 'VIP-15%',
+      visitor_id: visitorId,
+      merchant_id: merchantId,
+      kind: 'percent',
+      value: 15,
+      min_spend_satang: 0,
+      source: 'vip_privilege',
+      status: 'active'
+    });
+  }
   const coupons = couponRows.map((c) => ({ row: c, discount: couponDiscount(c, subtotal) }));
 
   let chosen = null;
@@ -211,22 +263,27 @@ function quoteOrder(db, visitorId, body) {
 
   const discount = chosen ? chosen.discount : 0;
   const net = subtotal - discount;
-  const isHotel = merchant.kind === 'hotel' || merchant.category === 'stay';
   const feeRate = isHotel ? PRICING.hotelFeeRate : PRICING.restaurantFeeRate;
   const fee = Math.round(net * feeRate);
-  const flags = sanitizeFlags(body.flags);
+  const flags = isHotel ? [] : sanitizeFlags(body.flags);
   const guestLang = LANGS.includes(body.guestLang) ? body.guestLang : 'en';
   const merchantName = parse(merchant.name_json, {});
-  const rawTable = body.tableTh || body.tableLabel;
-  const tableLabel = typeof rawTable === 'string' && rawTable.trim()
-    ? rawTable.trim().slice(0, 60)
-    : (isHotel ? 'จองห้องพักด่วน / Check-in วันนี้' : 'โต๊ะ 4 / สั่งล่วงหน้า');
+  const rawTable = fastTrack ? `โต๊ะจองล่วงหน้า ${fastTrack.tableNo} / ${fastTrack.passNo}` : body.tableTh || body.tableLabel;
+  const tableLabel = isHotel
+    ? null
+    : (typeof rawTable === 'string' && rawTable.replace(/[<>\u0000-\u001f]/g, '').trim()
+      ? rawTable.replace(/[<>\u0000-\u001f]/g, '').trim().slice(0, 60)
+      : 'โต๊ะ 4 / สั่งล่วงหน้า');
 
   const warnings = [];
-  const ticketPreview = buildKitchenTicket({ orderNo: 'PREVIEW', tableTh: tableLabel, tableLabel, merchantName, lines, flags, guestLang });
-  ticketPreview.lines.forEach((l) => {
-    if (l.notesTh.length) warnings.push(`${l.nameGuest}: ร้านจะปรับสูตรตามข้อจำกัดอาหารของคุณ (${l.notesTh.join(', ')})`);
-  });
+  const ticketPreview = isHotel
+    ? buildBookingTicket({ orderNo: 'PREVIEW', merchantName, lines, booking, guestLang })
+    : buildKitchenTicket({ orderNo: 'PREVIEW', tableLabel, merchantName, lines, flags, guestLang });
+  if (!isHotel) {
+    ticketPreview.lines.forEach((l) => {
+      if (l.notesTh.length) warnings.push(`${l.nameGuest}: ร้านจะปรับสูตรตามข้อจำกัดอาหารของคุณ (${l.notesTh.join(', ')})`);
+    });
+  }
 
   return {
     merchant,
@@ -234,12 +291,16 @@ function quoteOrder(db, visitorId, body) {
     flags,
     guestLang,
     tableLabel,
+    booking,
+    fastTrack,
     couponRow: chosen ? chosen.row : null,
     breakdown: {
       merchantId,
       merchantKind: isHotel ? 'hotel' : 'restaurant',
       merchantName,
-      lines: lines.map((l) => ({ id: l.key, name: l.name, unit: l.unit, qty: l.qty, unitPriceSatang: l.priceSatang, lineTotalSatang: l.priceSatang * l.qty })),
+      lines: lines.map((l) => ({ id: l.key, name: l.name, unit: l.unit, qty: l.qty, nights: booking ? nights : undefined, unitPriceSatang: l.priceSatang, lineTotalSatang: l.priceSatang * l.qty * nights })),
+      booking,
+      fastTrack,
       subtotalSatang: subtotal,
       coupon: chosen ? { code: chosen.row.code, kind: chosen.row.kind, value: chosen.row.value, source: chosen.row.source } : null,
       discountSatang: discount,
@@ -317,7 +378,9 @@ async function createCheckout(db, visitorId, body) {
       flags: q.flags,
       guestLang: q.guestLang,
       tableLabel: q.tableLabel,
-      couponCode: q.couponRow ? q.couponRow.code : 'none'
+      booking: q.booking,
+      couponCode: q.couponRow ? q.couponRow.code : 'none',
+      reservationId: q.fastTrack?.id || null
     };
   } else if (body.type === 'saas' || body.type === 'hotel_saas') {
     const form = validateMerchantForm(db, body.merchant || {});
@@ -436,25 +499,22 @@ function confirmCheckout(db, visitorId, checkoutId) {
     } else if (co.type === 'order') {
       const q = quoteOrder(db, visitorId, { merchantId: co.merchant_id, ...payload });
       if (q.breakdown.totalSatang !== co.amount_satang) throw new HttpError(409, 'ราคาหรือคูปองมีการเปลี่ยนแปลง กรุณาสร้างรายการชำระเงินใหม่');
-      if (q.couponRow) db.prepare("UPDATE coupons SET status = 'used', used_at = ? WHERE id = ?").run(paidAt, q.couponRow.id);
+      if (q.couponRow && q.couponRow.id != null) db.prepare("UPDATE coupons SET status = 'used', used_at = ? WHERE id = ?").run(paidAt, q.couponRow.id);
       const { n } = db.prepare('SELECT COUNT(*) AS n FROM orders').get();
-      const orderNo = `PN-${1001 + n}`;
-      const ticket = buildKitchenTicket({
-        orderNo,
-        tableTh: q.tableLabel,
-        tableLabel: q.tableLabel,
-        merchantName: q.breakdown.merchantName,
-        lines: q.lines,
-        flags: q.flags,
-        guestLang: q.guestLang
-      });
+      // Food orders get a kitchen ticket (PN-), room bookings a front-desk booking slip (BK-).
+      const orderNo = `${q.booking ? 'BK' : 'PN'}-${1001 + n}`;
+      const ticket = q.booking
+        ? buildBookingTicket({ orderNo, merchantName: q.breakdown.merchantName, lines: q.lines, booking: q.booking, guestLang: q.guestLang })
+        : buildKitchenTicket({ orderNo, tableLabel: q.tableLabel, merchantName: q.breakdown.merchantName, lines: q.lines, flags: q.flags, guestLang: q.guestLang });
       const b = q.breakdown;
       const r = db.prepare(`INSERT INTO orders (order_no, checkout_id, merchant_id, visitor_id, ticket_json, guest_lang, subtotal_satang,
         discount_satang, fee_satang, total_satang, coupon_code, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'new', ?)`)
         .run(orderNo, co.id, co.merchant_id, visitorId, JSON.stringify(ticket), q.guestLang, b.subtotalSatang, b.discountSatang,
           b.feeSatang, b.totalSatang, b.coupon ? b.coupon.code : null, paidAt);
       insTx.run('order', visitorId, co.merchant_id, co.id, b.totalSatang, b.feeSatang, paidAt);
-      result.order = { id: Number(r.lastInsertRowid), orderNo, ticket, breakdown: b };
+      const orderId = Number(r.lastInsertRowid);
+      recordOrder(db,orderId,ticket,q.fastTrack);
+      result.order = { id: orderId, orderNo, ticket, breakdown: b, fastTrack:q.fastTrack, safety:safetyFor(db,orderId) };
     } else if (co.type === 'saas' || co.type === 'hotel_saas') {
       db.prepare("UPDATE merchants SET status = 'active', created_at = ? WHERE id = ? AND status = 'pending'").run(paidAt, co.merchant_id);
       const m = db.prepare('SELECT * FROM merchants WHERE id = ?').get(co.merchant_id);

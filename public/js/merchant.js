@@ -8,6 +8,13 @@ const STATUS = {
   ready: { label: 'เสร็จพร้อมเสิร์ฟ', next: 'done', action: 'เสร็จพร้อมเสิร์ฟ (ส่งมอบลูกค้า)', stepIndex: 2 },
   done: { label: 'ส่งมอบเรียบร้อย', next: null, stepIndex: 3 }
 };
+// Hotels use the same 4 order states, worded as a stay: booked → confirmed → checked in → checked out.
+const HOTEL_STATUS = {
+  new: { label: 'การจองใหม่' },
+  preparing: { label: 'ยืนยันห้องแล้ว' },
+  ready: { label: 'เช็คอินแล้ว' },
+  done: { label: 'เช็คเอาต์แล้ว' }
+};
 const LANG_NAME = { th: 'ไทย (TH)', en: 'อังกฤษ (EN)', zh: 'จีน (CN)', ja: 'ญี่ปุ่น (JP)', ko: 'เกาหลี (KR)', fr: 'ฝรั่งเศส (FR)' };
 
 let merchantId = null;
@@ -87,21 +94,21 @@ function render(d) {
   const kpiEl = document.getElementById('merchant-kpis');
   if (kpiEl) {
     kpiEl.innerHTML = [
-      ['ออเดอร์/จองวันนี้', `${d.stats.todayOrders} รายการ`, 'kpi--accent', 'ชำระผ่าน QR PromptPay แล้ว'],
-      ['ยอดขายรับสุทธิวันนี้', baht(d.stats.todaySalesSatang), 'kpi--accent', 'โอนเข้าพร้อมเพย์ร้านโดยตรง'],
-      ['คิวที่กำลังดำเนินการ', `${d.stats.openOrders} คิว`, 'kpi--gold', 'รอรับออเดอร์ / กำลังทำ / พร้อมเสิร์ฟ'],
+      [isHotel ? 'การจองวันนี้' : 'ออเดอร์วันนี้', `${d.stats.todayOrders} รายการ`, 'kpi--accent', 'ชำระผ่าน QR PromptPay แล้ว'],
+      ['ยอดขายรับสุทธิวันนี้', baht(d.stats.todaySalesSatang), 'kpi--accent', isHotel ? 'โอนเข้าพร้อมเพย์โรงแรมโดยตรง' : 'โอนเข้าพร้อมเพย์ร้านโดยตรง'],
+      [isHotel ? 'การจองที่ยังไม่เช็คเอาต์' : 'คิวที่กำลังดำเนินการ', `${d.stats.openOrders} ${isHotel ? 'รายการ' : 'คิว'}`, 'kpi--gold', isHotel ? 'รอยืนยัน / ยืนยันแล้ว / เข้าพักอยู่' : 'รอรับออเดอร์ / กำลังทำ / พร้อมเสิร์ฟ'],
       [`ค่าธรรมเนียม (${feePct}) เดือนนี้`, baht(d.stats.monthPlatformFeeSatang), '', `สมาชิก SaaS ${saasPrice}`]
     ].map(([label, value, cls, sub]) => `<div class="kpi ${cls}"><p class="kpi__label">${label}</p><p class="kpi__value">${value}</p><p class="kpi__sub">${sub}</p></div>`).join('');
   }
 
-  renderTab1Kitchen(d);
+  renderTab1Kitchen(d, isHotel);
   renderTab2GpsChecker(d);
   renderTab3MenuManager(d);
   refreshIcons();
 }
 
 // ------------------------------------------------------------------ Tab 1: Live Kitchen & Booking Display
-function renderTab1Kitchen(d) {
+function renderTab1Kitchen(d, isHotel) {
   const list = document.getElementById('merchant-orders');
   if (!list) return;
   const fresh = [];
@@ -109,59 +116,60 @@ function renderTab1Kitchen(d) {
     if (!seenOrders.has(o.id)) { if (!firstLoad) fresh.push(o); seenOrders.add(o.id); }
   }
   firstLoad = false;
-  if (fresh.length) toast(`ออเดอร์ใหม่เข้าหน้าร้าน: ${fresh.map((o) => o.orderNo).join(', ')}`, 'ok');
+  if (fresh.length) toast(`${isHotel ? 'การจองใหม่เข้าโรงแรม' : 'ออเดอร์ใหม่เข้าหน้าร้าน'}: ${fresh.map((o) => o.orderNo).join(', ')}`, 'ok');
   const freshIds = new Set(fresh.map((o) => o.id));
   const active = d.orders.filter((o) => o.status !== 'done');
   const done = d.orders.filter((o) => o.status === 'done').slice(0, 6);
 
   list.innerHTML = (active.length
-    ? active.map((o) => orderCard(o, freshIds.has(o.id))).join('')
-    : `<div class="card empty"><p class="empty__title">ไม่มีคิวค้างในขณะนี้</p><p class="muted">เมื่อนักท่องเที่ยวสั่งอาหารหรือจองที่พัก รายการตัวหนังสือใหญ่พร้อมคำเตือนภูมิแพ้สีแดงจะเด้งขึ้นที่นี่ทันที</p></div>`)
-    + (done.length ? `<details class="hidden-summary"><summary>ประวัติออเดอร์ที่เสร็จพร้อมเสิร์ฟแล้ว (${done.length} รายการ)</summary><div class="orders">${done.map((o) => orderCard(o, false)).join('')}</div></details>` : '');
+    ? active.map((o) => orderCard(o, freshIds.has(o.id), isHotel)).join('')
+    : (isHotel
+      ? '<div class="card empty"><p class="empty__title">ยังไม่มีการจองที่รอดำเนินการ</p><p class="muted">เมื่อนักท่องเที่ยวจองห้องพัก ใบจองพร้อมวันเช็คอินและจำนวนผู้เข้าพักจะขึ้นที่นี่ทันที</p></div>'
+      : '<div class="card empty"><p class="empty__title">ไม่มีคิวค้างในขณะนี้</p><p class="muted">เมื่อนักท่องเที่ยวสั่งอาหาร รายการตัวหนังสือใหญ่พร้อมคำเตือนภูมิแพ้สีแดงจะเด้งขึ้นที่นี่ทันที</p></div>'))
+    + (done.length ? `<details class="hidden-summary"><summary>${isHotel ? 'ประวัติการจองที่เช็คเอาต์แล้ว' : 'ประวัติออเดอร์ที่เสร็จพร้อมเสิร์ฟแล้ว'} (${done.length} รายการ)</summary><div class="orders">${done.map((o) => orderCard(o, false, isHotel)).join('')}</div></details>` : '');
 
   const updatedEl = document.getElementById('merchant-updated');
   if (updatedEl) updatedEl.textContent = `อัปเดตสด ${new Date().toLocaleTimeString('th-TH')}`;
 }
 
-function orderCard(o, fresh) {
-  const st = STATUS[o.status] || STATUS.new;
-  const steps = [
-    { key: 'new', label: '1. รับออเดอร์', nextStatus: 'preparing' },
-    { key: 'preparing', label: '2. กำลังทำ', nextStatus: 'ready' },
-    { key: 'ready', label: '3. เสร็จพร้อมเสิร์ฟ', nextStatus: 'done' }
-  ];
-  return `<article class="order-card order-card--${o.status}${fresh ? ' order-card--fresh' : ''}" aria-label="ออเดอร์ ${esc(o.orderNo)}">
+function orderCard(o, fresh, isHotel) {
+  const st = (isHotel ? HOTEL_STATUS : STATUS)[o.status] || STATUS.new;
+  const noun = isHotel ? 'การจอง' : 'ออเดอร์';
+  const actions = isHotel
+    ? [['check-circle-2', 'ยืนยันการจอง'], ['log-in', 'เช็คอิน'], ['log-out', 'เช็คเอาต์']]
+    : [['check-circle-2', 'รับออเดอร์'], ['flame', 'กำลังทำ'], ['bell-ring', 'เสร็จพร้อมเสิร์ฟ']];
+  return `<article class="order-card order-card--${o.status}${fresh ? ' order-card--fresh' : ''}" aria-label="${noun} ${esc(o.orderNo)}">
     <div class="order-card__head">
       <div class="badges">
         <span class="badge ${o.status === 'new' ? 'badge--gold' : 'badge--ok'}">${st.label}</span>
-        <span class="badge">ลูกค้าต่างชาติ: ${esc(LANG_NAME[o.guestLang] || o.guestLang)}</span>
+        <span class="badge">${isHotel ? 'ภาษาผู้เข้าพัก' : 'ลูกค้าต่างชาติ'}: ${esc(LANG_NAME[o.guestLang] || o.guestLang)}</span>
         <span class="badge">รหัส ${esc(o.orderNo)}</span>
       </div>
       <span class="muted small">${timeAgo(o.createdAt)}</span>
     </div>
     ${renderTicket(o.ticket)}
     <div class="order-card__foot">
-      <span class="small">ยอดสุทธิเข้าบัญชีร้าน <b>${baht(o.subtotalSatang - o.discountSatang)}</b>${o.discountSatang ? ` (ใช้คูปองลด ${baht(o.discountSatang)})` : ''} · ชำระพร้อมเพย์แล้ว <b>${baht(o.totalSatang)}</b></span>
+      <span class="small">ยอดสุทธิเข้าบัญชี${isHotel ? 'โรงแรม' : 'ร้าน'} <b>${baht(o.subtotalSatang - o.discountSatang)}</b>${o.discountSatang ? ` (ใช้คูปองลด ${baht(o.discountSatang)})` : ''} · ชำระพร้อมเพย์แล้ว <b>${baht(o.totalSatang)}</b></span>
       ${o.status !== 'done' ? `
-      <div class="status-stepper" role="group" aria-label="เปลี่ยนสถานะออเดอร์">
+      <div class="status-stepper" role="group" aria-label="เปลี่ยนสถานะ${noun}">
         <button class="btn btn--merchant ${o.status === 'new' ? 'btn--primary' : 'btn--outline'}"
                 type="button"
                 ${o.status === 'new' ? `data-advance="${o.id}" data-next="preparing"` : 'disabled'}>
-          <i data-lucide="check-circle-2"></i> [รับออเดอร์]
+          <i data-lucide="${actions[0][0]}"></i> ${actions[0][1]}
         </button>
         <span class="step-arrow" aria-hidden="true">→</span>
         <button class="btn btn--merchant ${o.status === 'preparing' ? 'btn--primary' : 'btn--outline'}"
                 type="button"
                 ${o.status === 'preparing' ? `data-advance="${o.id}" data-next="ready"` : 'disabled'}>
-          <i data-lucide="flame"></i> [กำลังทำ]
+          <i data-lucide="${actions[1][0]}"></i> ${actions[1][1]}
         </button>
         <span class="step-arrow" aria-hidden="true">→</span>
         <button class="btn btn--merchant ${o.status === 'ready' ? 'btn--gold' : 'btn--outline'}"
                 type="button"
                 ${o.status === 'ready' ? `data-advance="${o.id}" data-next="done"` : 'disabled'}>
-          <i data-lucide="bell-ring"></i> [เสร็จพร้อมเสิร์ฟ]
+          <i data-lucide="${actions[2][0]}"></i> ${actions[2][1]}
         </button>
-      </div>` : `<span class="badge badge--ok">เสิร์ฟลูกค้าเรียบร้อยแล้ว</span>`}
+      </div>` : `<span class="badge badge--ok">${isHotel ? 'ผู้เข้าพักเช็คเอาต์แล้ว' : 'เสิร์ฟลูกค้าเรียบร้อยแล้ว'}</span>`}
     </div>
   </article>`;
 }

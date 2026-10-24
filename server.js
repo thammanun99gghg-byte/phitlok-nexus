@@ -7,6 +7,7 @@ const { rateLimit } = require('express-rate-limit');
 const multer = require('multer');
 
 const { openDatabase, transaction } = require('./src/db');
+const trip = require('./src/trip-service');
 const { ORIGIN_GPS, PRICING } = require('./src/seed-data');
 const { DIETARY_FLAGS, LANGS } = require('./src/tickets');
 const ai = require('./src/ai');
@@ -17,6 +18,7 @@ const {
 
 const PORT = Number(process.env.PORT || 3000);
 const db = openDatabase();
+trip.initTrip(db);
 const app = express();
 app.disable('x-powered-by');
 app.set('trust proxy', Number(process.env.TRUST_PROXY) || 1);
@@ -52,7 +54,7 @@ app.use(helmet({
   strictTransportSecurity: process.env.NODE_ENV === 'production' ? undefined : false
 }));
 app.use((req, res, next) => {
-  res.setHeader('Permissions-Policy', 'camera=(self), microphone=(), geolocation=(), payment=()');
+  res.setHeader('Permissions-Policy', 'camera=(self), microphone=(), geolocation=(self), payment=()');
   next();
 });
 
@@ -133,7 +135,7 @@ const MENU_PRESET_OCR = (items) => items.map((it) => `${it.name.th} ........ ${i
 
 // ---------------------------------------------------------------- API
 app.get('/api/health', (req, res) => {
-  res.json({ ok: true, version: '2.0.0', time: new Date().toISOString(), ai: ai.aiStatus() });
+  res.json({ ok: true, version: '3.0.0', time: new Date().toISOString(), ai: ai.aiStatus() });
 });
 
 app.get('/api/init-data', (req, res) => {
@@ -348,9 +350,9 @@ app.get('/api/metrics', (req, res) => {
 
   const activeRestaurants = db.prepare("SELECT COUNT(*) AS n FROM merchants WHERE status = 'active' AND kind = 'restaurant'").get().n;
   const activeHotels = db.prepare("SELECT COUNT(*) AS n FROM merchants WHERE status = 'active' AND kind = 'hotel'").get().n;
-  const confirmedPartners = db.prepare("SELECT COUNT(*) AS n FROM merchants WHERE status = 'active' AND partner_status = 'confirmed'").get().n;
   const landmarksCount = db.prepare('SELECT COUNT(*) AS n FROM landmarks').get().n;
   const activeCount = activeRestaurants + activeHotels;
+  const confirmedPartners = db.prepare("SELECT COUNT(*) AS n FROM merchants WHERE status='active' AND partner_status='confirmed'").get().n;
 
   const partnerStats = db.prepare(`
     SELECT m.*,
@@ -374,6 +376,7 @@ app.get('/api/metrics', (req, res) => {
   res.json({
     ok: true,
     demoMode: true,
+    trip: trip.tripMetrics(db),
     generatedAt: new Date().toISOString(),
     totals: {
       landmarksCount,
@@ -430,6 +433,22 @@ app.get('/api/metrics', (req, res) => {
 });
 
 // ---------------------------------------------------------------- merchant console
+// All operator controls below are demo controls; no real partner authentication is claimed.
+app.get('/api/trip/live', (req, res) => res.json({ ok:true, demo:true, serverTime:new Date().toISOString(), places:trip.livePlaces(db) }));
+app.get('/api/trip/mine', (req, res) => res.json({ ok:true, serverTime:new Date().toISOString(), ...trip.visitorTrip(db,visitor(req)) }));
+app.post('/api/trip/rescue', (req, res) => res.json({ ok:true,...trip.rescue(db,visitor(req),req.body || {}) }));
+app.post('/api/trip/locks', (req, res) => res.json({ ok:true, lock:trip.lockTable(db,visitor(req),Number(req.body.merchantId)) }));
+app.post('/api/trip/locks/:id/cancel', (req, res) => res.json({ ok:true,lock:trip.changeLock(db,req.params.id,{visitorId:visitor(req)},'cancelled') }));
+app.post('/api/demo/live/:key', (req, res) => res.json({ ok:true,demo:true,place:trip.updateLive(db,req.params.key,req.body || {}) }));
+app.post('/api/merchants/:id/locks/:lockId', (req,res) => {
+  const m = merchantOr404(req.params.id);
+  res.json({ ok:true,lock:trip.changeLock(db,req.params.lockId,{merchantId:m.id},req.body.status) });
+});
+app.post('/api/orders/:id/allergy-review', (req,res) => {
+  const m = merchantOr404(req.body.merchantId);
+  res.json({ ok:true,safety:trip.reviewSafety(db,Number(req.params.id),m.id,req.body) });
+});
+
 function merchantOr404(id) {
   const m = db.prepare("SELECT * FROM merchants WHERE id = ? AND status = 'active'").get(Number(id));
   if (!m) throw new HttpError(404, 'ไม่พบร้านค้าหรือโรงแรม');
@@ -449,12 +468,15 @@ app.get('/api/merchants/:id/dashboard', (req, res) => {
   const orders = db.prepare('SELECT * FROM orders WHERE merchant_id = ? ORDER BY created_at DESC, id DESC LIMIT 25').all(m.id).map((o) => ({
     id: o.id, orderNo: o.order_no, status: o.status, createdAt: o.created_at, guestLang: o.guest_lang,
     ticket: parse(o.ticket_json, {}), subtotalSatang: o.subtotal_satang, discountSatang: o.discount_satang,
-    feeSatang: o.fee_satang, totalSatang: o.total_satang, couponCode: o.coupon_code
+    feeSatang: o.fee_satang, totalSatang: o.total_satang, couponCode: o.coupon_code,
+    safety: trip.safetyFor(db,o.id)
   }));
   const menu = db.prepare('SELECT * FROM menu_items WHERE merchant_id = ? AND active = 1 ORDER BY id').all(m.id).map(publicItem);
   res.json({
     ok: true,
     merchant: publicMerchant(m),
+    live: trip.livePlaces(db).find((p) => p.merchantId === m.id) || null,
+    fastTracks: trip.merchantLocks(db,m.id),
     stats: {
       todayOrders: today.n,
       todaySalesSatang: today.sales,
@@ -492,6 +514,7 @@ app.post('/api/orders/:id/status', (req, res) => {
   if (!order || order.merchant_id !== Number(req.body && req.body.merchantId)) throw new HttpError(404, 'ไม่พบออเดอร์ของร้านนี้');
   const next = NEXT_STATUS[order.status];
   if (!next || req.body.status !== next) throw new HttpError(409, 'สถานะออเดอร์ไม่ถูกต้อง');
+  trip.checkKitchenReady(db,order.id);
   db.prepare('UPDATE orders SET status = ? WHERE id = ?').run(next, order.id);
   res.json({ ok: true, id: order.id, status: next });
 });
@@ -553,7 +576,7 @@ app.use((err, req, res, next) => {
     const msg = err.code === 'LIMIT_FILE_SIZE' ? 'ไฟล์ใหญ่เกิน 5MB กรุณาย่อขนาดภาพ' : 'การอัปโหลดไม่ถูกต้อง';
     return res.status(err.code === 'LIMIT_FILE_SIZE' ? 413 : 400).json({ ok: false, error: msg });
   }
-  if (err instanceof HttpError) return res.status(err.status).json({ ok: false, error: err.message, ...(err.extra || {}) });
+  if (err instanceof HttpError || err instanceof trip.TripError) return res.status(err.status).json({ ok: false, error: err.message, ...(err.extra || {}) });
   if (err.type === 'entity.parse.failed') return res.status(400).json({ ok: false, error: 'รูปแบบข้อมูลไม่ถูกต้อง' });
   if (err.type === 'entity.too.large') return res.status(413).json({ ok: false, error: 'ข้อมูลใหญ่เกินไป' });
   console.error(err);

@@ -142,4 +142,28 @@ function buildKitchenTicket({ orderNo, tableLabel, merchantName, lines, flags, g
   };
 }
 
-module.exports = { DIETARY_FLAGS, buildKitchenTicket, sanitizeFlags, LANGS };
+/*
+ * Hotel booking slip for the front desk: rooms, check-in/out, nights, guests and the guest's note.
+ * Hotels never get a kitchen ticket (no table number, no dietary banners).
+ */
+function buildBookingTicket({ orderNo, merchantName, lines, booking, guestLang }) {
+  const lang = LANGS.includes(guestLang) ? guestLang : 'en';
+  return {
+    kind: 'booking',
+    orderNo,
+    merchantName,
+    guestLang: lang,
+    checkIn: booking.checkIn,
+    checkOut: booking.checkOut,
+    nights: booking.nights,
+    guests: booking.guests,
+    note: booking.note,
+    rooms: lines.map((line) => ({
+      qty: line.qty,
+      nameTh: line.name.th,
+      nameGuest: line.name[lang] || line.name.en || line.name.th
+    }))
+  };
+}
+
+module.exports = { DIETARY_FLAGS, buildKitchenTicket, buildBookingTicket, sanitizeFlags, LANGS };

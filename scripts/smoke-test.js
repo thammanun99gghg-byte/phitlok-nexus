@@ -112,8 +112,24 @@ const PNG_1PX = Buffer.from('89504e470d0a1a0a0000000d494844520000000100000001080
     }
     const homeHtml = await (await fetch(base + '/')).text();
     assert.ok(homeHtml.includes('13 แห่ง') && homeHtml.includes('ข้อมูลสาธิต'), 'Home stats strip labels demo data');
+    assert.ok(homeHtml.includes('id="hero-confirmed">8 แห่ง<'), 'Home confirmed partners shows 8 แห่ง (not 0)');
+    assert.ok(homeHtml.includes('id="header-vip-btn"'), 'Home header has VIP upgrade button');
+    assert.ok(homeHtml.includes('id="scroll-cue"'), 'Home has floating scroll cue');
     assert.ok(!/<dd[^>]*>–<\/dd>/.test(homeHtml), 'No empty dash in home page <dd> stats');
-    assert.ok(homeHtml.includes('GPS: 16.8239, 100.2624'), 'Clickable Wat Yai GPS link present');
+    // v2.4 X1/X3: no coordinates on the home hero; the hero shows Phra Phuttha Chinnarat with an on-image credit.
+    assert.ok(!homeHtml.includes('GPS: 16.8239, 100.2624'), 'Home hero has no GPS coordinate chip');
+    assert.ok(homeHtml.includes('/assets/photos/phra-phuttha-chinnarat.jpg') && homeHtml.includes('href="/credits#photos"'), 'Home film strip starts with Phra Phuttha Chinnarat and links to the photo credits');
+    const creditsPage = await (await fetch(base + '/credits')).text();
+    for (const photo of ['Phra_Phuttha_Chinnarat_(I).jpg', 'Wat_Phra_Si_Rattana_Mahathat', 'Chan_Royal_Palace', 'Wat_Nang_Phaya', 'Wat_Ratcha_Burana', 'Phitsanulok_City_Pillar_Shrine_1.jpg', 'King_Naresuan_Shine_-_panoramio.jpg']) {
+      assert.ok(creditsPage.includes(photo), `credits page lists the source of ${photo}`);
+    }
+    assert.ok(fs.existsSync(path.join(__dirname, '..', 'public/assets/photos/phra-phuttha-chinnarat.jpg')), 'Phra Phuttha Chinnarat photo is stored locally');
+    const appHtml = await (await fetch(base + '/app')).text();
+    assert.ok(appHtml.includes('id="map-labels-toggle"'), '/app has 3D map labels toggle button');
+    assert.ok(appHtml.includes('id="header-vip-btn"'), '/app header has VIP upgrade button');
+    assert.ok(appHtml.includes('id="scroll-cue"'), '/app has floating scroll cue');
+    // The AI badge only appears when a model is really configured (app.js shows it from /api/init-data).
+    assert.ok(appHtml.includes('id="ai-badge" hidden'), '/app does not claim AI before the server confirms a model')
     const creditsHtml = await (await fetch(base + '/credits')).text();
     assert.ok(!creditsHtml.includes('ทีม สจล.'), 'credits.html does not claim KMITL team affiliation');
     assert.ok(creditsHtml.includes('สมาชิก 3 คน'), 'credits.html lists 3-member team');
@@ -130,6 +146,10 @@ const PNG_1PX = Buffer.from('89504e470d0a1a0a0000000d494844520000000100000001080
     assert.ok(r.json.menuItems.every((i) => i.isSample === true), 'all seeded menu items marked as sample');
     assert.ok(!JSON.stringify(r.json.merchants).includes('images.unsplash.com'), 'no Unsplash stock photos used as real shop photos');
     assert.ok(!JSON.stringify(r.json.merchants).includes('081234500'), 'no fake 081234500x phone numbers in merchants');
+    const cityPillar = r.json.landmarks.find((l) => l.id === 'city-pillar');
+    assert.ok(cityPillar, 'city-pillar landmark exists');
+    assert.ok(cityPillar.imageUrl.includes('city-pillar.jpg') || cityPillar.imageUrl.includes('Phitsanulok_City_Pillar_Shrine'), 'city-pillar uses authentic Phitsanulok City Pillar Shrine photo');
+    assert.ok(!cityPillar.imageUrl.includes('Phra_Phuttha_Chinnarat') && !cityPillar.imageUrl.includes('wat-yai.jpg'), 'city-pillar does not use Phra Phuttha Chinnarat photo');
     assert.equal(r.json.originGps.lat, 16.8228);
     assert.equal(r.json.originGps.lng, 100.2612);
     assert.ok(!JSON.stringify(r.json.merchants).includes('phone'), 'merchant phone numbers are never exposed');
@@ -235,12 +255,61 @@ const PNG_1PX = Buffer.from('89504e470d0a1a0a0000000d494844520000000100000001080
     assert.equal(t2.json.available, true);
   });
 
-  await test('POST /api/checkout (VIP pass 99฿) & Hotel SaaS (499฿) work', async () => {
+  await test('Hotel booking: check-in/nights/guests priced per night → booking slip BK- (no table, no kitchen banners)', async () => {
+    const init = (await call('GET', '/api/init-data')).json;
+    const hotel = init.merchants.find((m) => m.slug === 'imperial-hotel');
+    const room = init.menuItems.find((i) => i.merchantId === hotel.id);
+    const today = new Date(Date.now() + 7 * 3600000).toISOString().slice(0, 10);
+    const plus = (d, n) => { const x = new Date(`${d}T00:00:00Z`); x.setUTCDate(x.getUTCDate() + n); return x.toISOString().slice(0, 10); };
+    const checkIn = plus(today, 3);
+    const body = {
+      merchantId: hotel.id, items: [{ id: room.id, qty: 2 }], couponCode: 'none', guestLang: 'ja',
+      flags: ['no_peanut'], tableTh: 'โต๊ะ 4 / สั่งล่วงหน้า',
+      booking: { checkIn, nights: 3, guests: 5, note: 'ขอห้องติดกัน' }
+    };
+    const q = await call('POST', '/api/quote', { body });
+    assert.equal(q.status, 200, JSON.stringify(q.json));
+    assert.equal(q.json.breakdown.subtotalSatang, room.priceSatang * 2 * 3, 'room price × rooms × nights');
+    assert.equal(q.json.breakdown.lines[0].nights, 3);
+    assert.equal(q.json.ticketPreview.kind, 'booking');
+    assert.equal(q.json.ticketPreview.checkOut, plus(checkIn, 3));
+    assert.ok(!('tableTh' in q.json.ticketPreview) && !q.json.ticketPreview.warningsTh, 'a booking has no table number or kitchen banners');
+    for (const bad of [{ checkIn: plus(today, -1) }, { checkIn: plus(today, 400) }, { checkIn: '2027-02-30' }, { nights: 0 }, { nights: 15 }, { guests: 9 }]) {
+      const r = await call('POST', '/api/quote', { body: { ...body, booking: { ...body.booking, ...bad } } });
+      assert.equal(r.status, 400, `booking ${JSON.stringify(bad)} must be rejected`);
+    }
+    const co = await call('POST', '/api/checkout', { body: { type: 'order', ...body } });
+    assert.equal(co.status, 200);
+    assert.ok(co.json.title.startsWith('จองห้องพักโรงแรม'));
+    const c = await call('POST', `/api/checkout/${co.json.checkoutId}/confirm`);
+    assert.equal(c.status, 200);
+    assert.match(c.json.order.orderNo, /^BK-\d+$/);
+    assert.equal(c.json.order.ticket.kind, 'booking');
+    assert.equal(c.json.order.ticket.guests, 5);
+    assert.equal(c.json.order.ticket.note, 'ขอห้องติดกัน');
+    const dash = await call('GET', `/api/merchants/${hotel.id}/dashboard`);
+    assert.ok(dash.json.orders.some((o) => o.orderNo === c.json.order.orderNo && o.ticket.kind === 'booking'), 'booking reaches the hotel screen');
+    assert.match(orderNo, /^PN-\d+$/, 'food orders keep kitchen tickets');
+  });
+
+  await test('POST /api/checkout (VIP pass 99฿) & Hotel SaaS (499฿) work + auto 15% VIP cart discount', async () => {
     const r = await call('POST', '/api/checkout', { body: { type: 'vip_pass' } });
     assert.equal(r.status, 200);
     assert.equal(r.json.amountSatang, 9900);
     const c = await call('POST', `/api/checkout/${r.json.checkoutId}/confirm`);
     assert.equal(c.status, 200);
+
+    // Verify VIP holder automatically gets 15% VIP-15% privilege discount in quote
+    const q = await call('POST', '/api/quote', {
+      body: {
+        merchantId: menu.merchant.id,
+        items: [{ id: menu.items[0].id, qty: 2 }],
+        couponCode: 'VIP-15%'
+      }
+    });
+    assert.equal(q.status, 200);
+    assert.equal(q.json.breakdown.coupon.code, 'VIP-15%');
+    assert.equal(q.json.breakdown.discountSatang, Math.floor((menu.items[0].priceSatang * 2) * 0.15));
 
     const h = await call('POST', '/api/checkout', {
       body: {

@@ -39,6 +39,7 @@
         <a href="/credits" aria-current="page">เครดิต</a>
       </nav>
       <div class="appbar__actions">
+        <button class="btn btn--vip-cta btn--sm" type="button" id="header-vip-btn" data-open-vip-modal>✨ อัปเกรด VIP (99฿)</button>
         <button class="icon-btn hide-mobile" type="button" id="theme-toggle" data-theme-toggle aria-pressed="false" aria-label="สลับธีมสว่างหรือมืด"><i data-lucide="moon" class="ico-moon"></i><i data-lucide="sun" class="ico-sun"></i></button>
         <a class="btn btn--primary btn--sm" href="/app#tourist">เปิดแอป</a>
         <button class="icon-btn menu-toggle show-mobile-grid" type="button" id="menu-toggle" aria-expanded="false" aria-controls="mobile-nav" aria-label="เปิดเมนู"><i data-lucide="menu"></i></button>
@@ -48,6 +49,7 @@
       <a href="/"><i data-lucide="house"></i> หน้าแรก</a>
       <a href="/app"><i data-lucide="layout-grid"></i> แอป</a>
       <a href="/credits" aria-current="page"><i data-lucide="book-open"></i> เครดิต</a>
+      <button class="menu-panel__item" type="button" data-open-vip-modal><i data-lucide="crown"></i> อัปเกรด VIP Pass (99฿)</button>
       <button class="menu-panel__item" type="button" data-theme-toggle aria-pressed="false"><i data-lucide="moon" class="ico-moon"></i><i data-lucide="sun" class="ico-sun"></i> สลับธีมสว่าง/มืด</button>
     </nav>
   </header>
@@ -125,6 +127,51 @@
             <a class="btn btn--outline btn--sm" href="https://gis.finearts.go.th/" target="_blank" rel="noopener"><i data-lucide="external-link"></i> ระบบภูมิสารสนเทศแหล่งมรดกศิลปวัฒนธรรม กรมศิลปากร (GIS Fine Arts)</a>
             <a class="btn btn--outline btn--sm" href="https://www.finearts.go.th/sukhothai" target="_blank" rel="noopener"><i data-lucide="external-link"></i> สำนักศิลปากรที่ 6 สุโขทัย – พิษณุโลก</a>
           </div>
+          <h3 class="mt">เครดิตภาพถ่ายโบราณสถานจริง (Wikimedia Commons — สัญญาอนุญาตเปิด)</h3>
+          <div class="table-wrap mt">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th scope="col">โบราณสถาน / ไฟล์ในเครื่อง</th>
+                  <th scope="col">ผู้ถ่ายภาพ (Author)</th>
+                  <th scope="col">สัญญาอนุญาต (License)</th>
+                  <th scope="col">แหล่งที่มา (Source URL)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1. วัดพระศรีรัตนมหาธาตุวรมหาวิหาร (<code>/assets/photos/wat-yai.jpg</code>)</td>
+                  <td>Supanut Arunoprayote</td>
+                  <td><a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a></td>
+                  <td><a href="https://commons.wikimedia.org/wiki/File:Wat_Phra_Si_Rattana_Mahathat,_Phitsanulok_(I).jpg" target="_blank" rel="noopener">Wikimedia Commons ↗</a></td>
+                </tr>
+                <tr>
+                  <td>2. ศูนย์ประวัติศาสตร์พระราชวังจันทน์ (<code>/assets/photos/chan-palace.jpg</code>)</td>
+                  <td>Chainwit.</td>
+                  <td><a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a></td>
+                  <td><a href="https://commons.wikimedia.org/wiki/File:Chan_Royal_Palace_Historical_Center_(March_2022)_entrance.jpg" target="_blank" rel="noopener">Wikimedia Commons ↗</a></td>
+                </tr>
+                <tr>
+                  <td>3. วัดนางพญา (<code>/assets/photos/wat-nang-phaya.jpg</code>)</td>
+                  <td>Chainwit.</td>
+                  <td><a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a></td>
+                  <td><a href="https://commons.wikimedia.org/wiki/File:Wat_Nang_Phaya,_Phitsanulok_-_%E0%B8%A7%E0%B8%B1%E0%B8%94%E0%B8%99%E0%B8%B2%E0%B8%87%E0%B8%9E%E0%B8%8D%E0%B8%B2_%E0%B8%9E%E0%B8%B4%E0%B8%A9%E0%B8%93%E0%B8%B8%E0%B9%82%E0%B8%A5%E0%B8%81_(March_2022)_-_img_01.jpg" target="_blank" rel="noopener">Wikimedia Commons ↗</a></td>
+                </tr>
+                <tr>
+                  <td>4. วัดราชบูรณะ (<code>/assets/photos/wat-ratchaburana.jpg</code>)</td>
+                  <td>Chainwit.</td>
+                  <td><a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a></td>
+                  <td><a href="https://commons.wikimedia.org/wiki/File:March_2022_-_Royal_Stupa,_Wat_Ratcha_Burana,_Phitsanulok_-_%E0%B8%9E%E0%B8%A3%E0%B8%B0%E0%B9%80%E0%B8%88%E0%B8%94%E0%B8%B5%E0%B8%A2%E0%B9%8C%E0%B8%AB%E0%B8%A5%E0%B8%A7%E0%B8%87_%E0%B8%A7%E0%B8%B1%E0%B8%94%E0%B8%A3%E0%B8%B2%E0%B8%8A%E0%B8%9A%E0%B8%B9%E0%B8%A3%E0%B8%93%E0%B8%B0_%E0%B8%9E%E0%B8%B4%E0%B8%A9%E0%B8%93%E0%B8%B8%E0%B9%82%E0%B8%A5%E0%B8%81_-_img_01.jpg" target="_blank" rel="noopener">Wikimedia Commons ↗</a></td>
+                </tr>
+                <tr>
+                  <td>5. ศาลหลักเมืองพิษณุโลก (<code>/assets/photos/city-pillar.jpg</code>)</td>
+                  <td>Christophe95</td>
+                  <td><a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a></td>
+                  <td><a href="https://commons.wikimedia.org/wiki/File:Phitsanulok_City_Pillar_Shrine_1.jpg" target="_blank" rel="noopener">Wikimedia Commons ↗</a></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </section>
 
         <!-- Photo credits -->
@@ -135,6 +182,8 @@
             <table class="data-table">
               <thead><tr><th scope="col">สถานที่</th><th scope="col">ผู้ถ่าย</th><th scope="col">สัญญาอนุญาต</th><th scope="col">ต้นฉบับ</th></tr></thead>
               <tbody>
+                <tr><td><b>พระพุทธชินราช (แถบภาพหน้าแรก)</b></td><td>Supanut Arunoprayote</td><td><code>CC BY 4.0</code></td><td><a href="https://commons.wikimedia.org/wiki/File:Phra_Phuttha_Chinnarat_(I).jpg" target="_blank" rel="noopener">Wikimedia Commons ↗</a></td></tr>
+                <tr><td><b>ศาลสมเด็จพระนเรศวร วังจันทน์ (แถบภาพหน้าแรก)</b></td><td>::::=UT=:::: (Panoramio)</td><td><code>CC BY-SA 3.0</code></td><td><a href="https://commons.wikimedia.org/wiki/File:%E0%B8%A8%E0%B8%B2%E0%B8%A5%E0%B8%AA%E0%B8%A1%E0%B9%80%E0%B8%94%E0%B9%87%E0%B8%88%E0%B8%9E%E0%B8%A3%E0%B8%B0%E0%B8%99%E0%B9%80%E0%B8%A3%E0%B8%A8%E0%B8%A7%E0%B8%A3%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B8%A7%E0%B8%B1%E0%B8%87%E0%B8%88%E0%B8%B1%E0%B8%99%E0%B8%97%E0%B8%A3%E0%B9%8C,King_Naresuan_Shine_-_panoramio.jpg" target="_blank" rel="noopener">Wikimedia Commons ↗</a></td></tr>
                 <tr><td><b>วัดใหญ่</b></td><td>Supanut Arunoprayote</td><td><code>CC BY 4.0</code></td><td><a href="https://commons.wikimedia.org/wiki/File:Wat_Phra_Si_Rattana_Mahathat,_Phitsanulok_(I).jpg" target="_blank" rel="noopener">Wikimedia Commons ↗</a></td></tr>
                 <tr><td><b>วังจันทร์</b></td><td>Chainwit</td><td><code>CC BY-SA 4.0</code></td><td><a href="https://commons.wikimedia.org/wiki/File:Chan_Royal_Palace_Historical_Center_(March_2022)_entrance.jpg" target="_blank" rel="noopener">Wikimedia Commons ↗</a></td></tr>
                 <tr><td><b>วัดนางพญา</b></td><td>Chainwit</td><td><code>CC BY-SA 4.0</code></td><td><a href="https://commons.wikimedia.org/wiki/File:Wat_Nang_Phaya,_Phitsanulok_-_%E0%B8%A7%E0%B8%B1%E0%B8%94%E0%B8%99%E0%B8%B2%E0%B8%87%E0%B8%9E%E0%B8%8D%E0%B8%B2_%E0%B8%9E%E0%B8%B4%E0%B8%A9%E0%B8%93%E0%B8%B8%E0%B9%82%E0%B8%A5%E0%B8%81_(March_2022)_-_img_01.jpg" target="_blank" rel="noopener">Wikimedia Commons ↗</a></td></tr>
@@ -162,10 +211,10 @@
         <section class="card mt" id="team" aria-labelledby="team-title">
           <h2 id="team-title">03 · ทีมผู้พัฒนา (สมาชิก 3 คน) &amp; การแข่งขัน</h2>
           <p class="muted">ทีมผู้เข้าแข่งขันงาน All for One University 2569 สาย Software for Business &amp; Tourism ("Make Me Money") · พื้นที่ศึกษาต้นแบบ จังหวัดพิษณุโลก</p>
-          <div class="kpis mt">
-            <div class="kpi kpi--accent"><p class="kpi__label">สมาชิกคนที่ 1</p><p class="kpi__value">Full-Stack &amp; AI Lead</p><p class="kpi__sub">สถาปัตยกรรมเซิร์ฟเวอร์ · SQLite · AI Vision 6 ภาษา</p></div>
-            <div class="kpi kpi--gold"><p class="kpi__label">สมาชิกคนที่ 2</p><p class="kpi__value">3D Geospatial Engineer</p><p class="kpi__sub">แผนที่ 3 มิติ Three.js · พิกัดจริง &amp; ข้อมูลแม่น้ำน่าน</p></div>
-            <div class="kpi kpi--accent"><p class="kpi__label">สมาชิกคนที่ 3</p><p class="kpi__value">UX/UI &amp; Business Strategist</p><p class="kpi__sub">ออกแบบประสบการณ์ 3 บทบาท · โมเดลรายได้ 4 ช่องทาง</p></div>
+          <div class="kpis kpis--3 mt">
+            <div class="kpi kpi--accent"><p class="kpi__label">สมาชิกคนที่ 1</p><p class="kpi__value kpi__value--name"><span>นายธรรมนันท์</span> <span>เพ็งพุ่ม</span></p></div>
+            <div class="kpi kpi--gold"><p class="kpi__label">สมาชิกคนที่ 2</p><p class="kpi__value kpi__value--name"><span>นายภาสกร</span> <span>สายเสน</span></p></div>
+            <div class="kpi kpi--accent"><p class="kpi__label">สมาชิกคนที่ 3</p><p class="kpi__value kpi__value--name"><span>นายศุภสิทธ์</span> <span>สังข์นาค</span></p></div>
           </div>
         </section>
 

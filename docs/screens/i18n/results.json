@@ -1,0 +1,30 @@
+{
+  "results": [
+    "PASS th: restaurant menu → cart → payment → Thai kitchen ticket",
+    "PASS th: hotel menu → cart → payment → bilingual booking",
+    "PASS th: VIP checkout and vouchers",
+    "PASS en: restaurant menu → cart → payment → Thai kitchen ticket",
+    "PASS en: hotel menu → cart → payment → bilingual booking",
+    "PASS en: VIP checkout and vouchers",
+    "PASS zh: restaurant menu → cart → payment → Thai kitchen ticket",
+    "PASS zh: hotel menu → cart → payment → bilingual booking",
+    "PASS zh: VIP checkout and vouchers",
+    "PASS ja: restaurant menu → cart → payment → Thai kitchen ticket",
+    "PASS ja: hotel menu → cart → payment → bilingual booking",
+    "PASS ja: VIP checkout and vouchers",
+    "PASS ko: restaurant menu → cart → payment → Thai kitchen ticket",
+    "PASS ko: hotel menu → cart → payment → bilingual booking",
+    "PASS ko: VIP checkout and vouchers",
+    "PASS fr: restaurant menu → cart → payment → Thai kitchen ticket",
+    "PASS fr: hotel menu → cart → payment → bilingual booking",
+    "PASS fr: VIP checkout and vouchers"
+  ],
+  "pageErrors": [],
+  "sourceTextNotes": [
+    "zh seed text contains Thai in #view-tourist: โยเดีย历史文化精品酒店（Yodia Heritage Hotel）",
+    "zh seed text contains Thai in #menu-result: โยเดีย历史文化精品酒店（Yodia Heritage Hotel）",
+    "zh seed text contains Thai in #cart-body: โยเดีย历史文化精品酒店（Yodia Heritage Hotel）",
+    "zh seed text contains Thai in #pay-body: โยเดีย历史文化精品酒店（Yodia Heritage Hotel）",
+    "ja seed text contains Thai in #view-tourist: ワット・ヤイ横のプッタบูチャー通りにある名物店。川辺で足を垂らして座り、スコータイ風トムヤム麺や軟骨スペアリブ麺を味わえます。"
+  ]
+}

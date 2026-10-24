@@ -1,4 +1,5 @@
 // Shared state, API client and small UI helpers — PHITLOK NEXUS v2.0
+import { setUiLang, t } from './i18n.js';
 
 const VISITOR_KEY = 'phitlok.visitor';
 const CART_KEY = 'phitlok.cart';
@@ -53,12 +54,16 @@ function loadCart() {
     const c = JSON.parse(storageGet(CART_KEY) || 'null');
     if (c && Array.isArray(c.items)) return c;
   } catch { /* ignore */ }
-  return { merchantId: null, items: [], flags: [], couponCode: 'auto', tableTh: 'โต๊ะ 4 / สั่งล่วงหน้า' };
+  return { merchantId: null, items: [], flags: [], couponCode: 'auto', tableTh: '' };
 }
+
+// The language picked on the home page (or in the app) is remembered for every page.
+const LANG_KEY = 'phitlok_lang';
+const savedLang = () => { const l = storageGet(LANG_KEY); return ['th', 'en', 'zh', 'ja', 'ko', 'fr'].includes(l) ? l : 'th'; };
 
 export const state = {
   data: null,          // /api/init-data payload
-  lang: 'th',          // content language for heritage + menu (th | en | zh | ja | ko | fr)
+  lang: savedLang(),   // content language for heritage + menu (th | en | zh | ja | ko | fr)
   role: 'tourist',
   mapLayers: new Set(['heritage', 'restaurant', 'souvenir', 'hotel']),  // categories shown on the map
   cart: loadCart()     // { merchantId, items: [{ id, qty, item }], flags, couponCode, tableTh }
@@ -69,6 +74,8 @@ export function saveCart() { storageSet(CART_KEY, JSON.stringify(state.cart)); e
 const bus = new EventTarget();
 export const on = (name, fn) => bus.addEventListener(name, (e) => fn(e.detail));
 export const emit = (name, detail) => bus.dispatchEvent(new CustomEvent(name, { detail }));
+setUiLang(state.lang);
+on('lang:changed', (lang) => { storageSet(LANG_KEY, lang); setUiLang(lang); });
 
 // ---------------- formatting (6 Languages) ----------------
 export const LANGS = [
@@ -105,7 +112,7 @@ export function timeAgo(iso) {
 }
 
 export function langSwitcher(current, name = 'lang') {
-  return `<div class="langs" role="group" aria-label="เลือกภาษา 6 ภาษา / 6-Language Switcher">${LANGS.map((l) =>
+  return `<div class="langs" role="group" aria-label="${t('lang.switcher')}">${LANGS.map((l) =>
     `<button type="button" data-${name}="${l.code}" lang="${l.code}" aria-pressed="${l.code === current}">${l.label}</button>`).join('')}</div>`;
 }
 

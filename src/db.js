@@ -3,11 +3,11 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { DatabaseSync } = require('node:sqlite');
 const { LANDMARKS, MERCHANTS, MENU_ITEMS, PRICING, COST_ASSUMPTIONS } = require('./seed-data');
-const { buildKitchenTicket } = require('./tickets');
+const { buildKitchenTicket, buildBookingTicket } = require('./tickets');
 
 const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, '..', 'data');
 const DB_FILE = path.join(DATA_DIR, 'phitlok_nexus.sqlite');
-const SCHEMA_VERSION = 24; // v2.4: local landmark photos + photoCredit + shortName (reseeds landmark data_json)
+const SCHEMA_VERSION = 25; // v2.4: hotel bookings are booking slips (BK-, check-in/nights/guests), not kitchen tickets
 
 const SCHEMA = `
 CREATE TABLE IF NOT EXISTS landmarks (
@@ -160,6 +160,14 @@ function mulberry32(seed) {
   };
 }
 
+// Thailand calendar day (UTC+7) of an ISO timestamp, and day arithmetic on YYYY-MM-DD strings.
+const bangkokDay = (iso) => new Date(Date.parse(iso) + 7 * 3600000).toISOString().slice(0, 10);
+function addDaysYmd(day, n) {
+  const d = new Date(`${day}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + n);
+  return d.toISOString().slice(0, 10);
+}
+
 function isoDaysAgo(days, rand) {
   const d = new Date(Date.now() - days * 86400000);
   d.setHours(8 + Math.floor(rand() * 12), Math.floor(rand() * 60), Math.floor(rand() * 60), 0);
@@ -295,14 +303,15 @@ function seed(db) {
         if (existing) existing.qty += 1;
         else lines.push({ item: it, qty: m.kind === 'hotel' ? 1 : 1 + Math.floor(rand() * 2) });
       }
-      const subtotal = lines.reduce((s, x) => s + x.item.price_satang * x.qty, 0);
+      const nights = m.kind === 'hotel' ? 1 + (i % 2) : 1;
+      const subtotal = lines.reduce((s, x) => s + x.item.price_satang * x.qty * nights, 0);
       const feeRate = m.kind === 'hotel' ? PRICING.hotelFeeRate : PRICING.restaurantFeeRate;
       const fee = Math.round(subtotal * feeRate);
       const daysAgo = i < 5 ? 0 : Math.floor(rand() * 28);
       const tableNum = 1 + Math.floor(rand() * 9);
       seeded.push({
-        m, lines, subtotal, fee,
-        tableLabel: m.kind === 'hotel' ? 'จองห้องพักด่วน / Check-in วันนี้' : `โต๊ะ ${tableNum} / สั่งล่วงหน้า`,
+        m, lines, subtotal, fee, nights,
+        tableLabel: `โต๊ะ ${tableNum} / สั่งล่วงหน้า`,
         created: isoDaysAgo(daysAgo, rand),
         lang: langs[Math.floor(rand() * langs.length)],
         flags: m.kind === 'hotel' ? [] : flagPool[Math.floor(rand() * flagPool.length)]
@@ -310,17 +319,18 @@ function seed(db) {
     }
     seeded.sort((a, b) => a.created.localeCompare(b.created));
     seeded.forEach((o, idx) => {
-      const orderNo = `PN-${String(1001 + idx)}`;
-      const ticket = buildKitchenTicket({
-        orderNo,
-        tableLabel: o.tableLabel,
-        merchantName: JSON.parse(o.m.name_json),
-        lines: o.lines.map(({ item, qty }) => ({
-          qty, unit: item.unit, name: JSON.parse(item.name_json), allergens: JSON.parse(item.allergens_json), spicy: item.spicy
-        })),
-        flags: o.flags,
-        guestLang: o.lang
-      });
+      const isHotel = o.m.kind === 'hotel';
+      const orderNo = `${isHotel ? 'BK' : 'PN'}-${String(1001 + idx)}`;
+      const ticketLines = o.lines.map(({ item, qty }) => ({
+        qty, unit: item.unit, name: JSON.parse(item.name_json), allergens: JSON.parse(item.allergens_json), spicy: item.spicy
+      }));
+      const checkIn = bangkokDay(o.created);
+      const ticket = isHotel
+        ? buildBookingTicket({
+          orderNo, merchantName: JSON.parse(o.m.name_json), lines: ticketLines, guestLang: o.lang,
+          booking: { checkIn, checkOut: addDaysYmd(checkIn, o.nights), nights: o.nights, guests: 2, note: '' }
+        })
+        : buildKitchenTicket({ orderNo, tableLabel: o.tableLabel, merchantName: JSON.parse(o.m.name_json), lines: ticketLines, flags: o.flags, guestLang: o.lang });
       const ageHours = (Date.now() - Date.parse(o.created)) / 3600000;
       const status = ageHours < 0.5 ? 'new' : ageHours < 1.5 ? 'preparing' : 'done';
       insOrder.run(orderNo, o.m.id, 'seed-visitor', JSON.stringify(ticket), o.lang, o.subtotal, o.fee, o.subtotal + o.fee, status, o.created);
@@ -400,18 +410,17 @@ function seed(db) {
     const yhMenu = items.filter((it) => it.merchant_id === yh.id);
     if (yh && yhMenu.length) {
       const lines = [{ item: yhMenu[0], qty: 1 }];
-      const subtotal = lines[0].item.price_satang;
+      const nights = 2;
+      const subtotal = lines[0].item.price_satang * nights;
       const fee = Math.round(subtotal * PRICING.hotelFeeRate);
-      const orderNo = `PN-${String(1001 + seeded.length + liveOrders.length + 1)}`;
+      const orderNo = `BK-${String(1001 + seeded.length + liveOrders.length + 1)}`;
       const created = new Date(Date.now() - 9 * 60000).toISOString();
-      const ticket = buildKitchenTicket({
+      const checkIn = bangkokDay(created);
+      const ticket = buildBookingTicket({
         orderNo,
-        tableLabel: 'จองห้องพักด่วน / Check-in 14:00 น.',
         merchantName: JSON.parse(yh.name_json),
-        lines: lines.map(({ item, qty }) => ({
-          qty, unit: item.unit, name: JSON.parse(item.name_json), allergens: JSON.parse(item.allergens_json), spicy: item.spicy
-        })),
-        flags: ['no_pork'],
+        lines: lines.map(({ item, qty }) => ({ qty, unit: item.unit, name: JSON.parse(item.name_json) })),
+        booking: { checkIn, checkOut: addDaysYmd(checkIn, nights), nights, guests: 2, note: 'เช็คอินประมาณ 14:00 น.' },
         guestLang: 'fr'
       });
       insOrder.run(orderNo, yh.id, 'seed-visitor', JSON.stringify(ticket), 'fr', subtotal, fee, subtotal + fee, 'new', created);

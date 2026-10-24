@@ -4,6 +4,8 @@
 
 All for One University 2569 · สาย Software for Business & Tourism ("Make Me Money")
 
+> **ทำงานต่อจากสถานะล่าสุด:** อ่าน [docs/HANDOFF.md](docs/HANDOFF.md) (สถานะงาน งานค้าง กติกา และบั๊กที่รอตัดสินใจ)
+
 ## เริ่มใช้งาน
 
 ต้องใช้ Node.js 22.13 ขึ้นไป (ใช้ `node:sqlite` ที่มากับ Node ไม่ต้องคอมไพล์ native module)
@@ -34,7 +36,7 @@ docker run -p 3000:3000 -v phitlok-data:/app/data -e GEMINI_API_KEY=... phitlok-
 
 ลิงก์ตรงเข้ามุมมองในแอป: `/app#map`, `/app#lens`, `/app#lens-menu`, `/app#vip`, `/app#for-merchants`, `/app#merchant`, `/app#admin`
 
-**แก้ชื่อทีม:** เปิด `public/credits.html` หาส่วน "ทีมผู้พัฒนา" แล้วแทน `[ใส่ชื่อ-นามสกุล]` ด้วยชื่อจริง (ลบคลาส `member__name--todo` เพื่อเปลี่ยนตัวอักษรสีแดงเป็นสีปกติ)
+**ทีมผู้จัดทำ:** นายธรรมนันท์ เพ็งพุ่ม · นายภาสกร สายเสน · นายศุภสิทธ์ สังข์นาค (แก้ได้ที่ส่วน "ทีมผู้พัฒนา" ใน `public/credits.html`)
 
 ## เส้นทางทดสอบสำหรับกรรมการ (ประมาณ 3 นาที)
 

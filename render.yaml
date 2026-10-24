@@ -1,0 +1,13 @@
+# Render Blueprint — เว็บเดโมสำหรับการแข่งขัน (แพ็กเกจฟรี)
+# ฐานข้อมูล SQLite เป็นไฟล์ชั่วคราว: เริ่มใหม่ด้วยข้อมูลตัวอย่างทุกครั้งที่ deploy หรือรีสตาร์ต
+services:
+  - type: web
+    name: phitlok-nexus
+    runtime: docker
+    plan: free
+    region: singapore
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false

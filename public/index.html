@@ -27,7 +27,7 @@
   <script type="module" src="/js/landing.js"></script>
 </head>
 <body class="page-home">
-  <a class="skip-link" href="#main">ข้ามไปยังเนื้อหาหลัก</a>
+  <a class="skip-link" href="#main" data-i18n="skip">ข้ามไปยังเนื้อหาหลัก</a>
   <header class="appbar appbar--site">
     <div class="appbar__inner">
       <a class="brand" href="/" aria-label="PHITLOK NEXUS — หน้าแรก">
@@ -37,22 +37,24 @@
         </svg>
         <span class="brand__text">PHITLOK <b>NEXUS</b></span>
       </a>
-      <nav class="sitenav" aria-label="หน้าหลักของเว็บไซต์">
-        <a href="/" aria-current="page">หน้าแรก</a>
-        <a href="/app">แอป</a>
-        <a href="/credits">เครดิต</a>
+      <nav class="sitenav" aria-label="หน้าหลักของเว็บไซต์" data-i18n-aria="nav.aria">
+        <a href="/" aria-current="page" data-i18n="nav.home">หน้าแรก</a>
+        <a href="/app" data-i18n="nav.app">แอป</a>
+        <a href="/credits" data-i18n="nav.credits">เครดิต</a>
       </nav>
       <div class="appbar__actions">
-        <button class="icon-btn hide-mobile" type="button" id="theme-toggle" data-theme-toggle aria-pressed="false" aria-label="สลับธีมสว่างหรือมืด"><i data-lucide="moon" class="ico-moon"></i><i data-lucide="sun" class="ico-sun"></i></button>
-        <a class="btn btn--primary btn--sm" href="/app#tourist">เปิดแอป</a>
-        <button class="icon-btn menu-toggle show-mobile-grid" type="button" id="menu-toggle" aria-expanded="false" aria-controls="mobile-nav" aria-label="เปิดเมนู"><i data-lucide="menu"></i></button>
+        <button class="btn btn--vip-cta btn--sm" type="button" id="header-vip-btn" data-open-vip-modal>✨ อัปเกรด VIP (99฿)</button>
+        <button class="icon-btn hide-mobile" type="button" id="theme-toggle" data-theme-toggle aria-pressed="false" aria-label="สลับธีมสว่างหรือมืด" data-i18n-aria="aria.theme"><i data-lucide="moon" class="ico-moon"></i><i data-lucide="sun" class="ico-sun"></i></button>
+        <a class="btn btn--primary btn--sm" href="/app#tourist" data-i18n="openApp">เปิดแอป</a>
+        <button class="icon-btn menu-toggle show-mobile-grid" type="button" id="menu-toggle" aria-expanded="false" aria-controls="mobile-nav" aria-label="เปิดเมนู" data-i18n-aria="aria.menu"><i data-lucide="menu"></i></button>
       </div>
     </div>
-    <nav class="menu-panel" id="mobile-nav" aria-label="เมนู" hidden>
-      <a href="/" aria-current="page"><i data-lucide="house"></i> หน้าแรก</a>
-      <a href="/app"><i data-lucide="layout-grid"></i> แอป</a>
-      <a href="/credits"><i data-lucide="book-open"></i> เครดิต</a>
-      <button class="menu-panel__item" type="button" data-theme-toggle aria-pressed="false"><i data-lucide="moon" class="ico-moon"></i><i data-lucide="sun" class="ico-sun"></i> สลับธีมสว่าง/มืด</button>
+    <nav class="menu-panel" id="mobile-nav" aria-label="เมนู" data-i18n-aria="menu.aria" hidden>
+      <a href="/" aria-current="page"><i data-lucide="house"></i> <span data-i18n="nav.home">หน้าแรก</span></a>
+      <a href="/app"><i data-lucide="layout-grid"></i> <span data-i18n="nav.app">แอป</span></a>
+      <a href="/credits"><i data-lucide="book-open"></i> <span data-i18n="nav.credits">เครดิต</span></a>
+      <button class="menu-panel__item" type="button" data-open-vip-modal><i data-lucide="crown"></i> <span data-i18n="menu.vip">อัปเกรด VIP Pass (99฿)</span></button>
+      <button class="menu-panel__item" type="button" data-theme-toggle aria-pressed="false"><i data-lucide="moon" class="ico-moon"></i><i data-lucide="sun" class="ico-sun"></i> <span data-i18n="menu.theme">สลับธีมสว่าง/มืด</span></button>
     </nav>
   </header>
 
@@ -61,61 +63,120 @@
     <section class="w-hero" aria-labelledby="hero-title">
       <div class="container">
         <div class="w-hero__grid">
-          <div>
-            <p class="eyebrow"><i data-lucide="compass"></i> PHITLOK NEXUS · แพลตฟอร์มท่องเที่ยวพิกัดจริงริมแม่น้ำน่าน</p>
-            <h1 id="hero-title">เที่ยวมรดกพิษณุโลก<br>เข้าใจลึกซึ้งด้วย<br><span class="rotator" aria-hidden="true"><span class="rotator__word" id="rotator">ภาษาไทย (TH)</span></span><span class="sr-only">6 ภาษา: ไทย อังกฤษ จีน ญี่ปุ่น เกาหลี และฝรั่งเศส</span></h1>
-            <p class="lead">เชื่อม <b>5 โบราณสถานจริง</b> (อ้างอิงกรมศิลปากร) เข้ากับ <b>5 ร้านอาหารดัง</b> และ <b>3 โรงแรมที่พักชั้นนำ</b> บนแผนที่ 3 มิติพิกัด GPS จริง ฟังเสียงบรรยาย 6 ภาษา สั่งอาหารปลอดภัยไร้ภูมิแพ้ และจองที่พักด้วย QR PromptPay</p>
-            <div class="w-hero__cta">
-              <a class="btn btn--primary btn--lg" href="/app#tourist">เข้าโหมดนักท่องเที่ยว <i data-lucide="arrow-right"></i></a>
-              <a class="btn btn--outline btn--lg" href="#judges">คู่มือทดสอบสำหรับกรรมการ</a>
+          <div class="w-hero__text">
+            <h1 id="hero-title" class="w-hero__title">
+              <span class="w-hero__line" data-i18n="hero.line">เที่ยวพิษณุโลก</span>
+              <span class="hero-rotator" aria-hidden="true"><span class="hero-rotator__word" id="hero-rotator">เห็นทั้งเมือง 3 มิติ</span><span class="hero-rotator__bar"></span></span>
+              <span class="sr-only" data-i18n="hero.sr">เห็นทั้งเมือง 3 มิติ ฟังเรื่องเล่า 6 ภาษา ส่องป้ายรู้ประวัติ สั่งอาหารปลอดภัย และจองที่พักง่าย ๆ</span>
+            </h1>
+            <p class="w-hero__lead" data-i18n="hero.lead">วัด วัง ร้านอร่อย และที่พัก บนแผนที่จริง ครบในแอปเดียว</p>
+            <div class="hero-langs" role="group" aria-labelledby="hero-langs-label">
+              <span class="hero-langs__label" id="hero-langs-label"><i data-lucide="languages"></i><span id="hero-langs-word">ภาษา · Language</span></span>
+              <button class="hero-lang" type="button" lang="th" data-set-lang="th" aria-pressed="true">ไทย</button>
+              <button class="hero-lang" type="button" lang="en" data-set-lang="en" aria-pressed="false">English</button>
+              <button class="hero-lang" type="button" lang="zh" data-set-lang="zh" aria-pressed="false">中文</button>
+              <button class="hero-lang" type="button" lang="ja" data-set-lang="ja" aria-pressed="false">日本語</button>
+              <button class="hero-lang" type="button" lang="ko" data-set-lang="ko" aria-pressed="false">한국어</button>
+              <button class="hero-lang" type="button" lang="fr" data-set-lang="fr" aria-pressed="false">Français</button>
             </div>
-            <ul class="w-hero__meta">
-              <li>พิกัด GPS จริงทั้ง 13 หมุด</li>
-              <li>รองรับ 6 ภาษา (TH/EN/CN/JP/KR/FR)</li>
-              <li>คัดกรองภูมิแพ้อาหารอัตโนมัติ</li>
+            <div class="w-hero__cta">
+              <a class="btn btn--primary btn--lg" href="/app#tourist"><span data-i18n="hero.start">เริ่มเที่ยว</span> <i data-lucide="arrow-right"></i></a>
+              <a class="btn btn--outline btn--lg" href="#judges" data-i18n="hero.how">ดูวิธีทดลอง</a>
+            </div>
+            <ul class="hero-feats" aria-label="สิ่งที่ทำได้ในแอป" data-i18n-aria="aria.feats">
+              <li><i data-lucide="map"></i><span data-i18n="feat.map">แผนที่ 3 มิติ</span></li>
+              <li><i data-lucide="headphones"></i><span data-i18n="feat.audio">เสียงบรรยาย 6 ภาษา</span></li>
+              <li><i data-lucide="shield-check"></i><span data-i18n="feat.allergy">กรองอาหารที่แพ้</span></li>
+              <li><i data-lucide="qr-code"></i><span data-i18n="feat.pay">จ่ายด้วยพร้อมเพย์</span></li>
             </ul>
           </div>
-          <div class="w-hero__visual">
-            <img src="/assets/photos/wat-yai.jpg"
-                 data-fallback="/assets/photos/wat-yai.jpg"
-                 width="1200" height="800"
-                 alt="พระวิหารพระพุทธชินราช วัดพระศรีรัตนมหาธาตุวรมหาวิหาร จังหวัดพิษณุโลก">
-            <a class="float-chip float-chip--a float-chip--link"
-               href="/credits#sources"
-               title="คลิกดูรายละเอียดแหล่งอ้างอิงทะเบียนโบราณสถาน กรมศิลปากร">
-              <i data-lucide="shield-check"></i> <b>อ้างอิงข้อมูล: กรมศิลปากร ↗</b>
-            </a>
-            <a class="float-chip float-chip--b float-chip--link"
-               href="https://www.google.com/maps/@?api=1&amp;map_action=map&amp;center=16.8239,100.2624&amp;zoom=18&amp;basemap=satellite"
-               target="_blank" rel="noopener"
-               title="คลิกเปิดดูพิกัดดาวเทียมและ Street View จริงบน Google Maps">
-              <i data-lucide="map-pin"></i> <b>GPS: 16.8239, 100.2624 ↗</b>
-            </a>
-          </div>
+          <figure class="w-hero__visual">
+            <div class="film-stage">
+            <div class="film" id="hero-film">
+              <div class="film__col film__col--up" aria-hidden="true">
+                <div class="film__reel">
+                <ul class="film__track">
+                  <li class="film__frame"><img src="/assets/photos/pa-thanom-padthai.jpg" alt="" width="400" height="280" decoding="async"></li>
+                  <li class="film__frame"><img src="/assets/photos/food-satay.jpg" alt="" width="400" height="280" decoding="async"></li>
+                  <li class="film__frame"><img src="/assets/photos/pa-lom-noodles.jpg" alt="" width="400" height="280" decoding="async"></li>
+                  <li class="film__frame"><img src="/assets/photos/juk-kai-thai.jpg" alt="" width="400" height="280" decoding="async"></li>
+                  <li class="film__frame"><img src="/assets/photos/hoi-kha-noodles.jpg" alt="" width="400" height="280" decoding="async"></li>
+                  <li class="film__frame"><img src="/assets/photos/food-wonton.jpg" alt="" width="400" height="280" decoding="async"></li>
+                </ul>
+                <ul class="film__track">
+                  <li class="film__frame"><img src="/assets/photos/pa-thanom-padthai.jpg" alt="" width="400" height="280" decoding="async"></li>
+                  <li class="film__frame"><img src="/assets/photos/food-satay.jpg" alt="" width="400" height="280" decoding="async"></li>
+                  <li class="film__frame"><img src="/assets/photos/pa-lom-noodles.jpg" alt="" width="400" height="280" decoding="async"></li>
+                  <li class="film__frame"><img src="/assets/photos/juk-kai-thai.jpg" alt="" width="400" height="280" decoding="async"></li>
+                  <li class="film__frame"><img src="/assets/photos/hoi-kha-noodles.jpg" alt="" width="400" height="280" decoding="async"></li>
+                  <li class="film__frame"><img src="/assets/photos/food-wonton.jpg" alt="" width="400" height="280" decoding="async"></li>
+                </ul>
+                </div>
+              </div>
+              <div class="film__col film__col--down">
+                <div class="film__reel">
+                <ul class="film__track" aria-label="ภาพสถานที่จริงในพิษณุโลก" data-i18n-aria="aria.track">
+                  <li class="film__frame"><img src="/assets/photos/phra-phuttha-chinnarat.jpg" alt="พระพุทธชินราช พระประธานในพระวิหาร วัดพระศรีรัตนมหาธาตุวรมหาวิหาร" data-short-name="พระพุทธชินราช" width="400" height="280" decoding="async" style="object-position:center 40%"><span class="film__name" data-i18n="place.chinnarat">พระพุทธชินราช</span></li>
+                  <li class="film__frame"><img src="/assets/photos/wat-yai.jpg" alt="พระอัฏฐารสและพระปรางค์ประธาน วัดพระศรีรัตนมหาธาตุวรมหาวิหาร" data-short-name="วัดใหญ่" width="400" height="280" decoding="async" style="object-position:center 45%"><span class="film__name" data-i18n="place.watyai">วัดใหญ่</span></li>
+                  <li class="film__frame"><img src="/assets/photos/naresuan-shrine-chan-palace.jpg" alt="ศาลสมเด็จพระนเรศวรมหาราช ในพระราชวังจันทน์ พิษณุโลก ยามพลบค่ำ" data-short-name="ศาลพระนเรศวร วังจันทน์" width="400" height="280" decoding="async" style="object-position:center 62%"><span class="film__name" data-i18n="place.naresuan">ศาลพระนเรศวร วังจันทน์</span></li>
+                  <li class="film__frame"><img src="/assets/photos/wat-nang-phaya.jpg" alt="วิหารและเจดีย์ วัดนางพญา พิษณุโลก" data-short-name="วัดนางพญา" width="400" height="280" decoding="async" style="object-position:35% 50%"><span class="film__name" data-i18n="place.nangphaya">วัดนางพญา</span></li>
+                  <li class="film__frame"><img src="/assets/photos/wat-ratchaburana.jpg" alt="เจดีย์หลวง วัดราชบูรณะ พิษณุโลก" data-short-name="วัดราชบูรณะ" width="400" height="280" decoding="async" style="object-position:center 50%"><span class="film__name" data-i18n="place.ratchaburana">วัดราชบูรณะ</span></li>
+                  <li class="film__frame"><img src="/assets/photos/city-pillar.jpg" alt="ศาลหลักเมืองพิษณุโลก" data-short-name="ศาลหลักเมือง" width="400" height="280" decoding="async" style="object-position:center 50%"><span class="film__name" data-i18n="place.pillar">ศาลหลักเมือง</span></li>
+                </ul>
+                <ul class="film__track" aria-hidden="true">
+                  <li class="film__frame"><img src="/assets/photos/phra-phuttha-chinnarat.jpg" alt="" data-short-name="พระพุทธชินราช" width="400" height="280" decoding="async" style="object-position:center 40%"><span class="film__name" data-i18n="place.chinnarat">พระพุทธชินราช</span></li>
+                  <li class="film__frame"><img src="/assets/photos/wat-yai.jpg" alt="" data-short-name="วัดใหญ่" width="400" height="280" decoding="async" style="object-position:center 45%"><span class="film__name" data-i18n="place.watyai">วัดใหญ่</span></li>
+                  <li class="film__frame"><img src="/assets/photos/naresuan-shrine-chan-palace.jpg" alt="" data-short-name="ศาลพระนเรศวร วังจันทน์" width="400" height="280" decoding="async" style="object-position:center 62%"><span class="film__name" data-i18n="place.naresuan">ศาลพระนเรศวร วังจันทน์</span></li>
+                  <li class="film__frame"><img src="/assets/photos/wat-nang-phaya.jpg" alt="" data-short-name="วัดนางพญา" width="400" height="280" decoding="async" style="object-position:35% 50%"><span class="film__name" data-i18n="place.nangphaya">วัดนางพญา</span></li>
+                  <li class="film__frame"><img src="/assets/photos/wat-ratchaburana.jpg" alt="" data-short-name="วัดราชบูรณะ" width="400" height="280" decoding="async" style="object-position:center 50%"><span class="film__name" data-i18n="place.ratchaburana">วัดราชบูรณะ</span></li>
+                  <li class="film__frame"><img src="/assets/photos/city-pillar.jpg" alt="" data-short-name="ศาลหลักเมือง" width="400" height="280" decoding="async" style="object-position:center 50%"><span class="film__name" data-i18n="place.pillar">ศาลหลักเมือง</span></li>
+                </ul>
+                </div>
+              </div>
+              <div class="film__col film__col--up" aria-hidden="true">
+                <div class="film__reel">
+                <ul class="film__track">
+                  <li class="film__frame"><img src="/assets/photos/topland-hotel.jpg" alt="" width="400" height="280" decoding="async"></li>
+                  <li class="film__frame"><img src="/assets/photos/imperial-hotel.jpg" alt="" width="400" height="280" decoding="async"></li>
+                  <li class="film__frame"><img src="/assets/photos/yodia-heritage.jpg" alt="" width="400" height="280" decoding="async"></li>
+                  <li class="film__frame"><img src="/assets/photos/topland-hotel.jpg" alt="" width="400" height="280" decoding="async"></li>
+                  <li class="film__frame"><img src="/assets/photos/imperial-hotel.jpg" alt="" width="400" height="280" decoding="async"></li>
+                  <li class="film__frame"><img src="/assets/photos/yodia-heritage.jpg" alt="" width="400" height="280" decoding="async"></li>
+                </ul>
+                <ul class="film__track">
+                  <li class="film__frame"><img src="/assets/photos/topland-hotel.jpg" alt="" width="400" height="280" decoding="async"></li>
+                  <li class="film__frame"><img src="/assets/photos/imperial-hotel.jpg" alt="" width="400" height="280" decoding="async"></li>
+                  <li class="film__frame"><img src="/assets/photos/yodia-heritage.jpg" alt="" width="400" height="280" decoding="async"></li>
+                  <li class="film__frame"><img src="/assets/photos/topland-hotel.jpg" alt="" width="400" height="280" decoding="async"></li>
+                  <li class="film__frame"><img src="/assets/photos/imperial-hotel.jpg" alt="" width="400" height="280" decoding="async"></li>
+                  <li class="film__frame"><img src="/assets/photos/yodia-heritage.jpg" alt="" width="400" height="280" decoding="async"></li>
+                </ul>
+                </div>
+              </div>
+            </div>
+            </div>
+            <figcaption>
+              <span class="w-hero__caption-title" data-i18n="hero.caption">แถวกลาง: สถานที่จริงในพิษณุโลก · ซ้ายและขวา: ภาพประกอบอาหารและที่พัก</span>
+              <span class="w-hero__caption-tools">
+                <a class="w-hero__credit" href="/credits#photos" data-i18n="hero.credit">เครดิตภาพ</a>
+                <button class="icon-btn film__toggle" type="button" id="film-toggle" aria-pressed="false" aria-label="หยุดภาพเลื่อน" data-i18n-aria="aria.pause"><i data-lucide="pause" class="ico-pause"></i><i data-lucide="play" class="ico-play"></i></button>
+              </span>
+            </figcaption>
+          </figure>
         </div>
-        <nav class="modes" aria-label="ทางลัดไปยังโหมดต่าง ๆ ในแอป">
-          <ul class="modes__list">
-            <li><a href="/app#tourist"><i data-lucide="compass"></i> ฝั่งนักท่องเที่ยว</a></li>
-            <li><a href="/app#merchant"><i data-lucide="store"></i> ฝั่งเจ้าของร้าน &amp; โรงแรม</a></li>
-            <li><a href="/app#admin"><i data-lucide="bar-chart-3"></i> ฝั่งผู้บริหารแพลตฟอร์ม</a></li>
-            <li><a href="/app#map"><i data-lucide="globe"></i> แผนที่ 3D พิกัดจริง (13 หมุด)</a></li>
-            <li><a href="/app#lens"><i data-lucide="volume-2"></i> เสียงบรรยาย 6 ภาษา</a></li>
-            <li><a href="/app#lens-menu"><i data-lucide="utensils"></i> สั่งอาหาร &amp; จองโรงแรม</a></li>
-          </ul>
-        </nav>
       </div>
     </section>
 
     <!-- 2. Live numbers (Real database counts & clearly labeled demo data — never shows '–') -->
-    <section class="stats-strip" aria-label="ตัวเลขจากระบบ">
+    <section class="stats-strip" aria-label="ตัวเลขจากระบบ" data-i18n-aria="aria.stats">
       <div class="container">
         <dl class="stats-strip__inner">
-          <div class="stat"><dt>สถานที่บนแผนที่</dt><dd><span class="stat__num" id="hero-merchants">13 แห่ง</span></dd></div>
-          <div class="stat"><dt>ร้านที่ยืนยันแล้ว</dt><dd><span class="stat__num" id="hero-confirmed">0 แห่ง</span></dd></div>
-          <div class="stat"><dt>บัตร VIP Pass</dt><dd><span class="stat__num" id="hero-vip">48 ใบ</span><span class="stat__tag">ข้อมูลสาธิต</span></dd></div>
-          <div class="stat"><dt>ออเดอร์</dt><dd><span class="stat__num" id="hero-orders">126 รายการ</span><span class="stat__tag">ข้อมูลสาธิต</span></dd></div>
+          <div class="stat"><dt data-i18n="stat.places">สถานที่บนแผนที่</dt><dd><span class="stat__num" id="hero-merchants">13 แห่ง</span></dd></div>
+          <div class="stat"><dt data-i18n="stat.partners">ร้านที่ยืนยันแล้ว</dt><dd><span class="stat__num" id="hero-confirmed">8 แห่ง</span></dd></div>
+          <div class="stat"><dt data-i18n="stat.vip">บัตร VIP Pass</dt><dd><span class="stat__num" id="hero-vip">48 ใบ</span><span class="stat__tag" data-i18n="stat.demo">ข้อมูลสาธิต</span></dd></div>
+          <div class="stat"><dt data-i18n="stat.orders">ออเดอร์</dt><dd><span class="stat__num" id="hero-orders">126 รายการ</span><span class="stat__tag" data-i18n="stat.demo">ข้อมูลสาธิต</span></dd></div>
         </dl>
-        <p class="stats-strip__note">ยอดขายและออเดอร์ตั้งต้นเป็นข้อมูลสาธิตสำหรับการทดสอบ</p>
+        <p class="stats-strip__note" data-i18n="stat.note">ยอดขายและออเดอร์ตั้งต้นเป็นข้อมูลสาธิตสำหรับการทดสอบ</p>
       </div>
     </section>
 
@@ -123,29 +184,29 @@
     <section class="section" id="about" aria-labelledby="about-title">
       <div class="container">
         <div class="section__head section__head--center">
-          <p class="eyebrow">ประสบการณ์เฉพาะตัวสำหรับ 3 กลุ่มผู้ใช้งาน</p>
-          <h2 id="about-title">เลือกโหมดการใช้งานที่ตรงกับคุณได้ทันที</h2>
-          <p class="section__lead">แยกหน้าจอและเครื่องมือให้เหมาะกับนักท่องเที่ยว เจ้าของกิจการในท้องถิ่น และผู้บริหารแพลตฟอร์ม</p>
+          <p class="eyebrow" data-i18n="aud.eyebrow">ประสบการณ์เฉพาะตัวสำหรับ 3 กลุ่มผู้ใช้งาน</p>
+          <h2 id="about-title" data-i18n="aud.title">เลือกโหมดการใช้งานที่ตรงกับคุณได้ทันที</h2>
+          <p class="section__lead" data-i18n="aud.lead">แยกหน้าจอและเครื่องมือให้เหมาะกับนักท่องเที่ยว เจ้าของกิจการในท้องถิ่น และผู้บริหารแพลตฟอร์ม</p>
         </div>
 
         <div class="audience" role="list">
           <article class="card" role="listitem">
             <span class="audience__ico"><i data-lucide="compass"></i></span>
-            <h3>1. ฝั่งนักท่องเที่ยว</h3>
-            <p class="audience__summary">สำรวจแผนที่ 3D พิกัดจริง · ฟังเสียงประวัติศาสตร์ 6 ภาษา · สั่งอาหารคัดกรองภูมิแพ้ &amp; จองที่พักทันที</p>
-            <a class="btn btn--primary" href="/app#tourist">เข้าโหมดนักท่องเที่ยว</a>
+            <h3 data-i18n="aud.t1">1. ฝั่งนักท่องเที่ยว</h3>
+            <p class="audience__summary" data-i18n="aud.s1">สำรวจแผนที่ 3D พิกัดจริง · ฟังเสียงประวัติศาสตร์ 6 ภาษา · สั่งอาหารคัดกรองภูมิแพ้ &amp; จองที่พักทันที</p>
+            <a class="btn btn--primary" href="/app#tourist" data-i18n="aud.b1">เข้าโหมดนักท่องเที่ยว</a>
           </article>
           <article class="card" role="listitem">
             <span class="audience__ico"><i data-lucide="store"></i></span>
-            <h3>2. ฝั่งเจ้าของร้าน &amp; โรงแรม</h3>
-            <p class="audience__summary">รับออเดอร์ตัวอักษรใหญ่พร้อมคำเตือนภูมิแพ้ · เช็กพิกัด GPS ร้านตัวเอง · ปิดเมนูของหมดในคลิกเดียว</p>
-            <a class="btn btn--outline" href="/app#merchant">เข้าโหมดร้านค้า</a>
+            <h3 data-i18n="aud.t2">2. ฝั่งเจ้าของร้าน &amp; โรงแรม</h3>
+            <p class="audience__summary" data-i18n="aud.s2">รับออเดอร์ตัวอักษรใหญ่พร้อมคำเตือนภูมิแพ้ · เช็กพิกัด GPS ร้านตัวเอง · ปิดเมนูของหมดในคลิกเดียว</p>
+            <a class="btn btn--outline" href="/app#merchant" data-i18n="aud.b2">เข้าโหมดร้านค้า</a>
           </article>
           <article class="card" role="listitem">
             <span class="audience__ico"><i data-lucide="bar-chart-3"></i></span>
-            <h3>3. ฝั่งผู้บริหารแพลตฟอร์ม</h3>
-            <p class="audience__summary">ติดตามรายได้ 4 ช่องทาง (ข้อมูลจำลอง) · ตรวจสอบพาร์ทเนอร์ทั้ง 13 หมุด · คำนวณจุดคุ้มทุนอัตโนมัติ</p>
-            <a class="btn btn--outline" href="/app#admin">เข้าโหมดผู้บริหาร</a>
+            <h3 data-i18n="aud.t3">3. ฝั่งผู้บริหารแพลตฟอร์ม</h3>
+            <p class="audience__summary" data-i18n="aud.s3">ติดตามรายได้ 4 ช่องทาง (ข้อมูลจำลอง) · ตรวจสอบพาร์ทเนอร์ทั้ง 13 หมุด · คำนวณจุดคุ้มทุนอัตโนมัติ</p>
+            <a class="btn btn--outline" href="/app#admin" data-i18n="aud.b3">เข้าโหมดผู้บริหาร</a>
           </article>
         </div>
       </div>
@@ -155,30 +216,30 @@
     <section class="section section--alt" id="business" aria-labelledby="business-title">
       <div class="container">
         <div class="section__head section__head--center">
-          <p class="eyebrow">Make Me Money · โมเดลธุรกิจ 4 ช่องทางทำเงิน</p>
-          <h2 id="business-title">4 ช่องทางรายได้ ที่ขยายผลได้ทั่วประเทศ</h2>
-          <p class="section__lead">ผสานรายได้ประจำรายเดือน (B2B SaaS) เข้ากับรายได้ตามปริมาณนักท่องเที่ยว (B2C &amp; Transaction Fee)</p>
+          <p class="eyebrow" data-i18n="biz.eyebrow">Make Me Money · โมเดลธุรกิจ 4 ช่องทางทำเงิน</p>
+          <h2 id="business-title" data-i18n="biz.title">4 ช่องทางรายได้ ที่ขยายผลได้ทั่วประเทศ</h2>
+          <p class="section__lead" data-i18n="biz.lead">ผสานรายได้ประจำรายเดือน (B2B SaaS) เข้ากับรายได้ตามปริมาณนักท่องเที่ยว (B2C &amp; Transaction Fee)</p>
         </div>
         <div class="revenue revenue--4">
           <article class="card">
-            <h3>1. SaaS ร้านอาหาร</h3>
-            <p class="revenue__price">199฿ <small>/ ร้าน / เดือน</small></p>
-            <dl><dt>กลุ่มเป้าหมาย</dt><dd>ร้านอาหารและร้านของฝาก OTOP</dd><dt>สิทธิประโยชน์</dt><dd>ปักหมุด 3D, แปลเมนู 6 ภาษา, หน้าจอรับออเดอร์</dd></dl>
+            <h3 data-i18n="biz.c1.t">1. SaaS ร้านอาหาร</h3>
+            <p class="revenue__price">199฿ <small data-i18n="biz.c1.unit">/ ร้าน / เดือน</small></p>
+            <dl><dt data-i18n="biz.target">กลุ่มเป้าหมาย</dt><dd data-i18n="biz.c1.dd1">ร้านอาหารและร้านของฝาก OTOP</dd><dt data-i18n="biz.benefits">สิทธิประโยชน์</dt><dd data-i18n="biz.c1.dd2">ปักหมุด 3D, แปลเมนู 6 ภาษา, หน้าจอรับออเดอร์</dd></dl>
           </article>
           <article class="card">
-            <h3>2. SaaS โรงแรมที่พัก</h3>
-            <p class="revenue__price">499฿ <small>/ โรงแรม / เดือน</small></p>
-            <dl><dt>กลุ่มเป้าหมาย</dt><dd>บูติคโฮเทลและโรงแรมในพิษณุโลก</dd><dt>สิทธิประโยชน์</dt><dd>โมเดลอาคารโรงแรม 3D, ระบบจองห้องพัก 6 ภาษา</dd></dl>
+            <h3 data-i18n="biz.c2.t">2. SaaS โรงแรมที่พัก</h3>
+            <p class="revenue__price">499฿ <small data-i18n="biz.c2.unit">/ โรงแรม / เดือน</small></p>
+            <dl><dt data-i18n="biz.target">กลุ่มเป้าหมาย</dt><dd data-i18n="biz.c2.dd1">บูติคโฮเทลและโรงแรมในพิษณุโลก</dd><dt data-i18n="biz.benefits">สิทธิประโยชน์</dt><dd data-i18n="biz.c2.dd2">โมเดลอาคารโรงแรม 3D, ระบบจองห้องพัก 6 ภาษา</dd></dl>
           </article>
           <article class="card">
             <h3>3. Phitsanulok VIP Pass</h3>
-            <p class="revenue__price">99฿ <small>/ ทริป (7 วัน)</small></p>
-            <dl><dt>กลุ่มเป้าหมาย</dt><dd>นักท่องเที่ยวชาวไทยและต่างชาติ</dd><dt>สิทธิประโยชน์</dt><dd>เสียงบรรยาย 6 ภาษาฉบับเต็ม + คูปองส่วนลด 500฿</dd></dl>
+            <p class="revenue__price">99฿ <small data-i18n="biz.c3.unit">/ ทริป (7 วัน)</small></p>
+            <dl><dt data-i18n="biz.target">กลุ่มเป้าหมาย</dt><dd data-i18n="biz.c3.dd1">นักท่องเที่ยวชาวไทยและต่างชาติ</dd><dt data-i18n="biz.benefits">สิทธิประโยชน์</dt><dd data-i18n="biz.c3.dd2">เสียงบรรยาย 6 ภาษาฉบับเต็ม + คูปองส่วนลด 500฿</dd></dl>
           </article>
           <article class="card">
-            <h3>4. ค่าธรรมเนียมธุรกรรม</h3>
-            <p class="revenue__price">3–5% <small>/ รายการ</small></p>
-            <dl><dt>อัตราเรียกเก็บ</dt><dd>สั่งอาหาร 3% · จองโรงแรม 5%</dd><dt>จุดเด่น</dt><dd>ชำระผ่านมาตรฐาน Thai QR PromptPay</dd></dl>
+            <h3 data-i18n="biz.c4.t">4. ค่าธรรมเนียมธุรกรรม</h3>
+            <p class="revenue__price">3–5% <small data-i18n="biz.c4.unit">/ รายการ</small></p>
+            <dl><dt data-i18n="biz.rate">อัตราเรียกเก็บ</dt><dd data-i18n="biz.c4.dd1">สั่งอาหาร 3% · จองโรงแรม 5%</dd><dt data-i18n="biz.highlight">จุดเด่น</dt><dd data-i18n="biz.c4.dd2">ชำระผ่านมาตรฐาน Thai QR PromptPay</dd></dl>
           </article>
         </div>
       </div>
@@ -189,17 +250,17 @@
       <div class="container">
         <div class="judge">
           <div>
-            <p class="eyebrow">สำหรับคณะกรรมการตัดสิน</p>
-            <h2 id="judges-title">ทดสอบครบทุกฟีเจอร์ใน 3 นาที</h2>
-            <p class="muted">สถาปัตยกรรมระบบออกแบบด้วย Strict 3-Role View Separation, ปุ่มกดหน้าจอร้านค้าขนาดใหญ่ (&ge; 48px), พิกัดดาวเทียม Three.js Geospatial Mapping และบันทึกธุรกรรมลงฐานข้อมูล SQLite แบบเรียลไทม์</p>
-            <a class="btn btn--gold btn--lg" href="/app">เปิดแอปพลิเคชัน v2.2</a>
+            <p class="eyebrow" data-i18n="j.eyebrow">สำหรับคณะกรรมการตัดสิน</p>
+            <h2 id="judges-title" data-i18n="j.title">ทดสอบครบทุกฟีเจอร์ใน 3 นาที</h2>
+            <p class="muted" data-i18n="j.lead">สถาปัตยกรรมระบบออกแบบด้วย Strict 3-Role View Separation, ปุ่มกดหน้าจอร้านค้าขนาดใหญ่ (&ge; 48px), พิกัดดาวเทียม Three.js Geospatial Mapping และบันทึกธุรกรรมลงฐานข้อมูล SQLite แบบเรียลไทม์</p>
+            <a class="btn btn--gold btn--lg" href="/app" data-i18n="j.open">เปิดแอปพลิเคชัน</a>
           </div>
           <ol class="judge-route">
-            <li><p><b>ฝั่งนักท่องเที่ยว:</b> กดสลับหมวดหมุด 3D <code>[5 โบราณสถาน]</code> <code>[5 ร้านอาหารดัง]</code> <code>[3 โรงแรมที่พัก]</code> และกดเปิดพิกัดจริงบน Google Maps</p><a class="btn btn--outline btn--sm" href="/app#map">แผนที่ 3D</a></li>
-            <li><p><b>เสียงบรรยาย 6 ภาษา:</b> เลือกโบราณสถาน กดสลับภาษา TH/EN/CN/JP/KR/FR แล้วกด <code>[▶ เล่นเสียงบรรยาย]</code></p><a class="btn btn--outline btn--sm" href="/app#lens">Audio Guide</a></li>
-            <li><p><b>สั่งอาหาร &amp; กรองภูมิแพ้:</b> เลือกเมนูร้านก๋วยเตี๋ยวห้อยขา กรอง "ไร้ถั่วลิสง" และชำระด้วย QR PromptPay</p><a class="btn btn--outline btn--sm" href="/app#lens-menu">สั่งอาหาร</a></li>
-            <li><p><b>ฝั่งเจ้าของร้าน:</b> ดูใบสั่งตัวหนังสือใหญ่ ป้ายแดงเตือนแพ้ถั่ว กด <code>[รับออเดอร์]</code> ตรวจสอบพิกัด GPS ร้าน และกดสลับปุ่ม "ของหมด"</p><a class="btn btn--outline btn--sm" href="/app#merchant">โหมดร้านค้า</a></li>
-            <li><p><b>ฝั่งผู้บริหาร:</b> ดูรายได้ 4 ช่องทาง ตารางพาร์ทเนอร์ทั้ง 13 หมุด และปรับเครื่องคำนวณจุดคุ้มทุน</p><a class="btn btn--outline btn--sm" href="/app#admin">โหมดผู้บริหาร</a></li>
+            <li><p data-i18n="j.s1"><b>ฝั่งนักท่องเที่ยว:</b> กดสลับหมวดหมุด 3D <code>[5 โบราณสถาน]</code> <code>[5 ร้านอาหารดัง]</code> <code>[3 โรงแรมที่พัก]</code> และกดเปิดพิกัดจริงบน Google Maps</p><a class="btn btn--outline btn--sm" href="/app#map" data-i18n="j.b1">แผนที่ 3D</a></li>
+            <li><p data-i18n="j.s2"><b>เสียงบรรยาย 6 ภาษา:</b> เลือกโบราณสถาน กดสลับภาษา TH/EN/CN/JP/KR/FR แล้วกด <code>[▶ เล่นเสียงบรรยาย]</code></p><a class="btn btn--outline btn--sm" href="/app#lens" data-i18n="j.b2">Audio Guide</a></li>
+            <li><p data-i18n="j.s3"><b>สั่งอาหาร &amp; กรองภูมิแพ้:</b> เลือกเมนูร้านก๋วยเตี๋ยวห้อยขา กรอง "ไร้ถั่วลิสง" และชำระด้วย QR PromptPay</p><a class="btn btn--outline btn--sm" href="/app#lens-menu" data-i18n="j.b3">สั่งอาหาร</a></li>
+            <li><p data-i18n="j.s4"><b>ฝั่งเจ้าของร้าน:</b> ดูใบสั่งตัวหนังสือใหญ่ ป้ายแดงเตือนแพ้ถั่ว กด <code>[รับออเดอร์]</code> ตรวจสอบพิกัด GPS ร้าน และกดสลับปุ่ม "ของหมด"</p><a class="btn btn--outline btn--sm" href="/app#merchant" data-i18n="j.b4">โหมดร้านค้า</a></li>
+            <li><p data-i18n="j.s5"><b>ฝั่งผู้บริหาร:</b> ดูรายได้ 4 ช่องทาง ตารางพาร์ทเนอร์ทั้ง 13 หมุด และปรับเครื่องคำนวณจุดคุ้มทุน</p><a class="btn btn--outline btn--sm" href="/app#admin" data-i18n="j.b5">โหมดผู้บริหาร</a></li>
           </ol>
         </div>
       </div>
@@ -210,17 +271,18 @@
     <div class="container footer__grid">
       <div>
         <p class="brand__text">PHITLOK <b>NEXUS</b> <small class="version-tag">v2.2</small></p>
-        <p>แพลตฟอร์มท่องเที่ยวเชิงประวัติศาสตร์ 3 มิติ อ้างอิงพิกัด GPS จริงและแหล่งข้อมูลกรมศิลปากร จังหวัดพิษณุโลก</p>
+        <p data-i18n="f.about">แพลตฟอร์มท่องเที่ยวเชิงประวัติศาสตร์ 3 มิติ อ้างอิงพิกัด GPS จริงและแหล่งข้อมูลกรมศิลปากร จังหวัดพิษณุโลก</p>
       </div>
       <div class="footer__cols">
-        <div><h2>หน้าเว็บ</h2><a href="/">01 หน้าแรก</a><a href="/app">02 แอปพลิเคชัน</a><a href="/credits">03 เครดิต</a></div>
-        <div><h2>3 บทบาทผู้ใช้งาน</h2><a href="/app#tourist">ฝั่งนักท่องเที่ยว</a><a href="/app#merchant">ฝั่งเจ้าของร้าน/โรงแรม</a><a href="/app#admin">ฝั่งผู้บริหารแพลตฟอร์ม</a></div>
-        <div><h2>ข้อมูลอ้างอิง</h2><a href="/credits#sources">แหล่งข้อมูลกรมศิลปากร</a><a href="/credits#tech">เทคโนโลยีโอเพนซอร์ส</a><a href="/credits#disclaimer">ข้อจำกัดความรับผิดชอบ</a></div>
+        <div><h2 data-i18n="f.h1">หน้าเว็บ</h2><a href="/" data-i18n="f.l1">01 หน้าแรก</a><a href="/app" data-i18n="f.l2">02 แอปพลิเคชัน</a><a href="/credits" data-i18n="f.l3">03 เครดิต</a></div>
+        <div><h2 data-i18n="f.h2">3 บทบาทผู้ใช้งาน</h2><a href="/app#tourist" data-i18n="f.l4">ฝั่งนักท่องเที่ยว</a><a href="/app#merchant" data-i18n="f.l5">ฝั่งเจ้าของร้าน/โรงแรม</a><a href="/app#admin" data-i18n="f.l6">ฝั่งผู้บริหารแพลตฟอร์ม</a></div>
+        <div><h2 data-i18n="f.h3">ข้อมูลอ้างอิง</h2><a href="/credits#sources" data-i18n="f.l7">แหล่งข้อมูลกรมศิลปากร</a><a href="/credits#tech" data-i18n="f.l8">เทคโนโลยีโอเพนซอร์ส</a><a href="/credits#disclaimer" data-i18n="f.l9">ข้อจำกัดความรับผิดชอบ</a></div>
       </div>
     </div>
     <div class="container footer__bottom">
-      <p>© 2569 PHITLOK NEXUS v2.2 · ผลงานแข่งขันสาย Software for Business &amp; Tourism ("Make Me Money")</p>
+      <p data-i18n="f.copy">© 2569 PHITLOK NEXUS v2.3 · ผลงานแข่งขันสาย Software for Business &amp; Tourism ("Make Me Money")</p>
     </div>
   </footer>
+  <a class="scroll-cue" id="scroll-cue" href="#business" data-scroll-cue="#business" data-i18n="cue">เลื่อนลงเพื่อดูโมเดลรายได้ &amp; วิธีทดสอบ ↓</a>
 </body>
 </html>

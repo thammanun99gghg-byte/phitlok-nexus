@@ -1,13 +1,16 @@
-// AI Universal Smart Lens & 6-Language Audio Guide — PHITLOK NEXUS v2.2
+// AI Universal Smart Lens & 6-Language Audio Guide — PHITLOK NEXUS v2.3
 import { state, api, esc, tr, LANGS, langSwitcher, emit, on, toast, atLeast, sleep, refreshIcons, svgFallbackUrl, shortLabel } from './core.js';
 import { renderDigitalMenu } from './menu.js';
+import { isVipActive } from './site.js';
+import { t, builtYear, errText } from './i18n.js';
 
+// Sign photos for the 5 presets; the caption is the preset's name in the visitor's language.
 const SIGN_IMAGES = {
-  'wat-yai': { src: '/assets/photos/wat-yai.jpg', cap: 'วัดพระศรีรัตนมหาธาตุวรมหาวิหาร (วัดใหญ่) — พิกัด 16.8239, 100.2624' },
-  'chan-palace': { src: '/assets/photos/chan-palace.jpg', cap: 'โบราณสถานพระราชวังจันทน์ — พิกัด 16.8286, 100.2581' },
-  'wat-nang-phaya': { src: '/assets/photos/wat-nang-phaya.jpg', cap: 'วัดนางพญา (ต้นกำเนิดพระนางพญา เบญจภาคี) — พิกัด 16.8221, 100.2631' },
-  'wat-ratchaburana': { src: '/assets/photos/wat-ratchaburana.jpg', cap: 'วัดราชบูรณะ (เจดีย์หลวง 700 ปี) — พิกัด 16.8208, 100.2635' },
-  'city-pillar': { src: '/assets/photos/city-pillar.jpg', cap: 'ศาลหลักเมืองพิษณุโลก — พิกัด 16.8262, 100.2595' }
+  'wat-yai': '/assets/photos/wat-yai.jpg',
+  'chan-palace': '/assets/photos/chan-palace.jpg',
+  'wat-nang-phaya': '/assets/photos/wat-nang-phaya.jpg',
+  'wat-ratchaburana': '/assets/photos/wat-ratchaburana.jpg',
+  'city-pillar': '/assets/photos/city-pillar.jpg'
 };
 const MAX_UPLOAD = 5 * 1024 * 1024;
 const ALLOWED = ['image/jpeg', 'image/png', 'image/webp'];
@@ -47,9 +50,9 @@ function bindTabs() {
 
 // ------------------------------------------------------------------ helpers
 function validateFile(file) {
-  if (!file) return 'ไม่ได้เลือกไฟล์';
-  if (!ALLOWED.includes(file.type)) return 'รองรับเฉพาะไฟล์ .jpg .png .webp';
-  if (file.size > MAX_UPLOAD) return 'ไฟล์ใหญ่เกิน 5MB กรุณาย่อขนาดภาพ';
+  if (!file) return t('file.none');
+  if (!ALLOWED.includes(file.type)) return t('file.type');
+  if (file.size > MAX_UPLOAD) return t('file.size');
   return null;
 }
 
@@ -96,11 +99,11 @@ async function animatePipeline(prefix, requestPromise) {
 
 function sourceBadge(source, latency) {
   const label = {
-    preset: '<span class="badge badge--gold">Preset · ฐานข้อมูลกรมศิลปากร</span>',
-    gemini: '<span class="badge badge--ok">AI: Gemini Vision OCR</span>',
-    fallback: '<span class="badge badge--warn">โหมดสำรอง</span>'
+    preset: `<span class="badge badge--gold">${esc(t('src.preset'))}</span>`,
+    gemini: '<span class="badge badge--ok">AI: Gemini Vision</span>',
+    fallback: `<span class="badge badge--warn">${esc(t('src.fallback'))}</span>`
   }[source] || '';
-  return `${label}<span class="badge">ตอบกลับ ${latency} ms</span><a class="badge badge--ok" href="/credits#sources" title="คลิกดูหลักฐานทะเบียนโบราณสถาน กรมศิลปากร">อ้างอิงข้อมูล: กรมศิลปากร ↗</a>`;
+  return `${label}<span class="badge">${esc(t('src.latency', { n: latency }))}</span><a class="badge badge--ok" href="/credits#sources">${esc(t('ref.fad'))}</a>`;
 }
 
 // ------------------------------------------------------------------ Mode A
@@ -111,13 +114,13 @@ export async function runHeritage({ preset, file }) {
   if (file) {
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     previewUrl = URL.createObjectURL(file);
-    showPreview('heritage', previewUrl, `ภาพที่อัปโหลด: ${file.name}`);
+    showPreview('heritage', previewUrl, t('lens.uploaded', { name: file.name }));
   } else if (SIGN_IMAGES[preset]) {
-    showPreview('heritage', SIGN_IMAGES[preset].src, SIGN_IMAGES[preset].cap);
+    showPreview('heritage', SIGN_IMAGES[preset], t(`preset.${preset}`));
   } else {
     document.getElementById('heritage-preview').hidden = true;
   }
-  out.innerHTML = '<div class="empty"><p class="empty__title">กำลังอ่านป้ายและดึงข้อมูลกรมศิลปากร…</p><p class="muted">OCR → ค้นคืนข้อมูล (RAG) → จัดเนื้อหาและเสียงบรรยาย 6 ภาษา</p></div>';
+  out.innerHTML = `<div class="empty"><p class="empty__title">${esc(t('lens.reading'))}</p><p class="muted">${esc(t('lens.readingSub'))}</p></div>`;
 
   const form = new FormData();
   if (file) form.append('image', file);
@@ -129,8 +132,8 @@ export async function runHeritage({ preset, file }) {
     renderHeritage();
     if (result.visitor) emit('visitor:updated', result.visitor);
   } catch (err) {
-    out.innerHTML = `<p class="notice notice--warn">${esc(err.message)}</p>`;
-    toast(err.message, 'error');
+    out.innerHTML = `<p class="notice notice--warn">${esc(errText(err))}</p>`;
+    toast(errText(err), 'error');
   } finally {
     stopScanning('heritage');
     busy.forEach((b) => { b.disabled = false; });
@@ -141,26 +144,26 @@ function renderHeritage() {
   const out = document.getElementById('heritage-result');
   const r = lastHeritage;
   if (!r || !out) return;
+  const lang = state.lang;
   if (!r.matched) {
     out.innerHTML = `
       <div class="result-head"><div class="badges">${sourceBadge(r.source, r.latencyMs)}</div></div>
-      <p class="notice">${esc(r.notice)}</p>
-      ${r.ocrText ? `<details class="ocr" open><summary>ข้อความที่ OCR อ่านได้</summary><pre>${esc(r.ocrText)}</pre></details>` : ''}
-      <p><b>เลือกโบราณสถานที่ต้องการดูข้อมูลและฟังเสียงบรรยาย 6 ภาษา:</b></p>
-      <div class="choice-list">${r.choices.map((c) => `<button class="btn btn--outline" type="button" data-choose="${esc(c.id)}">${esc(c.name.th)}</button>`).join('')}</div>`;
+      <p class="notice">${esc(lang === 'th' ? r.notice : t('lens.noMatch'))}</p>
+      ${r.ocrText ? `<details class="ocr" open><summary>${esc(t('lens.ocrText'))}</summary><pre lang="th">${esc(r.ocrText)}</pre></details>` : ''}
+      <p><b>${esc(t('lens.choose'))}</b></p>
+      <div class="choice-list">${r.choices.map((c) => `<button class="btn btn--outline" type="button" data-choose="${esc(c.id)}">${esc(tr(c.name))}</button>`).join('')}</div>`;
     refreshIcons();
     return;
   }
-  const lang = state.lang;
   const lm = r.landmark;
-  const vip = state.data.visitor.vip.active;
+  const vip = Boolean(state.data?.visitor?.vip?.active || isVipActive());
   const rw = r.reward;
   const stampCount = state.data.visitor.stamps.length;
   const couponMerchants = state.data.merchants.filter((m) => m.stampCouponPercent > 0);
   const langMeta = LANGS.find((l) => l.code === lang) || LANGS[0];
   const gmapsUrl = lm.googleMapsUrl || `https://www.google.com/maps/search/?api=1&query=${lm.lat},${lm.lng}`;
-  const satUrl = `https://www.google.com/maps/@?api=1&map_action=map&center=${lm.lat},${lm.lng}&zoom=18&basemap=satellite`;
   const svgFb = svgFallbackUrl(shortLabel(lm, lang));
+  const ref = tr(lm.fineArtsRef) || t('ref.fadShort');
 
   out.innerHTML = `
     <div class="result-head">
@@ -173,57 +176,55 @@ function renderHeritage() {
            onerror="this.onerror=null;this.src='${esc(svgFb)}'"
            alt="${esc(tr(lm.name, lang))}" loading="lazy">
       <div class="heritage-photo-meta">
-        <a class="gps-pill" href="${esc(satUrl)}" target="_blank" rel="noopener" title="คลิกเปิดดูพิกัดดาวเทียมและ Street View บน Google Maps">
-          <i data-lucide="map-pin"></i> GPS: <code>${lm.lat.toFixed(4)}, ${lm.lng.toFixed(4)}</code> ↗
-        </a>
-        <a class="badge badge--gold" href="/credits#sources" title="ดูรายละเอียดทะเบียนโบราณสถาน กรมศิลปากร">
-          <i data-lucide="shield-check"></i> อ้างอิงข้อมูล: กรมศิลปากร · พ.ศ. ${esc(lm.builtYearBe || '-')} ↗
+        <a class="badge badge--gold" href="/credits#sources">
+          <i data-lucide="shield-check"></i> ${esc(t('lens.refYear', { y: builtYear(lm.builtYearBe) }))}
         </a>
         <a class="btn btn--outline btn--sm" href="${esc(gmapsUrl)}" target="_blank" rel="noopener">
-          <i data-lucide="globe"></i> เปิดดูสถานที่จริงบน Google Maps / Google Earth 3D
+          <i data-lucide="map-pin"></i> ${esc(t('card.gmaps'))}
         </a>
       </div>
     </div>
     <div class="heritage-body" lang="${lang}">
-      <p class="eyebrow" lang="th">ผลการสแกน · ความมั่นใจ ${Math.round(r.retrieval.confidence * 100)}% · อ้างอิง: ${esc(tr(lm.fineArtsRef) || 'กรมศิลปากร')}</p>
+      <p class="eyebrow">${esc(t('lens.result', { c: Math.round(r.retrieval.confidence * 100), ref }))}</p>
       <h3>${esc(tr(lm.name, lang))}</h3>
       <p>${esc(tr(lm.summary, lang))}</p>
-      ${lm.highlights && tr(lm.highlights, lang) ? `<p class="highlight-box"><b>จุดเด่นสำคัญ:</b> ${esc(tr(lm.highlights, lang))}</p>` : ''}
+      ${lm.highlights && tr(lm.highlights, lang) ? `<p class="highlight-box"><b>${esc(t('lens.highlights'))}</b> ${esc(tr(lm.highlights, lang))}</p>` : ''}
     </div>
-    <div class="audio-bar" lang="th">
+    <div class="audio-bar">
       <div class="audio-bar__controls">
         <button class="btn btn--primary" type="button" data-audio="summary">
-          <i data-lucide="play"></i> ▶ เล่นเสียงบรรยาย (${esc(langMeta.short)})
+          <i data-lucide="play"></i> ${esc(t('audio.play', { l: langMeta.short }))}
         </button>
         <button class="btn btn--outline" type="button" data-audio="pause" id="btn-audio-pause">
-          <i data-lucide="pause"></i> ⏸ หยุดชั่วคราว
+          <i data-lucide="pause"></i> ${esc(t('audio.pause'))}
         </button>
         <button class="btn btn--outline" type="button" data-audio="full">
-          <i data-lucide="headphones"></i> ${vip ? 'ฟังฉบับเต็ม (VIP)' : 'ฉบับเต็ม (VIP Pass)'}
+          <i data-lucide="headphones"></i> ${esc(t(vip ? 'audio.full' : 'audio.fullLocked'))}
         </button>
+        ${!vip ? `<button class="btn btn--vip-cta btn--sm" type="button" data-open-vip-modal><i data-lucide="crown"></i> ${esc(t('audio.unlock'))}</button>` : `<span class="badge badge--gold"><i data-lucide="crown"></i> ${esc(t('audio.vipActive'))}</span>`}
         <button class="btn btn--ghost" type="button" data-audio="stop">
-          <i data-lucide="square"></i> ⏹ หยุด
+          <i data-lucide="square"></i> ${esc(t('audio.stop'))}
         </button>
         <div class="soundwave" id="audio-soundwave" aria-hidden="true">
           <span></span><span></span><span></span><span></span><span></span>
         </div>
       </div>
-      <p class="muted" id="audio-status" aria-live="polite">ภาษาเสียง: <b>${esc(langMeta.label)}</b> (${esc(langMeta.speech)}, rate = 0.95) · แหล่งอ้างอิง: ${esc(tr(lm.fineArtsRef) || 'กรมศิลปากร')}</p>
+      <p class="muted" id="audio-status" aria-live="polite">${esc(t('audio.voice', { l: langMeta.label, ref }))}</p>
     </div>
     <div class="heritage-body" lang="${lang}">
-      ${(lm.sections || []).map((s) => `<h3>${esc(tr(s.title, lang))}</h3><p>${esc(tr(s.body, lang))}</p>`).join('')}
+      ${(lm.sections || []).map((sec) => `<h3>${esc(tr(sec.title, lang))}</h3><p>${esc(tr(sec.body, lang))}</p>`).join('')}
     </div>
-    <details class="ocr"><summary lang="th">ข้อความที่ OCR อ่านได้ &amp; แหล่งอ้างอิงกรมศิลปากร (RAG)</summary>
+    <details class="ocr"><summary>${esc(t('lens.ocrDetails'))}</summary>
       <pre lang="th">${esc(r.ocrText)}</pre>
-      <p class="retrieval" lang="th">คำสำคัญที่จับคู่ได้: ${r.retrieval.matchedKeywords.map(esc).join(', ')} · แหล่งอ้างอิง: ${esc(tr(lm.fineArtsRef) || r.retrieval.corpus)}</p>
+      <p class="retrieval">${esc(t('lens.matched', { k: r.retrieval.matchedKeywords.join(', '), ref: tr(lm.fineArtsRef) || r.retrieval.corpus }))}</p>
     </details>
-    ${rw && rw.eligible ? `<div class="reward" role="status" lang="th">
-      <p class="reward__title"><i data-lucide="award"></i> สะสมตราประทับมรดกพิษณุโลกสำเร็จ! (${stampCount}/5 โบราณสถาน)</p>
-      <p>รับสิทธิ์คูปองส่วนลด 15% ที่ร้านอาหารและโรงแรมพาร์ทเนอร์รอบวัดใหญ่–พระราชวังจันทน์</p>
-      ${rw.issued.length ? `<p class="small">คูปองใหม่: ${rw.issued.map((c) => `<code>${esc(c.code)}</code>`).join(' · ')}</p>` : '<p class="small">คุณได้รับคูปองชุดนี้แล้ว — ดูได้ในกระเป๋าคูปอง</p>'}
+    ${rw && rw.eligible ? `<div class="reward" role="status">
+      <p class="reward__title"><i data-lucide="award"></i> ${esc(t('reward.title', { n: stampCount }))}</p>
+      <p>${esc(t('reward.text'))}</p>
+      ${rw.issued.length ? `<p class="small">${t('reward.new', { c: rw.issued.map((c) => `<code>${esc(c.code)}</code>`).join(' · ') })}</p>` : `<p class="small">${esc(t('reward.already'))}</p>`}
       <div class="actions">
-        ${couponMerchants.slice(0, 3).map((m) => `<button class="btn btn--primary btn--sm" type="button" data-order="${m.id}"><i data-lucide="utensils"></i> สั่งที่ ${esc(m.name.th.split(' (')[0])}</button>`).join('')}
-        <button class="btn btn--outline btn--sm" type="button" data-wallet><i data-lucide="ticket"></i> ดูคูปองของฉัน</button>
+        ${couponMerchants.slice(0, 3).map((m) => `<button class="btn btn--primary btn--sm" type="button" data-order="${m.id}"><i data-lucide="utensils"></i> ${esc(t('reward.orderAt', { name: shortLabel(m, lang) }))}</button>`).join('')}
+        <button class="btn btn--outline btn--sm" type="button" data-wallet><i data-lucide="ticket"></i> ${esc(t('aria.wallet'))}</button>
       </div>
     </div>` : ''}`;
   refreshIcons();
@@ -238,14 +239,14 @@ async function playAudio(mode) {
   const lang = state.lang;
   const synth = window.speechSynthesis;
   if (!synth) {
-    toast('เบราว์เซอร์นี้ไม่รองรับเสียงสังเคราะห์ (Web Speech API)', 'error');
+    toast(t('speech.unsupported'), 'error');
     return;
   }
   if (mode === 'stop') {
     synth.cancel();
     isPaused = false;
     setWavePlaying(false);
-    if (statusEl) statusEl.textContent = 'หยุดเสียงบรรยายแล้ว';
+    if (statusEl) statusEl.textContent = t('speech.stopped');
     return;
   }
   if (mode === 'pause') {
@@ -253,12 +254,12 @@ async function playAudio(mode) {
       synth.pause();
       isPaused = true;
       setWavePlaying(false);
-      if (statusEl) statusEl.textContent = 'หยุดเสียงบรรยายชั่วคราว (กด ▶ เล่นเสียงบรรยาย หรือ ⏸ เพื่อเล่นต่อ)';
+      if (statusEl) statusEl.textContent = t('speech.paused');
     } else if (isPaused) {
       synth.resume();
       isPaused = false;
       setWavePlaying(true);
-      if (statusEl) statusEl.textContent = 'กำลังเล่นเสียงบรรยายต่อ…';
+      if (statusEl) statusEl.textContent = t('speech.resumed');
     }
     return;
   }
@@ -266,7 +267,7 @@ async function playAudio(mode) {
     synth.resume();
     isPaused = false;
     setWavePlaying(true);
-    if (statusEl) statusEl.textContent = 'กำลังเล่นเสียงบรรยายต่อ…';
+    if (statusEl) statusEl.textContent = t('speech.resumed');
     return;
   }
   const lm = lastHeritage?.landmark;
@@ -277,7 +278,7 @@ async function playAudio(mode) {
 /** Fetch the narration (server enforces VIP for full mode) and read it aloud in 6 languages. */
 export async function speakGuide(landmarkId, mode, lang, statusEl) {
   if (!('speechSynthesis' in window)) {
-    toast('เบราว์เซอร์นี้ไม่รองรับเสียงสังเคราะห์ (Web Speech API)', 'error');
+    toast(t('speech.unsupported'), 'error');
     return;
   }
   // Always cancel any existing speech before fetching/playing new narration
@@ -285,16 +286,17 @@ export async function speakGuide(landmarkId, mode, lang, statusEl) {
   isPaused = false;
   setWavePlaying(true);
   try {
-    const res = await api(`/api/audio-guide/${encodeURIComponent(landmarkId)}?lang=${lang}&mode=${mode}`);
+    const vipFlag = (state.data?.visitor?.vip?.active || isVipActive()) ? '&vip=true' : '';
+    const res = await api(`/api/audio-guide/${encodeURIComponent(landmarkId)}?lang=${lang}&mode=${mode}${vipFlag}`);
     speak(res.text, lang, statusEl);
   } catch (err) {
     setWavePlaying(false);
     if (err.data && err.data.needsVip) {
-      toast('เสียงบรรยายฉบับเต็มสำหรับผู้ถือบัตร Phitsanulok VIP Pass (99฿)', 'info');
+      toast(t('speech.needVip'), 'info');
       emit('vip:prompt');
       return;
     }
-    toast(err.message, 'error');
+    toast(errText(err), 'error');
   }
 }
 
@@ -334,34 +336,34 @@ function speak(text, lang, statusEl) {
     if (i === 0) {
       u.onstart = () => {
         setWavePlaying(true);
-        if (statusEl) statusEl.textContent = `กำลังบรรยายเป็นภาษา ${meta.label} (${meta.speech}, ความเร็ว 0.95×)…`;
-        else toast(`🔊 กำลังบรรยายเสียงภาษา ${meta.label}`, 'ok');
+        if (statusEl) statusEl.textContent = t('speech.playing', { l: meta.label });
+        else toast(t('speech.toast', { l: meta.label }), 'ok');
       };
     }
     if (i === chunks.length - 1) {
       u.onend = () => {
         setWavePlaying(false);
         isPaused = false;
-        if (statusEl) statusEl.textContent = 'บรรยายจบแล้ว · กด ▶ เพื่อฟังซ้ำ หรือเปลี่ยนภาษาด้านบน';
+        if (statusEl) statusEl.textContent = t('speech.done');
       };
     }
     u.onerror = (e) => {
       setWavePlaying(false);
       if (statusEl && e.error !== 'interrupted' && e.error !== 'canceled') {
-        statusEl.textContent = 'อุปกรณ์เล่นเสียงไม่สำเร็จ ลองเปลี่ยนภาษาหรือเบราว์เซอร์';
+        statusEl.textContent = t('speech.fail');
       }
     };
     synth.speak(u);
   });
   if (!voice && statusEl) {
-    statusEl.textContent = `กำลังบรรยาย (${meta.label}) — อุปกรณ์ใช้เสียงสังเคราะห์มาตรฐานของระบบ`;
+    statusEl.textContent = t('speech.system', { l: meta.label });
   }
 }
 
 // ------------------------------------------------------------------ Mode B
 export async function runMenuPreset() {
   selectTab('menu');
-  showPreview('menu', '/assets/menu-hoi-kha.svg', 'ภาพจำลองเมนูกระดาษ ร้านก๋วยเตี๋ยวห้อยขาริมน่าน');
+  showPreview('menu', '/assets/menu-hoi-kha.svg', t('menu.previewCap'));
   await scanMenu(() => {
     const form = new FormData();
     form.append('preset', 'hoi-kha');
@@ -373,7 +375,7 @@ async function runMenuUpload(file) {
   const merchantId = document.getElementById('menu-merchant').value;
   if (previewUrl) URL.revokeObjectURL(previewUrl);
   previewUrl = URL.createObjectURL(file);
-  showPreview('menu', previewUrl, `ภาพที่อัปโหลด: ${file.name}`);
+  showPreview('menu', previewUrl, t('lens.uploaded', { name: file.name }));
   await scanMenu(() => {
     const form = new FormData();
     form.append('merchantId', merchantId);
@@ -384,7 +386,7 @@ async function runMenuUpload(file) {
 
 async function scanMenu(buildForm) {
   const out = document.getElementById('menu-result');
-  out.innerHTML = '<div class="empty"><p class="empty__title">กำลังอ่านเมนูและแปล 6 ภาษา…</p><p class="muted">OCR → จับคู่ส่วนผสม &amp; สารก่อภูมิแพ้ → สร้าง Digital Menu 6 ภาษา</p></div>';
+  out.innerHTML = `<div class="empty"><p class="empty__title">${esc(t('menu.reading'))}</p><p class="muted">${esc(t('menu.readingSub'))}</p></div>`;
   const btn = document.getElementById('menu-preset');
   if (btn) btn.disabled = true;
   try {
@@ -394,8 +396,8 @@ async function scanMenu(buildForm) {
       notice: r.notice, ocrText: r.ocrText, scanId: r.scanId, orderable: true
     });
   } catch (err) {
-    out.innerHTML = `<p class="notice notice--warn">${esc(err.message)}</p>`;
-    toast(err.message, 'error');
+    out.innerHTML = `<p class="notice notice--warn">${esc(errText(err))}</p>`;
+    toast(errText(err), 'error');
   } finally {
     stopScanning('menu');
     if (btn) btn.disabled = false;
@@ -414,8 +416,8 @@ export function openMerchantMenu(merchantId) {
   if (pipe) pipe.hidden = true;
   const out = document.getElementById('menu-result');
   if (!items.length) {
-    out.innerHTML = `<div class="empty"><p class="empty__title">${esc(merchant.name.th)} ยังไม่ได้อัปโหลดรายการ</p>
-      <button class="btn btn--primary" type="button" data-try-preset>ดูเมนูร้านก๋วยเตี๋ยวห้อยขาริมน่าน</button></div>`;
+    out.innerHTML = `<div class="empty"><p class="empty__title">${esc(t('menu.noItems', { name: tr(merchant.name) }))}</p>
+      <button class="btn btn--primary" type="button" data-try-preset>${esc(t('menu.presetBtn'))}</button></div>`;
     out.onclick = (e) => { if (e.target.closest('[data-try-preset]')) runMenuPreset(); };
   } else {
     menuCtx = renderDigitalMenu(out, { merchant, items, source: 'database', orderable: true });
@@ -464,5 +466,6 @@ export function initLens() {
   });
   on('cart:changed', () => { if (menuCtx && document.querySelector('#menu-result .menu-list')) menuCtx.redraw(); });
   on('visitor:changed', () => renderHeritage());
+  window.addEventListener('phitlok:vip-activated', () => renderHeritage());
   on('menu:open-preset', () => { runMenuPreset(); document.getElementById('lens')?.scrollIntoView({ behavior: 'smooth' }); });
 }

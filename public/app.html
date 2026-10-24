@@ -24,41 +24,55 @@
   <script type="module" src="/app.js"></script>
 </head>
 <body class="page-app">
-  <a class="skip-link" href="#main">ข้ามไปยังเนื้อหาหลัก</a>
+  <a class="skip-link" href="#main" data-i18n="skip">ข้ามไปยังเนื้อหาหลัก</a>
 
   <header class="appbar">
     <div class="appbar__inner">
-      <a class="brand" href="/" aria-label="PHITLOK NEXUS — หน้าแรก">
+      <a class="brand" href="/" aria-label="PHITLOK NEXUS — หน้าแรก" data-i18n-aria="brand.aria">
         <svg class="brand__mark" viewBox="0 0 40 40" aria-hidden="true">
           <rect width="40" height="40" rx="10" fill="#0F3D3E"/>
           <path d="M20 6 L25 16 H15 Z M13 18 H27 V21 H13 Z M11 23 H29 V26 H11 Z M9 28 H31 V33 H9 Z" fill="#B8860B"/>
         </svg>
         <span class="brand__text">PHITLOK <b>NEXUS</b></span>
       </a>
-      <div class="modeswitch modeswitch--top" role="group" aria-label="เลือกโหมด">
-        <button class="modeswitch__btn" type="button" data-role="tourist" aria-pressed="true"><i data-lucide="compass"></i><span>นักท่องเที่ยว</span></button>
-        <button class="modeswitch__btn" type="button" data-role="merchant" aria-pressed="false"><i data-lucide="store"></i><span>ร้านและโรงแรม</span></button>
-        <button class="modeswitch__btn" type="button" data-role="admin" aria-pressed="false"><i data-lucide="bar-chart-3"></i><span>ผู้บริหาร</span></button>
+      <div class="modeswitch modeswitch--top" role="group" aria-label="เลือกโหมด" data-i18n-aria="mode.aria">
+        <button class="modeswitch__btn" type="button" data-role="tourist" aria-pressed="true"><i data-lucide="compass"></i><span data-i18n="mode.tourist">นักท่องเที่ยว</span></button>
+        <button class="modeswitch__btn" type="button" data-role="merchant" aria-pressed="false"><i data-lucide="store"></i><span data-i18n="mode.merchant">ร้านและโรงแรม</span></button>
+        <button class="modeswitch__btn" type="button" data-role="admin" aria-pressed="false"><i data-lucide="bar-chart-3"></i><span data-i18n="mode.admin">ผู้บริหาร</span></button>
       </div>
       <div class="appbar__actions">
+        <button class="btn btn--vip-cta btn--sm" type="button" id="header-vip-btn" data-open-vip-modal>✨ อัปเกรด VIP (99฿)</button>
+        <div class="lang-picker">
+          <button class="icon-btn lang-btn" type="button" id="lang-btn" aria-haspopup="true" aria-expanded="false" aria-controls="lang-menu" aria-label="เปลี่ยนภาษา"><i data-lucide="languages"></i><span class="lang-btn__code" id="lang-btn-code">TH</span></button>
+          <div class="lang-menu" id="lang-menu" role="group" aria-labelledby="lang-menu-title" hidden>
+            <p class="lang-menu__title" id="lang-menu-title" data-i18n="lang.menu">เลือกภาษา · Language</p>
+            <button type="button" class="lang-menu__item" lang="th" data-app-lang="th" aria-pressed="false">ไทย</button>
+            <button type="button" class="lang-menu__item" lang="en" data-app-lang="en" aria-pressed="false">English</button>
+            <button type="button" class="lang-menu__item" lang="zh" data-app-lang="zh" aria-pressed="false">中文</button>
+            <button type="button" class="lang-menu__item" lang="ja" data-app-lang="ja" aria-pressed="false">日本語</button>
+            <button type="button" class="lang-menu__item" lang="ko" data-app-lang="ko" aria-pressed="false">한국어</button>
+            <button type="button" class="lang-menu__item" lang="fr" data-app-lang="fr" aria-pressed="false">Français</button>
+          </div>
+        </div>
         <button class="icon-btn" type="button" id="open-cart" aria-haspopup="dialog" aria-label="ตะกร้า"><i data-lucide="shopping-bag"></i><span class="icon-btn__count" id="cart-count" hidden>0</span></button>
         <button class="icon-btn hide-mobile" type="button" id="open-wallet" aria-haspopup="dialog" aria-label="คูปองของฉัน"><i data-lucide="ticket"></i><span class="icon-btn__count" id="wallet-count" hidden>0</span></button>
-        <button class="icon-btn hide-mobile" type="button" id="theme-toggle" data-theme-toggle aria-pressed="false" aria-label="สลับธีมสว่างหรือมืด"><i data-lucide="moon" class="ico-moon"></i><i data-lucide="sun" class="ico-sun"></i></button>
-        <button class="icon-btn menu-toggle" type="button" id="menu-toggle" aria-expanded="false" aria-controls="mobile-nav" aria-label="เปิดเมนู"><i data-lucide="menu"></i></button>
+        <button class="icon-btn hide-mobile" type="button" id="theme-toggle" data-theme-toggle aria-pressed="false" aria-label="สลับธีมสว่างหรือมืด" data-i18n-aria="aria.theme"><i data-lucide="moon" class="ico-moon"></i><i data-lucide="sun" class="ico-sun"></i></button>
+        <button class="icon-btn menu-toggle" type="button" id="menu-toggle" aria-expanded="false" aria-controls="mobile-nav" aria-label="เปิดเมนู" data-i18n-aria="aria.menu"><i data-lucide="menu"></i></button>
       </div>
     </div>
-    <nav class="menu-panel" id="mobile-nav" aria-label="เมนู" hidden>
-      <a href="/"><i data-lucide="house"></i> หน้าแรก</a>
-      <a href="/app" aria-current="page"><i data-lucide="layout-grid"></i> แอป</a>
-      <a href="/credits"><i data-lucide="book-open"></i> เครดิต</a>
-      <button class="menu-panel__item show-mobile" type="button" data-open-wallet-menu><i data-lucide="ticket"></i> คูปองของฉัน</button>
-      <button class="menu-panel__item show-mobile" type="button" data-theme-toggle aria-pressed="false"><i data-lucide="moon" class="ico-moon"></i><i data-lucide="sun" class="ico-sun"></i> สลับธีมสว่าง/มืด</button>
+    <nav class="menu-panel" id="mobile-nav" aria-label="เมนู" data-i18n-aria="menu.aria" hidden>
+      <a href="/"><i data-lucide="house"></i> <span data-i18n="nav.home">หน้าแรก</span></a>
+      <a href="/app" aria-current="page"><i data-lucide="layout-grid"></i> <span data-i18n="nav.app">แอป</span></a>
+      <a href="/credits"><i data-lucide="book-open"></i> <span data-i18n="nav.credits">เครดิต</span></a>
+      <button class="menu-panel__item show-mobile" type="button" data-open-vip-modal><i data-lucide="crown"></i> <span data-i18n="menu.vip">อัปเกรด VIP Pass (99฿)</span></button>
+      <button class="menu-panel__item show-mobile" type="button" data-open-wallet-menu><i data-lucide="ticket"></i> <span data-i18n="menu.wallet">คูปองของฉัน</span></button>
+      <button class="menu-panel__item show-mobile" type="button" data-theme-toggle aria-pressed="false"><i data-lucide="moon" class="ico-moon"></i><i data-lucide="sun" class="ico-sun"></i> <span data-i18n="menu.theme">สลับธีมสว่าง/มืด</span></button>
     </nav>
   </header>
-  <nav class="modeswitch modeswitch--tabbar" aria-label="เลือกโหมด">
-        <button class="modeswitch__btn" type="button" data-role="tourist" aria-pressed="true"><i data-lucide="compass"></i><span>นักท่องเที่ยว</span></button>
-        <button class="modeswitch__btn" type="button" data-role="merchant" aria-pressed="false"><i data-lucide="store"></i><span>ร้านและโรงแรม</span></button>
-        <button class="modeswitch__btn" type="button" data-role="admin" aria-pressed="false"><i data-lucide="bar-chart-3"></i><span>ผู้บริหาร</span></button>
+  <nav class="modeswitch modeswitch--tabbar" aria-label="เลือกโหมด" data-i18n-aria="mode.aria">
+        <button class="modeswitch__btn" type="button" data-role="tourist" aria-pressed="true"><i data-lucide="compass"></i><span data-i18n="mode.tourist">นักท่องเที่ยว</span></button>
+        <button class="modeswitch__btn" type="button" data-role="merchant" aria-pressed="false"><i data-lucide="store"></i><span data-i18n="mode.merchant">ร้านและโรงแรม</span></button>
+        <button class="modeswitch__btn" type="button" data-role="admin" aria-pressed="false"><i data-lucide="bar-chart-3"></i><span data-i18n="mode.admin">ผู้บริหาร</span></button>
   </nav>
 
   <main id="main">
@@ -71,40 +85,40 @@
         <div class="container">
           <div class="section__head section__head--row">
             <div>
-              <p class="eyebrow"><i data-lucide="globe-2"></i> 3D Real-Coordinate Geospatial Map · จุดศูนย์กลางสะพานนเรศวร (16.8228, 100.2612)</p>
-              <h1 id="map-title">แผนที่ท่องเที่ยว 3 มิติ อ้างอิงพิกัด GPS จริงจังหวัดพิษณุโลก</h1>
-              <p class="section__lead">แปลงค่าพิกัดดาวเทียม <code>(Lat, Lng)</code> จริงของทั้ง 13 สถานที่ริมแม่น้ำน่านเป็นระนาบ 3 มิติ พร้อมลิงก์ตรวจสอบสถานที่จริงบน Google Maps / Google Earth 3D</p>
+              <h1 id="map-title" data-i18n="map.title">แผนที่ 3 มิติ พิษณุโลก</h1>
+              <p class="section__lead" data-i18n="map.lead">แตะหมุดเพื่อดูเรื่องเล่า เมนู และที่พัก</p>
             </div>
           </div>
 
           <div class="map-layout">
             <div class="map-stage" id="map-stage">
-              <canvas id="map-canvas" aria-label="แผนที่ 3 มิติ อ้างอิงพิกัด GPS จริงของจังหวัดพิษณุโลก" role="img"></canvas>
+              <canvas id="map-canvas" aria-label="แผนที่ 3 มิติของพิษณุโลก" data-i18n-aria="map.canvas" role="img"></canvas>
               <div class="map-labels" id="map-labels"></div>
-              <div class="map-status" id="map-status" role="status">กำลังโหลดแผนที่ 3 มิติพิกัดจริง…</div>
-              <div class="map-toolbar" role="toolbar" aria-label="เครื่องมือแผนที่">
-                <div class="map-toolbar__chips" role="group" aria-label="เลือกหมวดที่แสดงบนแผนที่">
-                  <button class="map-chip map-chip--heritage" type="button" data-map-layer="heritage" aria-pressed="true"><i data-lucide="landmark"></i><span class="map-chip__name">โบราณสถาน</span><b class="map-chip__count" data-layer-count="heritage"></b></button>
-                  <button class="map-chip map-chip--restaurant" type="button" data-map-layer="restaurant" aria-pressed="true"><i data-lucide="utensils"></i><span class="map-chip__name">ร้านอาหาร</span><b class="map-chip__count" data-layer-count="restaurant"></b></button>
-                  <button class="map-chip map-chip--souvenir" type="button" data-map-layer="souvenir" aria-pressed="true"><i data-lucide="gift"></i><span class="map-chip__name">ของฝาก</span><b class="map-chip__count" data-layer-count="souvenir"></b></button>
-                  <button class="map-chip map-chip--hotel" type="button" data-map-layer="hotel" aria-pressed="true"><i data-lucide="bed-double"></i><span class="map-chip__name">ที่พัก</span><b class="map-chip__count" data-layer-count="hotel"></b></button>
+              <div class="map-status" id="map-status" role="status" data-i18n="map.loading">กำลังโหลดแผนที่ 3 มิติ…</div>
+              <div class="map-toolbar" role="toolbar" aria-label="เครื่องมือแผนที่" data-i18n-aria="map.tools">
+                <div class="map-toolbar__chips" role="group" aria-label="เลือกหมวดที่แสดงบนแผนที่" data-i18n-aria="map.layers">
+                  <button class="map-chip map-chip--heritage" type="button" data-map-layer="heritage" aria-pressed="true"><i data-lucide="landmark"></i><span class="map-chip__name" data-i18n="cat.heritage">โบราณสถาน</span><b class="map-chip__count" data-layer-count="heritage"></b></button>
+                  <button class="map-chip map-chip--restaurant" type="button" data-map-layer="restaurant" aria-pressed="true"><i data-lucide="utensils"></i><span class="map-chip__name" data-i18n="cat.restaurant">ร้านอาหาร</span><b class="map-chip__count" data-layer-count="restaurant"></b></button>
+                  <button class="map-chip map-chip--souvenir" type="button" data-map-layer="souvenir" aria-pressed="true"><i data-lucide="gift"></i><span class="map-chip__name" data-i18n="cat.souvenir">ของฝาก</span><b class="map-chip__count" data-layer-count="souvenir"></b></button>
+                  <button class="map-chip map-chip--hotel" type="button" data-map-layer="hotel" aria-pressed="true"><i data-lucide="bed-double"></i><span class="map-chip__name" data-i18n="cat.hotel">ที่พัก</span><b class="map-chip__count" data-layer-count="hotel"></b></button>
                 </div>
-                <button class="map-tool" type="button" id="map-legend-toggle" aria-expanded="false" aria-controls="map-legend"><i data-lucide="info"></i><span>สัญลักษณ์</span></button>
-                <button class="map-tool" type="button" id="map-reset" aria-label="กลับมุมมองเริ่มต้น" title="กลับมุมมองเริ่มต้น"><i data-lucide="rotate-ccw"></i></button>
+                <button class="map-tool map-tool--labels" type="button" id="map-labels-toggle" aria-pressed="true"><i data-lucide="tag"></i><span id="map-labels-toggle-text">🏷️ ชื่อสถานที่: เปิด</span></button>
+                <button class="map-tool" type="button" id="map-legend-toggle" aria-expanded="false" aria-controls="map-legend"><i data-lucide="info"></i><span data-i18n="map.legend">สัญลักษณ์</span></button>
+                <button class="map-tool" type="button" id="map-reset" aria-label="กลับมุมมองเริ่มต้น" title="กลับมุมมองเริ่มต้น" data-i18n-aria="map.reset" data-i18n-title="map.reset"><i data-lucide="rotate-ccw"></i></button>
                 <button class="map-tool" type="button" id="map-fullscreen" aria-label="เปิดเต็มจอ" title="เปิดเต็มจอ"><i data-lucide="maximize" class="ico-enter"></i><i data-lucide="minimize" class="ico-exit"></i></button>
               </div>
               <div class="map-legend" id="map-legend" hidden>
-                <ul aria-label="ความหมายของสัญลักษณ์">
-                  <li><span class="sw sw--heritage" aria-hidden="true"></span>โบราณสถาน</li>
-                  <li><span class="sw sw--restaurant" aria-hidden="true"></span>ร้านอาหาร</li>
-                  <li><span class="sw sw--souvenir" aria-hidden="true"></span>ของฝาก</li>
-                  <li><span class="sw sw--hotel" aria-hidden="true"></span>ที่พัก</li>
-                  <li><span class="sw sw--trail" aria-hidden="true"></span>เส้นทางจากวัดไปร้านใกล้ ๆ</li>
+                <ul aria-label="ความหมายของสัญลักษณ์" data-i18n-aria="map.legendAria">
+                  <li><span class="sw sw--heritage" aria-hidden="true"></span><span data-i18n="cat.heritage">โบราณสถาน</span></li>
+                  <li><span class="sw sw--restaurant" aria-hidden="true"></span><span data-i18n="cat.restaurant">ร้านอาหาร</span></li>
+                  <li><span class="sw sw--souvenir" aria-hidden="true"></span><span data-i18n="cat.souvenir">ของฝาก</span></li>
+                  <li><span class="sw sw--hotel" aria-hidden="true"></span><span data-i18n="cat.hotel">ที่พัก</span></li>
+                  <li><span class="sw sw--trail" aria-hidden="true"></span><span data-i18n="map.trail">เส้นทางจากวัดไปร้านใกล้ ๆ</span></li>
                 </ul>
               </div>
             </div>
             <aside class="map-card card" id="map-card" aria-live="polite" tabindex="-1">
-              <p class="muted">คลิกหมุดบนแผนที่ 3 มิติเพื่อดูรูปภาพจริง พิกัด GPS และลิงก์ Google Maps</p>
+              <p class="muted" data-i18n="map.cardHint">แตะหมุดบนแผนที่เพื่อดูรูปและรายละเอียด</p>
             </aside>
           </div>
 
@@ -115,9 +129,9 @@
       <section class="section section--alt" id="directory" aria-labelledby="dir-title">
         <div class="container">
           <div class="section__head">
-            <p class="eyebrow"><i data-lucide="info"></i> ข้อมูลโบราณสถานอ้างอิงกรมศิลปากร · ร้านและโรงแรมเป็นข้อมูลสาธิต</p>
-            <h2 id="dir-title">ครบทั้ง 5 โบราณสถาน + 5 ร้านอาหารดัง + 3 โรงแรมที่พักชั้นนำ</h2>
-            <p class="section__lead">กดเลือกสถานที่เพื่อฟังเสียงบรรยายประวัติศาสตร์ 6 ภาษา สั่งอาหารล่วงหน้า หรือจองห้องพักโรงแรมได้ทันที</p>
+            <p class="eyebrow"><i data-lucide="info"></i> <span data-i18n="dir.eyebrow">ข้อมูลโบราณสถานอ้างอิงกรมศิลปากร · ร้านและโรงแรมเป็นข้อมูลสาธิต</span></p>
+            <h2 id="dir-title" data-i18n="dir.title">สถานที่ทั้งหมดบนแผนที่</h2>
+            <p class="section__lead" data-i18n="dir.lead">เลือกสถานที่เพื่อฟังเรื่องเล่า สั่งอาหาร หรือจองที่พัก</p>
           </div>
           <div class="directory-grid" id="directory-grid"></div>
         </div>
@@ -127,61 +141,60 @@
       <section class="section" id="lens" aria-labelledby="lens-title">
         <div class="container">
           <div class="section__head">
-            <p class="eyebrow"><i data-lucide="sparkles"></i> AI Universal Smart Lens &amp; 6-Language Audio Guide (TH · EN · CN · JP · KR · FR)</p>
-            <h2 id="lens-title">ระบบเสียงบรรยายประวัติศาสตร์ 6 ภาษา &amp; สั่งอาหาร/จองโรงแรมดิจิทัล</h2>
-            <p class="section__lead">อ้างอิงข้อมูลจริงจากกรมศิลปากรและทะเบียนโบราณสถาน พร้อมระบบกรองภูมิแพ้อาหารและชำระเงินผ่าน QR PromptPay <span class="ai-badge" id="ai-badge">กำลังตรวจสอบ AI…</span></p>
+            <h2 id="lens-title" data-i18n="lens.title">ฟังเรื่องเล่าและสั่งอาหาร 6 ภาษา</h2>
+            <p class="section__lead"><span data-i18n="lens.lead">ข้อมูลโบราณสถานจากกรมศิลปากร กรองอาหารที่แพ้ และจ่ายด้วยพร้อมเพย์</span> <span class="ai-status-badge" id="ai-badge" hidden></span></p>
           </div>
 
-          <div class="tabs" role="tablist" aria-label="โหมดการใช้งาน">
+          <div class="tabs" role="tablist" aria-label="โหมดการใช้งาน" data-i18n-aria="lens.tabs">
             <button class="tab" role="tab" type="button" id="tab-heritage" aria-controls="panel-heritage" aria-selected="true">
-              <i data-lucide="headphones"></i> โหมด A · เสียงบรรยาย 5 โบราณสถาน (6 ภาษา)
+              <i data-lucide="headphones"></i> <span data-i18n="lens.tabA">ฟังเรื่องเล่าโบราณสถาน</span>
             </button>
             <button class="tab" role="tab" type="button" id="tab-menu" aria-controls="panel-menu" aria-selected="false" tabindex="-1">
-              <i data-lucide="utensils"></i> โหมด B · สั่งอาหาร 5 ร้านดัง &amp; จอง 3 โรงแรม (6 ภาษา)
+              <i data-lucide="utensils"></i> <span data-i18n="lens.tabB">สั่งอาหารและจองที่พัก</span>
             </button>
           </div>
 
           <div class="tabpanel" role="tabpanel" id="panel-heritage" aria-labelledby="tab-heritage">
             <div class="lens-grid">
               <div class="card lens-input">
-                <h3>เลือกโบราณสถานพิษณุโลก (5 แห่งจริง)</h3>
+                <h3 data-i18n="lens.pick">เลือกโบราณสถาน</h3>
                 <div class="preset-list">
                   <button class="btn btn--preset" type="button" data-heritage-preset="wat-yai">
-                    <span class="preset-no">1</span><span>วัดพระศรีรัตนมหาธาตุวรมหาวิหาร (วัดใหญ่) · พ.ศ. 1900</span>
+                    <span class="preset-no">1</span><span data-i18n="preset.wat-yai">วัดพระศรีรัตนมหาธาตุวรมหาวิหาร (วัดใหญ่) · พ.ศ. 1900</span>
                   </button>
                   <button class="btn btn--preset" type="button" data-heritage-preset="chan-palace">
-                    <span class="preset-no">2</span><span>โบราณสถานพระราชวังจันทน์ (สมเด็จพระนเรศวรฯ)</span>
+                    <span class="preset-no">2</span><span data-i18n="preset.chan-palace">โบราณสถานพระราชวังจันทน์ (สมเด็จพระนเรศวรฯ)</span>
                   </button>
                   <button class="btn btn--preset" type="button" data-heritage-preset="wat-nang-phaya">
-                    <span class="preset-no">3</span><span>วัดนางพญา (ต้นกำเนิดพระนางพญา เบญจภาคี)</span>
+                    <span class="preset-no">3</span><span data-i18n="preset.wat-nang-phaya">วัดนางพญา (ต้นกำเนิดพระนางพญา เบญจภาคี)</span>
                   </button>
                   <button class="btn btn--preset" type="button" data-heritage-preset="wat-ratchaburana">
-                    <span class="preset-no">4</span><span>วัดราชบูรณะ (เจดีย์หลวง 700 ปี &amp; จิตรกรรมฝาผนัง)</span>
+                    <span class="preset-no">4</span><span data-i18n="preset.wat-ratchaburana">วัดราชบูรณะ (เจดีย์หลวง 700 ปี &amp; จิตรกรรมฝาผนัง)</span>
                   </button>
                   <button class="btn btn--preset" type="button" data-heritage-preset="city-pillar">
-                    <span class="preset-no">5</span><span>ศาลหลักเมืองพิษณุโลก (เสาหลักเมืองไม้มงคล)</span>
+                    <span class="preset-no">5</span><span data-i18n="preset.city-pillar">ศาลหลักเมืองพิษณุโลก (เสาหลักเมืองไม้มงคล)</span>
                   </button>
                 </div>
-                <div class="divider"><span>หรือถ่ายภาพป้ายประวัติศาสตร์จริง</span></div>
+                <div class="divider"><span data-i18n="lens.or">หรือถ่ายภาพป้ายจริง</span></div>
                 <label class="upload" for="heritage-file">
                   <input type="file" id="heritage-file" accept="image/jpeg,image/png,image/webp">
-                  <span class="upload__btn"><i data-lucide="camera"></i> อัปโหลด/ถ่ายภาพป้ายโบราณสถาน</span>
-                  <span class="upload__hint">รองรับ .jpg .png .webp ไม่เกิน 5MB</span>
+                  <span class="upload__btn"><i data-lucide="camera"></i> <span data-i18n="lens.upload">อัปโหลด/ถ่ายภาพป้ายโบราณสถาน</span></span>
+                  <span class="upload__hint" data-i18n="lens.uploadHint">รองรับ .jpg .png .webp ไม่เกิน 5MB</span>
                 </label>
                 <figure class="scan-preview" id="heritage-preview" hidden>
                   <div class="scan-frame"><img alt="" id="heritage-preview-img"><span class="scan-line" aria-hidden="true"></span></div>
                   <figcaption id="heritage-preview-cap"></figcaption>
                 </figure>
                 <ol class="pipeline" id="heritage-pipeline" hidden>
-                  <li data-step="ocr">OCR อ่านตัวอักษรจากป้าย</li>
-                  <li data-step="rag">ดึงข้อมูลอ้างอิงกรมศิลปากร (RAG)</li>
-                  <li data-step="i18n">เตรียมเนื้อหาและเสียงบรรยาย 6 ภาษา</li>
+                  <li data-step="ocr" data-i18n="pipe.ocr">อ่านตัวอักษรจากป้าย</li>
+                  <li data-step="rag" data-i18n="pipe.rag">ค้นข้อมูลกรมศิลปากร</li>
+                  <li data-step="i18n" data-i18n="pipe.i18n">เตรียมเนื้อหาและเสียง 6 ภาษา</li>
                 </ol>
               </div>
               <div class="card lens-output" id="heritage-result" aria-live="polite">
                 <div class="empty">
-                  <p class="empty__title">กดเลือกโบราณสถานด้านซ้ายเพื่อฟังเสียงบรรยาย 6 ภาษา</p>
-                  <p class="muted">รองรับภาษาไทย (TH), อังกฤษ (EN), จีน (CN), ญี่ปุ่น (JP), เกาหลี (KR) และฝรั่งเศส (FR) พร้อมอ้างอิงกรมศิลปากรและรับคูปองส่วนลด 15%</p>
+                  <p class="empty__title" data-i18n="lens.emptyTitle">เลือกโบราณสถานด้านซ้ายเพื่อฟังเรื่องเล่า</p>
+                  <p class="muted" data-i18n="lens.emptyText">ฟังได้ 6 ภาษา: ไทย อังกฤษ จีน ญี่ปุ่น เกาหลี ฝรั่งเศส · ส่องป้ายแล้วรับคูปองส่วนลด 15%</p>
                 </div>
               </div>
             </div>
@@ -190,36 +203,36 @@
           <div class="tabpanel" role="tabpanel" id="panel-menu" aria-labelledby="tab-menu" hidden>
             <div class="lens-grid">
               <div class="card lens-input">
-                <h3>เลือกร้านอาหารหรือโรงแรมที่พัก</h3>
+                <h3 data-i18n="menu.pick">เลือกร้านอาหารหรือที่พัก</h3>
                 <div class="preset-list">
                   <button class="btn btn--preset" type="button" id="menu-preset">
-                    <span class="preset-no">1</span><span>ทดลองส่องเมนู ร้านก๋วยเตี๋ยวห้อยขาริมน่าน (6 ภาษา)</span>
+                    <span class="preset-no">1</span><span data-i18n="menu.presetBtn">ลองดูเมนูร้านก๋วยเตี๋ยวห้อยขา</span>
                   </button>
                 </div>
-                <div class="divider"><span>หรือเลือกร้านอาหาร / โรงแรมจากรายการ</span></div>
+                <div class="divider"><span data-i18n="menu.or">หรือเลือกจากรายการ</span></div>
                 <div class="field">
-                  <label for="menu-merchant">เลือกร้านอาหารดัง หรือ โรงแรมที่พัก</label>
+                  <label for="menu-merchant" data-i18n="menu.selectLabel">ร้านอาหารหรือโรงแรม</label>
                   <select id="menu-merchant"></select>
                 </div>
                 <label class="upload" for="menu-file">
                   <input type="file" id="menu-file" accept="image/jpeg,image/png,image/webp">
-                  <span class="upload__btn"><i data-lucide="file-scan"></i> สแกนรูปเมนูกระดาษเพื่อแปล 6 ภาษา</span>
-                  <span class="upload__hint">รองรับ .jpg .png .webp ไม่เกิน 5MB</span>
+                  <span class="upload__btn"><i data-lucide="file-scan"></i> <span data-i18n="menu.scan">สแกนเมนูกระดาษเพื่อแปล 6 ภาษา</span></span>
+                  <span class="upload__hint" data-i18n="lens.uploadHint">รองรับ .jpg .png .webp ไม่เกิน 5MB</span>
                 </label>
                 <figure class="scan-preview" id="menu-preview" hidden>
                   <div class="scan-frame scan-frame--tall"><img alt="" id="menu-preview-img"><span class="scan-line" aria-hidden="true"></span></div>
                   <figcaption id="menu-preview-cap"></figcaption>
                 </figure>
                 <ol class="pipeline" id="menu-pipeline" hidden>
-                  <li data-step="ocr">OCR อ่านรายการและราคา</li>
-                  <li data-step="rag">ตรวจสอบสารก่อภูมิแพ้ (Allergen Check)</li>
-                  <li data-step="i18n">สร้าง Digital Menu 6 ภาษา</li>
+                  <li data-step="ocr" data-i18n="pipe.mocr">อ่านรายการและราคา</li>
+                  <li data-step="rag" data-i18n="pipe.allergen">ตรวจสารก่อภูมิแพ้</li>
+                  <li data-step="i18n" data-i18n="pipe.menu">สร้างเมนูดิจิทัล 6 ภาษา</li>
                 </ol>
               </div>
               <div class="card lens-output" id="menu-result" aria-live="polite">
                 <div class="empty">
-                  <p class="empty__title">เมนูดิจิทัล 6 ภาษา &amp; ระบบจองห้องพักจะแสดงที่นี่</p>
-                  <p class="muted">กรองอาหารตามภูมิแพ้ (ไร้ถั่วลิสง · ไม่เผ็ด · ฮาลาล/มังสวิรัติ) ชำระผ่าน QR PromptPay และส่งใบสั่งภาษาไทยตัวใหญ่ให้ร้านค้าทันที</p>
+                  <p class="empty__title" data-i18n="menu.emptyTitle">เมนู 6 ภาษาและการจองห้องพักจะแสดงที่นี่</p>
+                  <p class="muted" data-i18n="menu.emptyText">กรองอาหารที่แพ้ จ่ายด้วยพร้อมเพย์ แล้วร้านได้รับใบสั่งภาษาไทยทันที</p>
                 </div>
               </div>
             </div>
@@ -233,15 +246,15 @@
           <div class="card vip-card" id="vip-card">
             <div class="vip-card__body">
               <p class="vip-card__label"><i data-lucide="crown"></i> VIP Pass</p>
-              <h2 id="vip-title">ฟังเรื่องเล่าฉบับเต็ม + คูปอง <span id="vip-voucher-total">500</span>฿</h2>
-              <p class="vip-card__price"><span id="vip-price">99</span><small>฿ ต่อทริป 7 วัน</small></p>
+              <h2 id="vip-title">ฟังเรื่องเล่าฉบับเต็ม + คูปอง 500฿</h2>
+              <p class="vip-card__price"><span id="vip-price">99</span><small data-i18n="vip.per">฿ ต่อทริป 7 วัน</small></p>
             </div>
             <div id="vip-action"></div>
           </div>
         </div>
       </section>
 
-      <section class="section" id="for-merchants" aria-labelledby="saas-title">
+      <section class="section" id="for-merchants" aria-labelledby="saas-title" lang="th">
         <div class="container saas-grid">
           <div>
             <p class="eyebrow"><i data-lucide="building"></i> ช่องทางทำเงินที่ 1 &amp; 2 · SaaS ร้านอาหาร (199฿) และ SaaS โรงแรม (499฿)</p>
@@ -314,7 +327,7 @@
     <!-- =====================================================================
          ROLE 2: MERCHANT PORTAL (ฝั่งเจ้าของร้านและโรงแรม — ปุ่มใหญ่ >= 48px ใช้งานง่าย 3 แท็บ)
          ===================================================================== -->
-    <div class="view" id="view-merchant" data-view="merchant" hidden>
+    <div class="view" id="view-merchant" data-view="merchant" lang="th" hidden>
       <section class="section">
         <div class="container">
           <div class="section__head section__head--row">
@@ -393,7 +406,7 @@
     <!-- =====================================================================
          ROLE 3: EXECUTIVE ADMIN CONSOLE (ฝั่งผู้บริหารแพลตฟอร์ม — เห็นทุกอย่างครบวงจร)
          ===================================================================== -->
-    <div class="view" id="view-admin" data-view="admin" hidden>
+    <div class="view" id="view-admin" data-view="admin" lang="th" hidden>
       <section class="section" id="admin-revenue">
         <div class="container">
           <p class="notice notice--demo" role="note"><i data-lucide="info"></i> <b>ข้อมูลจำลองเพื่อสาธิต</b> — ตัวเลขในหน้านี้สร้างจากข้อมูลตั้งต้น ไม่ใช่รายได้จริง</p>
@@ -534,5 +547,6 @@
   </dialog>
 
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+  <a class="scroll-cue" id="scroll-cue" href="#lens" data-scroll-cue="#lens">เลื่อนลงเพื่อใช้ AI ส่องป้าย 6 ภาษา &amp; สั่งอาหาร ↓</a>
 </body>
 </html>
