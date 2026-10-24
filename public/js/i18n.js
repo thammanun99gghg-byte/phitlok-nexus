@@ -127,6 +127,8 @@ const K = {
   'map.fsOff': ['ออกจากเต็มจอ', 'Exit full screen', '退出全屏', '全画面を終了', '전체 화면 종료', 'Quitter le plein écran'],
   'map.cardHint': ['แตะอำเภอหรือหมุดบนแผนที่เพื่อดูรูปและรายละเอียด', 'Tap a district or a pin to see photos and details', '点按县区或标记查看照片和详情', '郡やピンをタップすると写真と詳細を表示', '군이나 핀을 누르면 사진과 정보를 볼 수 있습니다', 'Touchez un district ou un repère pour voir photos et détails'],
   'map.labelAria': ['ดูข้อมูล {name}', 'Show {name}', '查看 {name}', '{name}を表示', '{name} 보기', 'Voir {name}'],
+  'signup.btn': ['สมัครสมาชิก', 'Sign up', '注册', '新規登録', '회원가입', 'S’inscrire'],
+  'signup.menu': ['สมัครสมาชิก (นักท่องเที่ยว · ร้านค้า · ที่พัก)', 'Sign up (traveler · shop · hotel)', '注册（游客 · 商家 · 住宿）', '新規登録（旅行者・お店・宿）', '회원가입 (여행자 · 상점 · 숙소)', 'S’inscrire (voyageur · commerce · hébergement)'],
   'map.viewAria': ['เลือกมุมมองแผนที่', 'Map view', '地图视图', '地図の表示', '지도 보기', 'Vue de la carte'],
   'map.viewProvince': ['ทั้งจังหวัด', 'Province', '全府', '県全体', '주 전체', 'Province'],
   'map.viewCity': ['ตัวเมือง', 'City', '市区', '市街地', '시내', 'Ville'],

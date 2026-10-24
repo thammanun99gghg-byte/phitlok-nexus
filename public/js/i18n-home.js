@@ -36,6 +36,8 @@ export const T = {
   'nav.app': { en: 'App', zh: '应用', ja: 'アプリ', ko: '앱', fr: 'Application' },
   'nav.credits': { en: 'Credits', zh: '致谢', ja: 'クレジット', ko: '크레딧', fr: 'Crédits' },
   'nav.aria': { en: 'Main pages', zh: '主要页面', ja: 'メインページ', ko: '주요 페이지', fr: 'Pages principales' },
+  'signup.btn': { en: 'Sign up', zh: '注册', ja: '新規登録', ko: '회원가입', fr: 'S’inscrire' },
+  'signup.menu': { en: 'Sign up (traveler · shop · hotel)', zh: '注册（游客 · 商家 · 住宿）', ja: '新規登録（旅行者・お店・宿）', ko: '회원가입 (여행자 · 상점 · 숙소)', fr: 'S’inscrire (voyageur · commerce · hébergement)' },
   openApp: { en: 'Open app', zh: '打开应用', ja: 'アプリを開く', ko: '앱 열기', fr: 'Ouvrir l’app' },
   'menu.vip': { en: 'Upgrade to VIP Pass (฿99)', zh: '升级 VIP 通行证（99 泰铢）', ja: 'VIPパスにアップグレード（99バーツ）', ko: 'VIP 패스 업그레이드 (99바트)', fr: 'Passer au Pass VIP (99 ฿)' },
   'menu.theme': { en: 'Light / dark theme', zh: '切换浅色 / 深色', ja: 'ライト / ダーク切替', ko: '라이트 / 다크 전환', fr: 'Thème clair / sombre' },

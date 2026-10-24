@@ -7,6 +7,7 @@ import { t, applyStatic, builtYear, errText, locale } from './js/i18n.js';
 import { initLens, runHeritage, runMenuPreset, openMerchantMenu, speakGuide, selectTab } from './js/lens.js';
 import { openCart, cartCount } from './js/menu.js';
 import { startCheckout } from './js/payment.js';
+import { initSignup, openSignup, resetSignup } from './js/signup.js';
 import { initMerchant, populateMerchantSelect, startMerchantView, stopMerchantView, refreshMerchantData } from './js/merchant.js';
 import { initAdmin, startAdminView, stopAdminView, fetchMetrics, refreshAdminData } from './js/admin.js';
 
@@ -38,6 +39,7 @@ async function boot() {
   initLens();
   initMerchant();
   initAdmin();
+  initSignup();
   bindGlobal();
   // Apply hash again now that state.data & controllers are ready
   applyHash({ initial: false });
@@ -107,7 +109,7 @@ function applyHash({ initial = false } = {}) {
     return;
   }
   if (hash === 'for-merchants' || hash === 'signup') {
-    openSignup();
+    openSignup(hash === 'for-merchants' ? 'shop' : undefined);
     return;
   }
   if (['map', 'directory', 'vip'].includes(hash)) {
@@ -250,8 +252,8 @@ function renderMapCard(ent) {
     const isDemoPartner = m.partnerStatus !== 'confirmed';
     card.innerHTML = `
       <div class="map-card__media">
-        <img src="${esc(m.imageUrl || m.fallbackImage || '/assets/photos/hoi-kha-noodles.jpg')}"
-             data-fallback="${esc(m.fallbackImage || '/assets/photos/hoi-kha-noodles.jpg')}"
+        <img src="${esc(m.imageUrl || svgFb)}"
+             data-fallback="${esc(m.fallbackImage || svgFb)}"
              onerror="this.onerror=null;this.src='${esc(svgFb)}'"
              alt="${esc(tr(m.name, lang))}">
         <span class="map-card__badge ${isHotel ? 'map-card__badge--blue' : 'map-card__badge--emerald'}">${esc(catName(m))}</span>
@@ -320,7 +322,7 @@ function renderDirectoryCards() {
     const isDemoPartner = m.partnerStatus !== 'confirmed';
     return `<article class="dir-card dir-card--${isHotel ? 'hotel' : 'restaurant'}" data-dir-cat="${merchantLayer(m)}">
       <div class="dir-card__img-wrap">
-        <img src="${esc(m.imageUrl || m.fallbackImage)}" data-fallback="${esc(m.fallbackImage)}"
+        <img src="${esc(m.imageUrl || svgFallbackUrl(shortLabel(m, lang)))}" data-fallback="${esc(m.fallbackImage || svgFallbackUrl(shortLabel(m, lang)))}"
              onerror="this.onerror=null;this.src='${esc(svgFallbackUrl(shortLabel(m, lang)))}'"
              alt="${esc(tr(m.name, lang))}" loading="lazy">
         <span class="dir-card__tag ${isHotel ? 'dir-card__tag--blue' : 'dir-card__tag--emerald'}">${esc(t(isHotel ? 'dir.stayFrom' : 'dir.foodFrom', { p: baht(minPrice) }))}</span>
@@ -461,43 +463,6 @@ function bindGlobal() {
 
   document.querySelectorAll('dialog').forEach((d) => d.addEventListener('click', (e) => { if (e.target === d) d.close(); }));
 
-  document.querySelectorAll('[data-open-signup]').forEach((b) => b.addEventListener('click', openSignup));
-  document.querySelector('[data-close-signup]')?.addEventListener('click', () => closeDialog('signup-dialog'));
-
-  const form = document.getElementById('saas-form');
-  const catSelect = document.getElementById('f-category');
-  catSelect?.addEventListener('change', () => {
-    const isHotel = catSelect.value === 'stay';
-    const priceSpan = document.getElementById('saas-price-btn');
-    if (priceSpan) priceSpan.textContent = isHotel ? '499' : '199';
-  });
-
-  form?.addEventListener('submit', (e) => {
-    e.preventDefault();
-    clearFieldErrors();
-    const f = new FormData(form);
-    const category = String(f.get('category') || 'food');
-    const isHotel = category === 'stay';
-    const merchant = {
-      shopName: String(f.get('shopName') || ''),
-      ownerName: String(f.get('ownerName') || ''),
-      phone: String(f.get('phone') || ''),
-      category,
-      nearest: String(f.get('nearest') || 'wat-yai'),
-      pdpaConsent: document.getElementById('f-pdpa').checked,
-      marketingConsent: document.getElementById('f-marketing').checked
-    };
-    const errors = {};
-    if (merchant.shopName.trim().length < 2) errors.shopName = 'กรุณากรอกชื่อร้านหรือโรงแรม (อย่างน้อย 2 ตัวอักษร)';
-    if (merchant.ownerName.trim().length < 2) errors.ownerName = 'กรุณากรอกชื่อผู้ติดต่อ';
-    if (!/^0\d{8,9}$/.test(merchant.phone.replace(/[\s-]/g, ''))) errors.phone = 'เบอร์โทรศัพท์ต้องขึ้นต้นด้วย 0 และมี 9–10 หลัก';
-    if (!merchant.pdpaConsent) errors.pdpaConsent = 'ต้องยอมรับนโยบายคุ้มครองข้อมูลส่วนบุคคล (PDPA) ก่อนสมัคร';
-    if (Object.keys(errors).length) { showFieldErrors(errors); return; }
-    closeDialog('signup-dialog');
-    startCheckout({ type: isHotel ? 'hotel_saas' : 'saas', merchant });
-  });
-
-  on('checkout:field-errors', (errors) => { openDialog('signup-dialog'); showFieldErrors(errors); });
   on('wallet:open', openWallet);
   on('vip:prompt', () => {
     openVipUpgradeModal();
@@ -539,7 +504,7 @@ function bindGlobal() {
     if (r.visitor) state.data.visitor = r.visitor;
     if (r.type === 'vip_pass') setVipActive(true);
     if (r.type === 'saas' || r.type === 'hotel_saas') {
-      form?.reset();
+      resetSignup();
       const fresh = await reloadData();
       syncMerchants(fresh.merchants, r.merchant.id);
     } else {
@@ -717,33 +682,6 @@ function bindLanguagePicker() {
   });
   document.addEventListener('click', (e) => { if (!menu.hidden && !e.target.closest('.lang-picker')) close(false); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !menu.hidden) close(true); });
-}
-
-// Merchant sign-up lives in a dialog, opened from the header, the menu and the invitation on the tourist page.
-function openSignup() {
-  openDialog('signup-dialog');
-  document.getElementById('f-shop')?.focus();
-}
-
-function clearFieldErrors() {
-  document.querySelectorAll('#saas-form .field__error').forEach((p) => { p.textContent = ''; });
-  document.querySelectorAll('#saas-form [aria-invalid]').forEach((i) => i.removeAttribute('aria-invalid'));
-}
-
-function showFieldErrors(errors) {
-  const map = { shopName: 'f-shop', ownerName: 'f-owner', phone: 'f-phone', category: 'f-category', nearest: 'f-nearest', pdpaConsent: 'f-pdpa' };
-  let first = null;
-  for (const [k, msg] of Object.entries(errors)) {
-    const p = document.getElementById(`err-${k}`);
-    if (p) p.textContent = msg;
-    const input = document.getElementById(map[k]);
-    if (input) {
-      input.setAttribute('aria-invalid', 'true');
-      input.setAttribute('aria-describedby', `err-${k}`);
-      first = first || input;
-    }
-  }
-  if (first) first.focus();
 }
 
 boot();

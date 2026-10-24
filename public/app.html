@@ -41,8 +41,8 @@
         <button class="modeswitch__btn" type="button" data-role="admin" aria-pressed="false"><i data-lucide="bar-chart-3"></i><span data-i18n="mode.admin">ผู้บริหาร</span></button>
       </div>
       <div class="appbar__actions">
-        <button class="btn btn--outline btn--sm signup-btn" type="button" id="header-signup-btn" data-open-signup lang="th"><i data-lucide="store"></i> ลงทะเบียนร้านค้า</button>
         <button class="btn btn--vip-cta btn--sm" type="button" id="header-vip-btn" data-open-vip-modal>✨ อัปเกรด VIP (99฿)</button>
+        <button class="btn btn--signup btn--sm" type="button" id="header-signup-btn" data-open-signup aria-haspopup="dialog"><i data-lucide="user-plus"></i><span class="btn--signup__text" data-i18n="signup.btn" data-signup-label="สมัครสมาชิก">สมัครสมาชิก</span></button>
         <div class="lang-picker">
           <button class="icon-btn lang-btn" type="button" id="lang-btn" aria-haspopup="true" aria-expanded="false" aria-controls="lang-menu" aria-label="เปลี่ยนภาษา"><i data-lucide="languages"></i><span class="lang-btn__code" id="lang-btn-code">TH</span></button>
           <div class="lang-menu" id="lang-menu" role="group" aria-labelledby="lang-menu-title" hidden>
@@ -65,7 +65,7 @@
       <a href="/"><i data-lucide="house"></i> <span data-i18n="nav.home">หน้าแรก</span></a>
       <a href="/app" aria-current="page"><i data-lucide="layout-grid"></i> <span data-i18n="nav.app">แอป</span></a>
       <a href="/credits"><i data-lucide="book-open"></i> <span data-i18n="nav.credits">เครดิต</span></a>
-      <button class="menu-panel__item" type="button" data-open-signup lang="th"><i data-lucide="store"></i> <span>ลงทะเบียนร้านค้า / โรงแรม</span></button>
+      <button class="menu-panel__item" type="button" data-open-signup><i data-lucide="user-plus"></i> <span data-i18n="signup.menu">สมัครสมาชิก (นักท่องเที่ยว · ร้านค้า · ที่พัก)</span></button>
       <button class="menu-panel__item show-mobile" type="button" data-open-vip-modal><i data-lucide="crown"></i> <span data-i18n="menu.vip">อัปเกรด VIP Pass (99฿)</span></button>
       <button class="menu-panel__item show-mobile" type="button" data-open-wallet-menu><i data-lucide="ticket"></i> <span data-i18n="menu.wallet">คูปองของฉัน</span></button>
       <button class="menu-panel__item show-mobile" type="button" data-theme-toggle aria-pressed="false"><i data-lucide="moon" class="ico-moon"></i><i data-lucide="sun" class="ico-sun"></i> <span data-i18n="menu.theme">สลับธีมสว่าง/มืด</span></button>
@@ -279,7 +279,10 @@
               <h2 id="saas-title">ลงทะเบียนร้านค้าขึ้นแผนที่ 3D</h2>
               <p class="signup-cta__lead">ร้านอาหาร ของฝาก คาเฟ่ 199฿/เดือน · โรงแรม 499฿/เดือน · เงินค่าอาหารและค่าห้องเข้าพร้อมเพย์ของร้านโดยตรง</p>
             </div>
-            <button class="btn btn--primary btn--lg" type="button" data-open-signup><i data-lucide="store"></i> ลงทะเบียนร้านค้า</button>
+            <div class="signup-cta__actions">
+              <button class="btn btn--primary btn--lg" type="button" data-open-signup="shop"><i data-lucide="store"></i> สมัครร้านค้า 199฿</button>
+              <button class="btn btn--outline btn--lg" type="button" data-open-signup="hotel"><i data-lucide="hotel"></i> สมัครที่พัก 499฿</button>
+            </div>
           </div>
         </div>
       </section>
@@ -510,74 +513,596 @@
     <div class="dialog__body">
       <div class="dialog__head">
         <div>
-          <p class="eyebrow"><i data-lucide="store"></i> พาร์ทเนอร์ SaaS · PHITLOK NEXUS</p>
-          <h2 id="signup-title"><span class="nobreak">ลงทะเบียนร้านค้า</span> / <span class="nobreak">โรงแรม</span></h2>
+          <p class="eyebrow"><i data-lucide="user-plus"></i> PHITLOK NEXUS · Sign up</p>
+          <h2 id="signup-title"><span class="nobreak">สมัครสมาชิก</span> <span class="nobreak">PHITLOK NEXUS</span></h2>
         </div>
-        <button class="btn btn--icon btn--ghost" type="button" data-close-signup aria-label="ปิด">✕</button>
+        <button class="btn btn--icon btn--ghost" type="button" data-close-signup aria-label="ปิด · Close">✕</button>
       </div>
-      <ol class="signup-steps" aria-label="ขั้นตอนการสมัคร">
-        <li><b>1</b> กรอกข้อมูลร้าน</li>
-        <li><b>2</b> ชำระด้วย QR พร้อมเพย์</li>
-        <li><b>3</b> หมุดร้านขึ้นแผนที่ทันที</li>
-      </ol>
-      <div class="signup-plans">
-        <p><b>ร้านอาหาร · ของฝาก · คาเฟ่</b><span>199฿/เดือน · ค่าธรรมเนียมออเดอร์ 3%</span></p>
-        <p><b>โรงแรมที่พัก</b><span>499฿/เดือน · ค่าธรรมเนียมจองห้อง 5%</span></p>
+
+      <div id="signup-main">
+        <p class="signup-ask" id="signup-type-label">คุณคือใคร? · Who are you?</p>
+        <div class="signup-types" role="radiogroup" aria-labelledby="signup-type-label">
+          <button class="signup-type" type="button" role="radio" aria-checked="true" data-signup-type="tourist">
+            <i data-lucide="luggage"></i>
+            <span class="signup-type__name">นักท่องเที่ยว</span>
+            <span class="signup-type__en">Traveler</span>
+            <span class="signup-type__price">ฟรี · Free</span>
+          </button>
+          <button class="signup-type" type="button" role="radio" aria-checked="false" data-signup-type="shop">
+            <i data-lucide="store"></i>
+            <span class="signup-type__name"><span class="nobreak">ร้านค้า /</span> <span class="nobreak">ร้านอาหาร</span></span>
+            <span class="signup-type__en">Shop &amp; restaurant</span>
+            <span class="signup-type__price">199฿ / เดือน</span>
+          </button>
+          <button class="signup-type" type="button" role="radio" aria-checked="false" data-signup-type="hotel">
+            <i data-lucide="hotel"></i>
+            <span class="signup-type__name"><span class="nobreak">ที่พัก /</span> <span class="nobreak">โรงแรม</span></span>
+            <span class="signup-type__en">Hotel &amp; stay</span>
+            <span class="signup-type__price">499฿ / เดือน</span>
+          </button>
+        </div>
+
+        <form class="form" id="saas-form" novalidate>
+          <!-- ===================== 1. Traveler (free, kept in this browser only) ===================== -->
+          <fieldset class="signup-set" data-set="tourist">
+            <legend class="sr-only">ข้อมูลนักท่องเที่ยว</legend>
+            <ol class="signup-steps" aria-label="ขั้นตอนการสมัคร">
+              <li><b>1</b> กรอกข้อมูล · Details</li>
+              <li><b>2</b> ยืนยัน · Confirm</li>
+              <li><b>3</b> เริ่มเที่ยว · Explore</li>
+            </ol>
+            <h3 class="signup-sub">ข้อมูลส่วนตัว · Personal details</h3>
+            <div class="field">
+              <label for="t-name">ชื่อ-นามสกุล · Full name <span class="req" aria-hidden="true">*</span></label>
+              <input id="t-name" name="fullName" maxlength="80" autocomplete="name">
+              <p class="field__error" data-err="fullName"></p>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="t-email">อีเมล · Email <span class="req" aria-hidden="true">*</span></label>
+                <input id="t-email" name="email" type="email" maxlength="120" autocomplete="email" placeholder="name@example.com">
+                <p class="field__error" data-err="email"></p>
+              </div>
+              <div class="field">
+                <label for="t-phone">เบอร์โทร (มีรหัสประเทศ) · Phone</label>
+                <input id="t-phone" name="phone" inputmode="tel" maxlength="16" autocomplete="tel" placeholder="+66 81 234 5678">
+                <p class="field__error" data-err="phone"></p>
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="t-country">ประเทศ / สัญชาติ · Country <span class="req" aria-hidden="true">*</span></label>
+                <select id="t-country" name="country" autocomplete="country">
+                  <option value="">เลือก · Choose</option>
+                  <option value="TH">ไทย · Thailand</option>
+                  <option value="CN">จีน · China</option>
+                  <option value="JP">ญี่ปุ่น · Japan</option>
+                  <option value="KR">เกาหลีใต้ · South Korea</option>
+                  <option value="FR">ฝรั่งเศส · France</option>
+                  <option value="US">สหรัฐอเมริกา · United States</option>
+                  <option value="GB">สหราชอาณาจักร · United Kingdom</option>
+                  <option value="DE">เยอรมนี · Germany</option>
+                  <option value="MY">มาเลเซีย · Malaysia</option>
+                  <option value="SG">สิงคโปร์ · Singapore</option>
+                  <option value="LA">ลาว · Laos</option>
+                  <option value="OTHER">อื่น ๆ · Other</option>
+                </select>
+                <p class="field__error" data-err="country"></p>
+              </div>
+              <div class="field">
+                <label for="t-lang">ภาษาที่ใช้ในแอป · App language <span class="req" aria-hidden="true">*</span></label>
+                <select id="t-lang" name="language">
+                  <option value="th">ไทย</option>
+                  <option value="en">English</option>
+                  <option value="zh">中文</option>
+                  <option value="ja">日本語</option>
+                  <option value="ko">한국어</option>
+                  <option value="fr">Français</option>
+                </select>
+              </div>
+            </div>
+            <h3 class="signup-sub">การเดินทาง · Your trip</h3>
+            <div class="field-row">
+              <div class="field">
+                <label for="t-arrive">วันที่มาถึง · Arrival</label>
+                <input id="t-arrive" name="arrive" type="date">
+              </div>
+              <div class="field">
+                <label for="t-leave">วันที่เดินทางกลับ · Departure</label>
+                <input id="t-leave" name="leave" type="date">
+                <p class="field__error" data-err="leave"></p>
+              </div>
+            </div>
+            <fieldset class="signup-checks">
+              <legend>ข้อจำกัดด้านอาหาร · Food needs</legend>
+              <label class="check"><input type="checkbox" name="diet" value="peanut"><span>แพ้ถั่วลิสง · Peanut allergy</span></label>
+              <label class="check"><input type="checkbox" name="diet" value="seafood"><span>แพ้อาหารทะเล · Seafood allergy</span></label>
+              <label class="check"><input type="checkbox" name="diet" value="dairy"><span>แพ้นม · Dairy</span></label>
+              <label class="check"><input type="checkbox" name="diet" value="gluten"><span>ไม่ทานกลูเตน · Gluten-free</span></label>
+              <label class="check"><input type="checkbox" name="diet" value="vegetarian"><span>มังสวิรัติ · Vegetarian</span></label>
+              <label class="check"><input type="checkbox" name="diet" value="halal"><span>ฮาลาล · Halal</span></label>
+            </fieldset>
+            <h3 class="signup-sub">ตั้งรหัสผ่าน · Password</h3>
+            <div class="field-row">
+              <div class="field">
+                <label for="t-pass">รหัสผ่าน · Password <span class="req" aria-hidden="true">*</span></label>
+                <input id="t-pass" name="password" type="password" minlength="8" maxlength="64" autocomplete="new-password">
+                <p class="field__hint">อย่างน้อย 8 ตัว มีทั้งตัวอักษรและตัวเลข · 8+ characters, letters and numbers</p>
+                <p class="field__error" data-err="password"></p>
+              </div>
+              <div class="field">
+                <label for="t-pass2">ยืนยันรหัสผ่าน · Confirm <span class="req" aria-hidden="true">*</span></label>
+                <input id="t-pass2" name="password2" type="password" maxlength="64" autocomplete="new-password">
+                <p class="field__error" data-err="password2"></p>
+              </div>
+            </div>
+            <div class="pdpa" role="note">
+              <p class="pdpa__title">ประกาศคุ้มครองข้อมูลส่วนบุคคล (PDPA) · Privacy</p>
+              <p>โหมดสาธิต: ข้อมูลนักท่องเที่ยวเก็บไว้ในเบราว์เซอร์นี้เท่านั้น ไม่ส่งไปเซิร์ฟเวอร์ และไม่เก็บรหัสผ่าน · Demo mode: your profile stays in this browser only and the password is never stored.</p>
+              <label class="check"><input type="checkbox" id="t-pdpa" name="pdpaConsent"><span>ยอมรับนโยบายความเป็นส่วนตัว · I accept the privacy policy <span class="req" aria-hidden="true">*</span></span></label>
+              <p class="field__error" data-err="pdpaConsent"></p>
+              <label class="check"><input type="checkbox" name="marketingConsent"><span>รับข่าวเทศกาลและคูปอง (ไม่บังคับ) · Festival news &amp; coupons (optional)</span></label>
+            </div>
+            <button class="btn btn--primary btn--lg btn--block" type="submit"><i data-lucide="user-plus"></i> สมัครสมาชิกฟรี · Sign up free</button>
+          </fieldset>
+
+          <!-- ===================== 2. Shop / restaurant (SaaS 199฿) ===================== -->
+          <fieldset class="signup-set" data-set="shop" hidden disabled>
+            <legend class="sr-only">ข้อมูลร้านค้า</legend>
+            <ol class="signup-steps" aria-label="ขั้นตอนการสมัคร">
+              <li><b>1</b> กรอกข้อมูลและแนบเอกสาร</li>
+              <li><b>2</b> ชำระ 199฿ ด้วย QR พร้อมเพย์</li>
+              <li><b>3</b> หมุดร้านขึ้นแผนที่ทันที</li>
+            </ol>
+            <p class="signup-plan">แพ็กเกจร้านค้า <b>199฿/เดือน</b> · ค่าธรรมเนียมต่อออเดอร์ 3% · เมนู 6 ภาษา · เงินค่าอาหารเข้าพร้อมเพย์ของร้านโดยตรง</p>
+            <details class="signup-docs" open>
+              <summary><i data-lucide="clipboard-list"></i> เอกสารที่ต้องเตรียมก่อนสมัคร</summary>
+              <ol>
+                <li>บัตรประชาชนของเจ้าของร้าน (หรือผู้มีอำนาจลงนาม กรณีเป็นนิติบุคคล)</li>
+                <li>หน้าสมุดบัญชีธนาคาร หรือบัญชีพร้อมเพย์ที่ใช้รับเงิน ชื่อบัญชีตรงกับเจ้าของร้าน</li>
+                <li>ใบอนุญาตจัดตั้งสถานที่จำหน่ายอาหาร หรือหนังสือรับรองการแจ้ง (ร้านอาหาร / คาเฟ่)</li>
+                <li>ใบทะเบียนพาณิชย์ หรือหนังสือรับรองบริษัท (ถ้ามี) และ ภ.พ.20 ถ้าจดภาษีมูลค่าเพิ่ม</li>
+                <li>รูปหน้าร้านที่เห็นป้ายชื่อ และรูปเมนูพร้อมราคาจริง</li>
+                <li>ตำแหน่งร้าน: ยืนที่ร้านแล้วกด "ใช้ตำแหน่งปัจจุบัน" หรือเตรียมลิงก์ Google Maps</li>
+              </ol>
+            </details>
+            <h3 class="signup-sub">ข้อมูลร้าน</h3>
+              <div class="field">
+                <label for="f-shop">ชื่อร้าน (ตรงกับป้ายหน้าร้าน) <span class="req" aria-hidden="true">*</span></label>
+                <input id="f-shop" name="shopName" maxlength="80" autocomplete="organization" placeholder="เช่น บ้านก๋วยเตี๋ยวริมน่าน">
+                <p class="field__error" id="err-shopName" data-err="shopName"></p>
+              </div>
+            <div class="field-row">
+                <div class="field">
+                  <label for="f-category">ประเภทร้าน <span class="req" aria-hidden="true">*</span></label>
+                  <select id="f-category" name="category"><option value="food">ร้านอาหาร</option><option value="cafe">คาเฟ่ / เครื่องดื่ม</option><option value="souvenir">ของฝาก / สินค้า OTOP</option></select>
+                  <p class="field__error" data-err="category"></p>
+                </div>
+                <div class="field">
+                  <label for="s-price">ช่วงราคาต่อคน <span class="req" aria-hidden="true">*</span></label>
+                  <select id="s-price" name="priceRange"><option value="">เลือก</option><option value="1">ต่ำกว่า 100฿</option><option value="2">100–300฿</option><option value="3">300–600฿</option><option value="4">มากกว่า 600฿</option></select>
+                  <p class="field__error" data-err="priceRange"></p>
+                </div>
+            </div>
+            <div class="field-row">
+                <div class="field">
+                  <label for="s-highlight">เมนูหรือสินค้าเด่น <span class="req" aria-hidden="true">*</span></label>
+                  <input id="s-highlight" name="highlight" maxlength="80" placeholder="เช่น ก๋วยเตี๋ยวห้อยขา">
+                  <p class="field__error" data-err="highlight"></p>
+                </div>
+                <div class="field">
+                  <label for="s-seats">จำนวนที่นั่ง (ร้านของฝากใส่ 0) <span class="req" aria-hidden="true">*</span></label>
+                  <input id="s-seats" name="seats" type="number" inputmode="numeric" min="0" max="999">
+                  <p class="field__error" data-err="seats"></p>
+                </div>
+            </div>
+            <h3 class="signup-sub">ที่ตั้งและปักหมุด</h3>
+              <div class="field">
+                <label for="s-address">บ้านเลขที่ / หมู่ / ถนน / ซอย <span class="req" aria-hidden="true">*</span></label>
+                <input id="s-address" name="address" maxlength="120" autocomplete="street-address">
+                <p class="field__error" data-err="address"></p>
+              </div>
+            <div class="field-row field-row--3">
+                <div class="field">
+                  <label for="s-subdistrict">ตำบล / แขวง <span class="req" aria-hidden="true">*</span></label>
+                  <input id="s-subdistrict" name="subdistrict" maxlength="60">
+                  <p class="field__error" data-err="subdistrict"></p>
+                </div>
+                <div class="field">
+                  <label for="s-district">อำเภอ (ตามหมุด) <span class="req" aria-hidden="true">*</span></label>
+                  <select id="s-district" name="district" data-district-select></select>
+                  <p class="field__error" data-err="district"></p>
+                </div>
+                <div class="field">
+                  <label for="s-postcode">รหัสไปรษณีย์ <span class="req" aria-hidden="true">*</span></label>
+                  <input id="s-postcode" name="postcode" inputmode="numeric" maxlength="5" autocomplete="postal-code" placeholder="65000">
+                  <p class="field__error" data-err="postcode"></p>
+                </div>
+            </div>
+            <div class="pin-picker" data-pin-picker="s-pin">
+              <p class="pin-picker__title">ปักหมุดตำแหน่ง <span class="req" aria-hidden="true">*</span></p>
+            </div>
+            <input type="hidden" name="nearest" data-nearest-input>
+            <h3 class="signup-sub">เวลาทำการ</h3>
+            <div class="field-row field-row--3">
+                <div class="field">
+                  <label for="s-open">เวลาเปิด <span class="req" aria-hidden="true">*</span></label>
+                  <input id="s-open" name="openTime" type="time" value="08:00">
+                  <p class="field__error" data-err="openTime"></p>
+                </div>
+                <div class="field">
+                  <label for="s-close">เวลาปิด <span class="req" aria-hidden="true">*</span></label>
+                  <input id="s-close" name="closeTime" type="time" value="17:00">
+                  <p class="field__error" data-err="closeTime"></p>
+                </div>
+                <div class="field">
+                  <label for="s-dayoff">วันหยุดประจำ</label>
+                  <select id="s-dayoff" name="dayOff"><option value="none">ไม่มีวันหยุด</option><option value="mon">จันทร์</option><option value="tue">อังคาร</option><option value="wed">พุธ</option><option value="thu">พฤหัสบดี</option><option value="fri">ศุกร์</option><option value="sat">เสาร์</option><option value="sun">อาทิตย์</option></select>
+                </div>
+            </div>
+            <h3 class="signup-sub">เจ้าของร้านและผู้ติดต่อ</h3>
+            <div class="field-row">
+                <div class="field">
+                  <label for="f-owner">ชื่อ-นามสกุลเจ้าของร้าน / ผู้ติดต่อ <span class="req" aria-hidden="true">*</span></label>
+                  <input id="f-owner" name="ownerName" maxlength="80" autocomplete="name">
+                  <p class="field__error" id="err-ownerName" data-err="ownerName"></p>
+                </div>
+                <div class="field">
+                  <label for="s-idcard">เลขบัตรประชาชน 13 หลัก <span class="req" aria-hidden="true">*</span></label>
+                  <input id="s-idcard" name="idCard" inputmode="numeric" maxlength="13" autocomplete="off">
+                  <p class="field__hint">ใช้ยืนยันตัวตนเท่านั้น ไม่เปิดเผยต่อสาธารณะ</p>
+                  <p class="field__error" data-err="idCard"></p>
+                </div>
+            </div>
+            <div class="field-row">
+                <div class="field">
+                  <label for="f-phone">เบอร์โทรศัพท์มือถือ <span class="req" aria-hidden="true">*</span></label>
+                  <input id="f-phone" name="phone" inputmode="tel" maxlength="12" autocomplete="tel" placeholder="08xxxxxxxx">
+                  <p class="field__error" id="err-phone" data-err="phone"></p>
+                </div>
+                <div class="field">
+                  <label for="s-email">อีเมล <span class="req" aria-hidden="true">*</span></label>
+                  <input id="s-email" name="email" type="email" maxlength="120" autocomplete="email">
+                  <p class="field__error" data-err="email"></p>
+                </div>
+            </div>
+              <div class="field">
+                <label for="s-line">LINE ID สำหรับรับแจ้งออเดอร์ (ถ้ามี)</label>
+                <input id="s-line" name="lineId" maxlength="40">
+              </div>
+            <h3 class="signup-sub">การรับเงิน</h3>
+            <p class="signup-note">ลูกค้าโอนเงินผ่าน QR พร้อมเพย์เข้าบัญชีของร้านโดยตรง แพลตฟอร์มไม่ถือเงินลูกค้า</p>
+            <div class="field-row">
+                <div class="field">
+                  <label for="s-ppType">พร้อมเพย์ผูกกับ <span class="req" aria-hidden="true">*</span></label>
+                  <select id="s-ppType" name="promptpayType"><option value="phone">เบอร์โทรศัพท์</option><option value="id">เลขบัตรประชาชน / เลขผู้เสียภาษี</option></select>
+                </div>
+                <div class="field">
+                  <label for="s-ppId">หมายเลขพร้อมเพย์ <span class="req" aria-hidden="true">*</span></label>
+                  <input id="s-ppId" name="promptpayId" inputmode="numeric" maxlength="13" placeholder="08xxxxxxxx">
+                  <p class="field__error" data-err="promptpayId"></p>
+                </div>
+            </div>
+            <div class="field-row">
+                <div class="field">
+                  <label for="s-bank">ธนาคาร (สำหรับรับเงินคืน/โอนส่วนต่าง) <span class="req" aria-hidden="true">*</span></label>
+                  <select id="s-bank" name="bank"><option value="">เลือกธนาคาร</option><option>ธนาคารกสิกรไทย</option><option>ธนาคารกรุงไทย</option><option>ธนาคารไทยพาณิชย์</option><option>ธนาคารกรุงเทพ</option><option>ธนาคารกรุงศรีอยุธยา</option><option>ธนาคารทหารไทยธนชาต</option><option>ธนาคารออมสิน</option><option>ธ.ก.ส.</option><option>ธนาคารอาคารสงเคราะห์</option><option>ธนาคารยูโอบี</option><option>ธนาคารซีไอเอ็มบี ไทย</option></select>
+                  <p class="field__error" data-err="bank"></p>
+                </div>
+                <div class="field">
+                  <label for="s-accNo">เลขที่บัญชี <span class="req" aria-hidden="true">*</span></label>
+                  <input id="s-accNo" name="accountNo" inputmode="numeric" maxlength="15" placeholder="ตัวเลข 10–12 หลัก">
+                  <p class="field__error" data-err="accountNo"></p>
+                </div>
+            </div>
+              <div class="field">
+                <label for="s-accName">ชื่อบัญชี (ต้องตรงกับชื่อเจ้าของกิจการหรือนิติบุคคล) <span class="req" aria-hidden="true">*</span></label>
+                <input id="s-accName" name="accountName" maxlength="100">
+                <p class="field__error" data-err="accountName"></p>
+              </div>
+            <label class="check"><input type="checkbox" name="wantTaxInvoice"><span>ต้องการใบกำกับภาษีเต็มรูปสำหรับค่าสมาชิก (ใช้เลขผู้เสียภาษีและที่อยู่ด้านบน)</span></label>
+            <h3 class="signup-sub">เอกสารธุรกิจ</h3>
+            <div class="field-row">
+                <div class="field">
+                  <label for="s-taxid">เลขประจำตัวผู้เสียภาษี (ถ้ามี)</label>
+                  <input id="s-taxid" name="taxId" inputmode="numeric" maxlength="13">
+                  <p class="field__error" data-err="taxId"></p>
+                </div>
+                <div class="field">
+                  <label for="s-regno">เลขทะเบียนพาณิชย์ (ถ้ามี)</label>
+                  <input id="s-regno" name="commerceRegNo" maxlength="30">
+                </div>
+            </div>
+            <fieldset class="signup-checks">
+              <legend>ใบอนุญาตจัดตั้งสถานที่จำหน่ายอาหาร / หนังสือรับรองการแจ้ง <span class="req" aria-hidden="true">*</span></legend>
+              <label class="check"><input type="radio" name="foodLicense" value="has"><span>มีแล้ว</span></label>
+              <label class="check"><input type="radio" name="foodLicense" value="pending"><span>อยู่ระหว่างยื่นขอที่เทศบาล / อบต.</span></label>
+              <label class="check"><input type="radio" name="foodLicense" value="na"><span>ไม่ได้จำหน่ายอาหาร (ร้านของฝาก)</span></label>
+              <p class="field__error" data-err="foodLicense"></p>
+            </fieldset>
+            <h3 class="signup-sub">แนบเอกสาร</h3>
+            <div class="field-row">
+                <div class="field">
+                  <label for="s-doc-id">สำเนาบัตรประชาชน <span class="req" aria-hidden="true">*</span></label>
+                  <input id="s-doc-id" name="docIdCard" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" data-doc>
+                  <p class="field__hint">JPG, PNG หรือ PDF ไม่เกิน 5 MB</p>
+                  <p class="field__error" data-err="docIdCard"></p>
+                </div>
+                <div class="field">
+                  <label for="s-doc-bank">หน้าสมุดบัญชี <span class="req" aria-hidden="true">*</span></label>
+                  <input id="s-doc-bank" name="docBank" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" data-doc>
+                  <p class="field__hint">JPG, PNG หรือ PDF ไม่เกิน 5 MB</p>
+                  <p class="field__error" data-err="docBank"></p>
+                </div>
+            </div>
+            <div class="field-row">
+                <div class="field">
+                  <label for="s-doc-front">รูปหน้าร้าน <span class="req" aria-hidden="true">*</span></label>
+                  <input id="s-doc-front" name="docFront" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" data-doc>
+                  <p class="field__hint">JPG, PNG หรือ PDF ไม่เกิน 5 MB</p>
+                  <p class="field__error" data-err="docFront"></p>
+                </div>
+                <div class="field">
+                  <label for="s-doc-menu">รูปเมนูพร้อมราคา <span class="req" aria-hidden="true">*</span></label>
+                  <input id="s-doc-menu" name="docMenu" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" multiple data-doc>
+                  <p class="field__hint">หลายไฟล์ได้ ไฟล์ละไม่เกิน 5 MB</p>
+                  <p class="field__error" data-err="docMenu"></p>
+                </div>
+            </div>
+              <div class="field">
+                <label for="s-doc-license">ใบอนุญาต / หนังสือรับรองการแจ้ง (ถ้ามี)</label>
+                <input id="s-doc-license" name="docLicense" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" data-doc>
+                <p class="field__hint">JPG, PNG หรือ PDF ไม่เกิน 5 MB</p>
+                <p class="field__error" data-err="docLicense"></p>
+              </div>
+            <div class="pdpa" role="note">
+              <p class="pdpa__title">เงื่อนไขพาร์ทเนอร์และความเป็นส่วนตัว (PDPA)</p>
+              <ul class="signup-terms">
+                <li>ค่าสมาชิกร้านค้า 199฿ ต่อเดือน และค่าธรรมเนียม 3% ต่อออเดอร์ที่ชำระผ่านระบบ</li>
+                <li>ข้อมูล ราคา และรูปที่ส่งต้องเป็นของจริงของกิจการ ทีมงานตรวจเอกสารก่อนเปลี่ยนสถานะเป็น "ร้านที่ยืนยันแล้ว"</li>
+                <li>ระบบเปิดเผยเฉพาะชื่อกิจการ ที่ตั้ง หมุด เวลาทำการ และเมนู/ห้องพัก เบอร์โทร เลขบัตร และเลขบัญชีไม่เปิดเผยต่อสาธารณะ</li>
+                <li>โหมดสาธิต: ระบบบันทึกชื่อกิจการ ผู้ติดต่อ เบอร์โทร ประเภท และหมุด ข้อมูลส่วนอื่นและไฟล์เอกสารตรวจในเบราว์เซอร์เท่านั้น ไม่อัปโหลดขึ้นเซิร์ฟเวอร์</li>
+              </ul>
+              <label class="check"><input type="checkbox" name="termsConsent"><span>ยอมรับเงื่อนไขการเป็นพาร์ทเนอร์ <span class="req" aria-hidden="true">*</span></span></label>
+              <p class="field__error" data-err="termsConsent"></p>
+              <label class="check"><input type="checkbox" id="f-pdpa" name="pdpaConsent"><span>ยอมรับนโยบายคุ้มครองข้อมูลส่วนบุคคล (PDPA) <span class="req" aria-hidden="true">*</span></span></label>
+              <p class="field__error" id="err-pdpaConsent" data-err="pdpaConsent"></p>
+              <label class="check"><input type="checkbox" id="f-marketing" name="marketingConsent"><span>เข้าร่วมแคมเปญคูปองนักท่องเที่ยว (ไม่บังคับ)</span></label>
+            </div>
+            <button class="btn btn--primary btn--lg btn--block" type="submit"><i data-lucide="qr-code"></i> สมัครและชำระ 199 บาท ด้วย QR พร้อมเพย์</button>
+          </fieldset>
+
+          <!-- ===================== 3. Hotel / accommodation (SaaS 499฿) ===================== -->
+          <fieldset class="signup-set" data-set="hotel" hidden disabled>
+            <legend class="sr-only">ข้อมูลที่พัก</legend>
+            <ol class="signup-steps" aria-label="ขั้นตอนการสมัคร">
+              <li><b>1</b> กรอกข้อมูลและแนบเอกสาร</li>
+              <li><b>2</b> ชำระ 499฿ ด้วย QR พร้อมเพย์</li>
+              <li><b>3</b> รับจองห้องผ่านแผนที่</li>
+            </ol>
+            <p class="signup-plan">แพ็กเกจที่พัก <b>499฿/เดือน</b> · ค่าธรรมเนียมต่อการจอง 5% · ใบจองสองภาษา · เงินค่าห้องเข้าพร้อมเพย์ของที่พักโดยตรง</p>
+            <details class="signup-docs" open>
+              <summary><i data-lucide="clipboard-list"></i> เอกสารที่ต้องเตรียมก่อนสมัคร</summary>
+              <ol>
+                <li>ใบอนุญาตประกอบธุรกิจโรงแรม หรือหนังสือรับแจ้งสำหรับที่พักขนาดเล็ก (พ.ร.บ.โรงแรม พ.ศ. 2547)</li>
+                <li>หนังสือรับรองบริษัท หรือใบทะเบียนพาณิชย์ และ ภ.พ.20 ถ้าจดภาษีมูลค่าเพิ่ม</li>
+                <li>บัตรประชาชนของผู้มีอำนาจลงนาม</li>
+                <li>หน้าสมุดบัญชีธนาคารของกิจการ</li>
+                <li>รูปอาคาร ล็อบบี้ และห้องพักอย่างน้อย 3 รูป พร้อมประเภทห้องและราคาจริง</li>
+                <li>ตำแหน่งที่พัก: ปักหมุด หรือเตรียมลิงก์ Google Maps</li>
+              </ol>
+            </details>
+            <h3 class="signup-sub">ข้อมูลที่พัก</h3>
+            <div class="field-row">
+                <div class="field">
+                  <label for="h-name">ชื่อที่พัก (ตรงกับใบอนุญาต) <span class="req" aria-hidden="true">*</span></label>
+                  <input id="h-name" name="shopName" maxlength="80" autocomplete="organization" placeholder="เช่น โรงแรมริมน่านพิษณุโลก">
+                  <p class="field__error" data-err="shopName"></p>
+                </div>
+                <div class="field">
+                  <label for="h-kind">ประเภทที่พัก <span class="req" aria-hidden="true">*</span></label>
+                  <select id="h-kind" name="stayKind"><option value="hotel">โรงแรม</option><option value="resort">รีสอร์ต</option><option value="guesthouse">เกสต์เฮาส์ / โฮสเทล</option><option value="homestay">โฮมสเตย์</option><option value="apartment">เซอร์วิสอพาร์ตเมนต์</option></select>
+                </div>
+            </div>
+            <div class="field-row field-row--4">
+                <div class="field">
+                  <label for="h-rooms">จำนวนห้องทั้งหมด <span class="req" aria-hidden="true">*</span></label>
+                  <input id="h-rooms" name="rooms" type="number" inputmode="numeric" min="1" max="999">
+                  <p class="field__error" data-err="rooms"></p>
+                </div>
+                <div class="field">
+                  <label for="h-price">ราคาเริ่มต้น/คืน (บาท) <span class="req" aria-hidden="true">*</span></label>
+                  <input id="h-price" name="priceFrom" type="number" inputmode="numeric" min="100" max="100000">
+                  <p class="field__error" data-err="priceFrom"></p>
+                </div>
+                <div class="field">
+                  <label for="h-checkin">เวลาเช็คอิน <span class="req" aria-hidden="true">*</span></label>
+                  <input id="h-checkin" name="checkIn" type="time" value="14:00">
+                  <p class="field__error" data-err="checkIn"></p>
+                </div>
+                <div class="field">
+                  <label for="h-checkout">เวลาเช็คเอาต์ <span class="req" aria-hidden="true">*</span></label>
+                  <input id="h-checkout" name="checkOut" type="time" value="12:00">
+                  <p class="field__error" data-err="checkOut"></p>
+                </div>
+            </div>
+            <fieldset class="signup-checks">
+              <legend>ประเภทห้องที่มี <span class="req" aria-hidden="true">*</span></legend>
+              <label class="check"><input type="checkbox" name="roomTypes" value="standard"><span>ห้องมาตรฐาน</span></label>
+              <label class="check"><input type="checkbox" name="roomTypes" value="deluxe"><span>ห้องดีลักซ์</span></label>
+              <label class="check"><input type="checkbox" name="roomTypes" value="family"><span>ห้องครอบครัว</span></label>
+              <label class="check"><input type="checkbox" name="roomTypes" value="suite"><span>ห้องสวีท</span></label>
+              <label class="check"><input type="checkbox" name="roomTypes" value="dorm"><span>ห้องพักรวม (เตียง)</span></label>
+              <p class="field__error" data-err="roomTypes"></p>
+            </fieldset>
+            <fieldset class="signup-checks">
+              <legend>สิ่งอำนวยความสะดวก</legend>
+              <label class="check"><input type="checkbox" name="amenities" value="wifi"><span>Wi-Fi ฟรี</span></label>
+              <label class="check"><input type="checkbox" name="amenities" value="parking"><span>ที่จอดรถ</span></label>
+              <label class="check"><input type="checkbox" name="amenities" value="breakfast"><span>อาหารเช้า</span></label>
+              <label class="check"><input type="checkbox" name="amenities" value="aircon"><span>เครื่องปรับอากาศ</span></label>
+              <label class="check"><input type="checkbox" name="amenities" value="pool"><span>สระว่ายน้ำ</span></label>
+              <label class="check"><input type="checkbox" name="amenities" value="shuttle"><span>รถรับส่ง</span></label>
+              <label class="check"><input type="checkbox" name="amenities" value="pets"><span>รับสัตว์เลี้ยง</span></label>
+              <label class="check"><input type="checkbox" name="amenities" value="accessible"><span>รองรับผู้ใช้วีลแชร์</span></label>
+            </fieldset>
+            <h3 class="signup-sub">ที่ตั้งและปักหมุด</h3>
+              <div class="field">
+                <label for="h-address">บ้านเลขที่ / หมู่ / ถนน / ซอย <span class="req" aria-hidden="true">*</span></label>
+                <input id="h-address" name="address" maxlength="120" autocomplete="street-address">
+                <p class="field__error" data-err="address"></p>
+              </div>
+            <div class="field-row field-row--3">
+                <div class="field">
+                  <label for="h-subdistrict">ตำบล / แขวง <span class="req" aria-hidden="true">*</span></label>
+                  <input id="h-subdistrict" name="subdistrict" maxlength="60">
+                  <p class="field__error" data-err="subdistrict"></p>
+                </div>
+                <div class="field">
+                  <label for="h-district">อำเภอ (ตามหมุด) <span class="req" aria-hidden="true">*</span></label>
+                  <select id="h-district" name="district" data-district-select></select>
+                  <p class="field__error" data-err="district"></p>
+                </div>
+                <div class="field">
+                  <label for="h-postcode">รหัสไปรษณีย์ <span class="req" aria-hidden="true">*</span></label>
+                  <input id="h-postcode" name="postcode" inputmode="numeric" maxlength="5" autocomplete="postal-code" placeholder="65000">
+                  <p class="field__error" data-err="postcode"></p>
+                </div>
+            </div>
+            <div class="pin-picker" data-pin-picker="h-pin">
+              <p class="pin-picker__title">ปักหมุดตำแหน่ง <span class="req" aria-hidden="true">*</span></p>
+            </div>
+            <input type="hidden" name="nearest" data-nearest-input>
+            <h3 class="signup-sub">ใบอนุญาตและนิติบุคคล</h3>
+            <div class="field-row">
+                <div class="field">
+                  <label for="h-license">เลขที่ใบอนุญาตประกอบธุรกิจโรงแรม หรือเลขที่หนังสือรับแจ้ง <span class="req" aria-hidden="true">*</span></label>
+                  <input id="h-license" name="hotelLicense" maxlength="40">
+                  <p class="field__hint">ที่พักขนาดเล็ก (ไม่เกิน 8 ห้อง / 30 คน) ใช้เลขที่หนังสือรับแจ้งได้</p>
+                  <p class="field__error" data-err="hotelLicense"></p>
+                </div>
+                <div class="field">
+                  <label for="h-taxid">เลขประจำตัวผู้เสียภาษี / เลขทะเบียนนิติบุคคล 13 หลัก <span class="req" aria-hidden="true">*</span></label>
+                  <input id="h-taxid" name="taxId" inputmode="numeric" maxlength="13">
+                  <p class="field__error" data-err="taxId"></p>
+                </div>
+            </div>
+              <div class="field">
+                <label for="h-company">ชื่อผู้ประกอบการ (บุคคลหรือนิติบุคคลตามใบอนุญาต) <span class="req" aria-hidden="true">*</span></label>
+                <input id="h-company" name="operatorName" maxlength="120">
+                <p class="field__error" data-err="operatorName"></p>
+              </div>
+            <h3 class="signup-sub">ผู้ติดต่อ</h3>
+            <div class="field-row">
+                <div class="field">
+                  <label for="h-owner">ชื่อ-นามสกุลผู้จัดการ / ผู้ติดต่อ <span class="req" aria-hidden="true">*</span></label>
+                  <input id="h-owner" name="ownerName" maxlength="80" autocomplete="name">
+                  <p class="field__error" data-err="ownerName"></p>
+                </div>
+                <div class="field">
+                  <label for="h-role">ตำแหน่ง <span class="req" aria-hidden="true">*</span></label>
+                  <input id="h-role" name="role" maxlength="40" autocomplete="organization-title" placeholder="เช่น ผู้จัดการทั่วไป">
+                  <p class="field__error" data-err="role"></p>
+                </div>
+            </div>
+            <div class="field-row">
+                <div class="field">
+                  <label for="h-phone">เบอร์โทรศัพท์ <span class="req" aria-hidden="true">*</span></label>
+                  <input id="h-phone" name="phone" inputmode="tel" maxlength="12" autocomplete="tel" placeholder="08xxxxxxxx">
+                  <p class="field__error" data-err="phone"></p>
+                </div>
+                <div class="field">
+                  <label for="h-email">อีเมลสำหรับรับใบจอง <span class="req" aria-hidden="true">*</span></label>
+                  <input id="h-email" name="email" type="email" maxlength="120" autocomplete="email">
+                  <p class="field__error" data-err="email"></p>
+                </div>
+            </div>
+            <h3 class="signup-sub">การรับเงิน</h3>
+            <p class="signup-note">ลูกค้าโอนเงินผ่าน QR พร้อมเพย์เข้าบัญชีของที่พักโดยตรง แพลตฟอร์มไม่ถือเงินลูกค้า</p>
+            <div class="field-row">
+                <div class="field">
+                  <label for="h-ppType">พร้อมเพย์ผูกกับ <span class="req" aria-hidden="true">*</span></label>
+                  <select id="h-ppType" name="promptpayType"><option value="phone">เบอร์โทรศัพท์</option><option value="id">เลขบัตรประชาชน / เลขผู้เสียภาษี</option></select>
+                </div>
+                <div class="field">
+                  <label for="h-ppId">หมายเลขพร้อมเพย์ <span class="req" aria-hidden="true">*</span></label>
+                  <input id="h-ppId" name="promptpayId" inputmode="numeric" maxlength="13" placeholder="08xxxxxxxx">
+                  <p class="field__error" data-err="promptpayId"></p>
+                </div>
+            </div>
+            <div class="field-row">
+                <div class="field">
+                  <label for="h-bank">ธนาคาร (สำหรับรับเงินคืน/โอนส่วนต่าง) <span class="req" aria-hidden="true">*</span></label>
+                  <select id="h-bank" name="bank"><option value="">เลือกธนาคาร</option><option>ธนาคารกสิกรไทย</option><option>ธนาคารกรุงไทย</option><option>ธนาคารไทยพาณิชย์</option><option>ธนาคารกรุงเทพ</option><option>ธนาคารกรุงศรีอยุธยา</option><option>ธนาคารทหารไทยธนชาต</option><option>ธนาคารออมสิน</option><option>ธ.ก.ส.</option><option>ธนาคารอาคารสงเคราะห์</option><option>ธนาคารยูโอบี</option><option>ธนาคารซีไอเอ็มบี ไทย</option></select>
+                  <p class="field__error" data-err="bank"></p>
+                </div>
+                <div class="field">
+                  <label for="h-accNo">เลขที่บัญชี <span class="req" aria-hidden="true">*</span></label>
+                  <input id="h-accNo" name="accountNo" inputmode="numeric" maxlength="15" placeholder="ตัวเลข 10–12 หลัก">
+                  <p class="field__error" data-err="accountNo"></p>
+                </div>
+            </div>
+              <div class="field">
+                <label for="h-accName">ชื่อบัญชี (ต้องตรงกับชื่อเจ้าของกิจการหรือนิติบุคคล) <span class="req" aria-hidden="true">*</span></label>
+                <input id="h-accName" name="accountName" maxlength="100">
+                <p class="field__error" data-err="accountName"></p>
+              </div>
+            <label class="check"><input type="checkbox" name="wantTaxInvoice"><span>ต้องการใบกำกับภาษีเต็มรูปสำหรับค่าสมาชิก (ใช้เลขผู้เสียภาษีและที่อยู่ด้านบน)</span></label>
+            <h3 class="signup-sub">แนบเอกสาร</h3>
+            <div class="field-row">
+                <div class="field">
+                  <label for="h-doc-license">ใบอนุญาตประกอบธุรกิจโรงแรม / หนังสือรับแจ้ง <span class="req" aria-hidden="true">*</span></label>
+                  <input id="h-doc-license" name="docLicense" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" data-doc>
+                  <p class="field__hint">JPG, PNG หรือ PDF ไม่เกิน 5 MB</p>
+                  <p class="field__error" data-err="docLicense"></p>
+                </div>
+                <div class="field">
+                  <label for="h-doc-company">หนังสือรับรองบริษัท / ทะเบียนพาณิชย์ <span class="req" aria-hidden="true">*</span></label>
+                  <input id="h-doc-company" name="docCompany" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" data-doc>
+                  <p class="field__hint">JPG, PNG หรือ PDF ไม่เกิน 5 MB</p>
+                  <p class="field__error" data-err="docCompany"></p>
+                </div>
+            </div>
+            <div class="field-row">
+                <div class="field">
+                  <label for="h-doc-id">สำเนาบัตรประชาชนผู้มีอำนาจลงนาม <span class="req" aria-hidden="true">*</span></label>
+                  <input id="h-doc-id" name="docIdCard" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" data-doc>
+                  <p class="field__hint">JPG, PNG หรือ PDF ไม่เกิน 5 MB</p>
+                  <p class="field__error" data-err="docIdCard"></p>
+                </div>
+                <div class="field">
+                  <label for="h-doc-bank">หน้าสมุดบัญชีของกิจการ <span class="req" aria-hidden="true">*</span></label>
+                  <input id="h-doc-bank" name="docBank" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" data-doc>
+                  <p class="field__hint">JPG, PNG หรือ PDF ไม่เกิน 5 MB</p>
+                  <p class="field__error" data-err="docBank"></p>
+                </div>
+            </div>
+              <div class="field">
+                <label for="h-doc-photos">รูปอาคารและห้องพัก (อย่างน้อย 3 รูป) <span class="req" aria-hidden="true">*</span></label>
+                <input id="h-doc-photos" name="docPhotos" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" multiple data-doc>
+                <p class="field__hint">เลือกหลายไฟล์พร้อมกัน ไฟล์ละไม่เกิน 5 MB</p>
+                <p class="field__error" data-err="docPhotos"></p>
+              </div>
+            <div class="pdpa" role="note">
+              <p class="pdpa__title">เงื่อนไขพาร์ทเนอร์และความเป็นส่วนตัว (PDPA)</p>
+              <ul class="signup-terms">
+                <li>ค่าสมาชิกที่พัก 499฿ ต่อเดือน และค่าธรรมเนียม 5% ต่อการจองที่ชำระผ่านระบบ</li>
+                <li>ข้อมูล ราคา และรูปที่ส่งต้องเป็นของจริงของกิจการ ทีมงานตรวจเอกสารก่อนเปลี่ยนสถานะเป็น "ร้านที่ยืนยันแล้ว"</li>
+                <li>ระบบเปิดเผยเฉพาะชื่อกิจการ ที่ตั้ง หมุด เวลาทำการ และเมนู/ห้องพัก เบอร์โทร เลขบัตร และเลขบัญชีไม่เปิดเผยต่อสาธารณะ</li>
+                <li>โหมดสาธิต: ระบบบันทึกชื่อกิจการ ผู้ติดต่อ เบอร์โทร ประเภท และหมุด ข้อมูลส่วนอื่นและไฟล์เอกสารตรวจในเบราว์เซอร์เท่านั้น ไม่อัปโหลดขึ้นเซิร์ฟเวอร์</li>
+              </ul>
+              <label class="check"><input type="checkbox" name="termsConsent"><span>ยอมรับเงื่อนไขการเป็นพาร์ทเนอร์ <span class="req" aria-hidden="true">*</span></span></label>
+              <p class="field__error" data-err="termsConsent"></p>
+              <label class="check"><input type="checkbox" id="h-pdpa" name="pdpaConsent"><span>ยอมรับนโยบายคุ้มครองข้อมูลส่วนบุคคล (PDPA) <span class="req" aria-hidden="true">*</span></span></label>
+              <p class="field__error" data-err="pdpaConsent"></p>
+              <label class="check"><input type="checkbox" name="marketingConsent"><span>เข้าร่วมแคมเปญคูปองนักท่องเที่ยว (ไม่บังคับ)</span></label>
+            </div>
+            <button class="btn btn--primary btn--lg btn--block" type="submit"><i data-lucide="qr-code"></i> สมัครและชำระ 499 บาท ด้วย QR พร้อมเพย์</button>
+          </fieldset>
+        </form>
       </div>
-      <form class="form" id="saas-form" novalidate>
-        <div class="field">
-          <label for="f-shop">ชื่อร้านอาหาร / โรงแรมที่พัก <span class="req" aria-hidden="true">*</span></label>
-          <input id="f-shop" name="shopName" required maxlength="80" autocomplete="organization" placeholder="เช่น บ้านก๋วยเตี๋ยวริมน่าน หรือ โรงแรมพิษณุโลกบูติค">
-          <p class="field__error" id="err-shopName"></p>
-        </div>
-        <div class="field">
-          <label for="f-owner">ชื่อผู้ติดต่อ / ผู้จัดการ <span class="req" aria-hidden="true">*</span></label>
-          <input id="f-owner" name="ownerName" required maxlength="80" autocomplete="name">
-          <p class="field__error" id="err-ownerName"></p>
-        </div>
-        <div class="field">
-          <label for="f-phone">เบอร์โทรศัพท์ (ผูกพร้อมเพย์รับเงินลูกค้า) <span class="req" aria-hidden="true">*</span></label>
-          <input id="f-phone" name="phone" required inputmode="tel" maxlength="12" autocomplete="tel" placeholder="08xxxxxxxx">
-          <p class="field__error" id="err-phone"></p>
-        </div>
-        <div class="field-row">
-          <div class="field">
-            <label for="f-category">ประเภทธุรกิจ &amp; แพ็กเกจ SaaS</label>
-            <select id="f-category" name="category">
-              <option value="food">ร้านอาหาร (SaaS 199฿/เดือน)</option>
-              <option value="souvenir">ของฝาก / OTOP (SaaS 199฿/เดือน)</option>
-              <option value="cafe">คาเฟ่ / เครื่องดื่ม (SaaS 199฿/เดือน)</option>
-              <option value="stay">โรงแรมที่พัก (Hotel SaaS 499฿/เดือน)</option>
-            </select>
-            <p class="field__error" id="err-category"></p>
-          </div>
-          <div class="field">
-            <label for="f-nearest">ใกล้โบราณสถาน</label>
-            <select id="f-nearest" name="nearest">
-              <option value="wat-yai">วัดพระศรีรัตนมหาธาตุ (วัดใหญ่)</option>
-              <option value="chan-palace">พระราชวังจันทน์</option>
-              <option value="wat-nang-phaya">วัดนางพญา</option>
-              <option value="wat-ratchaburana">วัดราชบูรณะ</option>
-              <option value="city-pillar">ศาลหลักเมืองพิษณุโลก</option>
-            </select>
-            <p class="field__error" id="err-nearest"></p>
-          </div>
-        </div>
-        <div class="pdpa" role="note" aria-labelledby="pdpa-title">
-          <p class="pdpa__title" id="pdpa-title">ประกาศคุ้มครองข้อมูลส่วนบุคคล (PDPA)</p>
-          <p>ระบบจัดเก็บเฉพาะชื่อสถานประกอบการ ชื่อผู้ติดต่อ และเบอร์โทรศัพท์เพื่อปักหมุดพิกัดบนแผนที่ 3D และสร้าง QR พร้อมเพย์รับชำระเงิน เบอร์โทรไม่ถูกเปิดเผยต่อสาธารณะ</p>
-          <label class="check">
-            <input type="checkbox" id="f-pdpa" name="pdpaConsent" required>
-            <span>ข้าพเจ้ายอมรับนโยบายคุ้มครองข้อมูลส่วนบุคคล (PDPA) <span class="req" aria-hidden="true">*</span></span>
-          </label>
-          <p class="field__error" id="err-pdpaConsent"></p>
-          <label class="check">
-            <input type="checkbox" id="f-marketing" name="marketingConsent">
-            <span>ยินยอมเข้าร่วมแคมเปญคูปองนักท่องเที่ยว (ไม่บังคับ)</span>
-          </label>
-        </div>
-        <button class="btn btn--primary btn--block" type="submit">สมัครและชำระ <span id="saas-price-btn">199</span> บาท ด้วย QR PromptPay</button>
-      </form>
+
+      <div id="signup-done" hidden></div>
     </div>
   </dialog>
 

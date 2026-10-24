@@ -191,8 +191,8 @@ function renderTab2GpsChecker(d) {
           <span class="badge badge--warn"><i data-lucide="info"></i> ข้อมูลสาธิต · รอทีมตรวจพิกัด</span>
                   </div>
         <div class="gps-radar">
-          <img class="gps-radar__bg" src="${esc(m.imageUrl || m.fallbackImage)}"
-               onerror="this.onerror=null;this.src='${esc(m.fallbackImage || '/assets/photos/hoi-kha-noodles.jpg')}'"
+          <img class="gps-radar__bg" src="${esc(m.imageUrl || svgFallbackUrl(m.name.th))}"
+               onerror="this.onerror=null;this.src='${esc(svgFallbackUrl(m.name.th))}'"
                alt="${esc(m.name.th)}">
           <div class="gps-radar__overlay">
             <div class="gps-pin-pulse">

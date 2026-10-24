@@ -58,8 +58,8 @@ function publicMerchant(row) {
     lng,
     x: row.x,
     z: row.z,
-    imageUrl: row.image_url || '/assets/photos/hoi-kha-noodles.jpg',
-    fallbackImage: row.fallback_image || '/assets/photos/hoi-kha-noodles.jpg',
+    imageUrl: row.image_url || '',
+    fallbackImage: row.fallback_image || '',
     googleMapsUrl: `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`,
     googleEarthUrl: `https://earth.google.com/web/search/${lat},${lng}`,
     plan: row.plan,
@@ -333,8 +333,30 @@ function validateMerchantForm(db, f) {
   const landmark = db.prepare('SELECT * FROM landmarks WHERE id = ?').get(f.nearest);
   if (!landmark) errors.nearest = 'กรุณาเลือกโบราณสถานที่ใกล้เคียง';
   if (f.pdpaConsent !== true) errors.pdpaConsent = 'ต้องยอมรับนโยบายคุ้มครองข้อมูลส่วนบุคคล (PDPA) ก่อนสมัคร';
+  // Optional pin from the sign-up map; it must sit inside Phitsanulok's bounding box.
+  let pin = null;
+  if (f.lat !== undefined || f.lng !== undefined) {
+    const lat = Number(f.lat), lng = Number(f.lng);
+    if (Number.isFinite(lat) && Number.isFinite(lng) && lat >= PROVINCE_BOX.s && lat <= PROVINCE_BOX.n && lng >= PROVINCE_BOX.w && lng <= PROVINCE_BOX.e) {
+      pin = { lat: +lat.toFixed(5), lng: +lng.toFixed(5) };
+    } else errors.pin = 'พิกัดต้องอยู่ในจังหวัดพิษณุโลก';
+  }
   if (Object.keys(errors).length) throw new HttpError(422, 'ข้อมูลไม่ครบถ้วน', { fields: errors });
-  return { shopName, ownerName, phone, category: f.category, landmark, marketingConsent: f.marketingConsent === true };
+  return { shopName, ownerName, phone, category: f.category, landmark, pin, marketingConsent: f.marketingConsent === true };
+}
+
+const PROVINCE_BOX = { w: 99.85, e: 101.12, s: 16.31, n: 17.75 };
+
+/** Uses the shop's own pin and measures to the nearest landmark. */
+function placeAtPin(db, pin) {
+  const all = db.prepare('SELECT * FROM landmarks').all();
+  let best = null;
+  for (const l of all) {
+    const d = haversineM(pin.lat, pin.lng, l.lat, l.lng);
+    if (!best || d < best.d) best = { l, d };
+  }
+  const pos = gpsTo3D(pin.lat, pin.lng);
+  return { lat: pin.lat, lng: pin.lng, x: pos.x, z: pos.z, distanceM: Math.round(best.d), landmark: best.l };
 }
 
 function placeNearGps(landmark) {
@@ -384,7 +406,8 @@ async function createCheckout(db, visitorId, body) {
     };
   } else if (body.type === 'saas' || body.type === 'hotel_saas') {
     const form = validateMerchantForm(db, body.merchant || {});
-    const pos = placeNearGps(form.landmark);
+    const pos = form.pin ? placeAtPin(db, form.pin) : placeNearGps(form.landmark);
+    if (pos.landmark) form.landmark = pos.landmark;
     const slug = 'm-' + crypto.randomBytes(5).toString('hex');
     const isHotel = body.type === 'hotel_saas' || form.category === 'stay';
     const kind = isHotel ? 'hotel' : 'restaurant';
@@ -396,14 +419,15 @@ async function createCheckout(db, visitorId, body) {
     };
     const blurb = {
       th: `พาร์ทเนอร์ใหม่ในเครือข่าย PHITLOK NEXUS (${isHotel ? 'โรงแรมที่พัก' : 'ร้านอาหาร/ของฝาก'})`,
-      en: 'Verified PHITLOK NEXUS Partner',
-      zh: 'PHITLOK NEXUS 认证合作伙伴',
-      ja: 'PHITLOK NEXUS 認定パートナー',
-      ko: 'PHITLOK NEXUS 인증 파트너',
-      fr: 'Partenaire certifié PHITLOK NEXUS'
+      en: 'New PHITLOK NEXUS partner (awaiting document check)',
+      zh: 'PHITLOK NEXUS 新合作伙伴（待审核资料）',
+      ja: 'PHITLOK NEXUS 新規パートナー（書類確認中）',
+      ko: 'PHITLOK NEXUS 신규 파트너 (서류 확인 중)',
+      fr: 'Nouveau partenaire PHITLOK NEXUS (documents en vérification)'
     };
-    const defaultImg = isHotel ? '/assets/photos/yodia-heritage.jpg' : '/assets/photos/hoi-kha-noodles.jpg';
-    const defaultFallback = isHotel ? '/assets/photos/yodia-heritage.jpg' : '/assets/photos/hoi-kha-noodles.jpg';
+    // No photo of another place: the card shows a name card until the shop sends its own photo.
+    const defaultImg = '';
+    const defaultFallback = '';
     const demoTarget = (process.env.DEMO_PROMPTPAY_ID || '').trim();
     const r = db.prepare(`INSERT INTO merchants
       (slug, kind, name_json, blurb_json, category, nearest, distance_m, lat, lng, x, z,
