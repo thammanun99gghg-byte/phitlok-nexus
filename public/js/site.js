@@ -422,7 +422,7 @@ if (toggle && panel) {
     toggle.setAttribute('aria-label', V(open ? 'closeMenu' : 'openMenu'));
   };
   toggle.addEventListener('click', () => setOpen(panel.hidden));
-  panel.addEventListener('click', (e) => { if (e.target.closest('a') || e.target.closest('[data-open-vip-modal]')) setOpen(false); });
+  panel.addEventListener('click', (e) => { if (e.target.closest('a') || e.target.closest('[data-open-vip-modal], [data-open-signup]')) setOpen(false); });
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && !panel.hidden) { setOpen(false); toggle.focus(); }
   });

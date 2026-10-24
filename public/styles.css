@@ -1531,3 +1531,32 @@ html:not([lang="th"]) #for-merchants { display: none; }
   .map-layout.is-fullscreen .map-card { max-height: 34vh; overflow-y: auto; }
   .map-layout.is-fullscreen .map-card:has(> .map-card__media) > .map-card__media { min-height: 0; }
 }
+
+/* ---------------- Merchant sign-up: header button, short invitation, dialog ---------------- */
+.signup-btn { display: none; }
+@media (min-width: 1360px) { .signup-btn { display: inline-flex; } }
+html:not([lang="th"]) [data-open-signup] { display: none; }
+.section--tight { padding-block: 40px; }
+.signup-cta {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px 32px;
+  padding: 28px 32px; border-radius: var(--radius-lg); background: var(--bg-surface); box-shadow: var(--e2);
+  border-left: 6px solid var(--gold);
+}
+.signup-cta h2 { margin: 4px 0 6px; }
+.signup-cta__lead { margin: 0; color: var(--muted); }
+.dialog--signup { width: min(720px, calc(100vw - 24px)); }
+.dialog--signup h2 { margin: 2px 0 0; }
+.signup-steps { list-style: none; margin: 0 0 14px; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.signup-steps li {
+  display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px 6px 6px; border-radius: 999px;
+  background: var(--bg-elevated); font-size: .9rem; font-weight: 600;
+}
+.signup-steps b { width: 26px; height: 26px; display: inline-grid; place-items: center; border-radius: 50%; background: var(--emerald); color: #FFFFFF; font-size: .875rem; }
+.signup-plans { display: grid; gap: 10px; margin-bottom: 18px; }
+@media (min-width: 600px) { .signup-plans { grid-template-columns: 1fr 1fr; } }
+.signup-plans p { margin: 0; padding: 12px 14px; border-radius: 14px; border: 1.5px solid var(--edge-strong); display: grid; gap: 2px; }
+.signup-plans span { color: var(--muted); font-size: .9rem; }
+#signup-dialog .pdpa { margin-top: 4px; }
+.dialog--signup h2 { font-size: clamp(1.4rem, 1.1rem + 1.2vw, 2rem); }
+.nobreak { white-space: nowrap; }
+@media (max-width: 599px) { .signup-steps li { font-size: .875rem; } }

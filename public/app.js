@@ -106,7 +106,11 @@ function applyHash({ initial = false } = {}) {
     }
     return;
   }
-  if (['map', 'directory', 'vip', 'for-merchants'].includes(hash)) {
+  if (hash === 'for-merchants' || hash === 'signup') {
+    openSignup();
+    return;
+  }
+  if (['map', 'directory', 'vip'].includes(hash)) {
     setRoleIfNeeded('tourist');
     document.getElementById(hash)?.scrollIntoView({ block: 'start' });
   }
@@ -457,6 +461,9 @@ function bindGlobal() {
 
   document.querySelectorAll('dialog').forEach((d) => d.addEventListener('click', (e) => { if (e.target === d) d.close(); }));
 
+  document.querySelectorAll('[data-open-signup]').forEach((b) => b.addEventListener('click', openSignup));
+  document.querySelector('[data-close-signup]')?.addEventListener('click', () => closeDialog('signup-dialog'));
+
   const form = document.getElementById('saas-form');
   const catSelect = document.getElementById('f-category');
   catSelect?.addEventListener('change', () => {
@@ -486,10 +493,11 @@ function bindGlobal() {
     if (!/^0\d{8,9}$/.test(merchant.phone.replace(/[\s-]/g, ''))) errors.phone = 'เบอร์โทรศัพท์ต้องขึ้นต้นด้วย 0 และมี 9–10 หลัก';
     if (!merchant.pdpaConsent) errors.pdpaConsent = 'ต้องยอมรับนโยบายคุ้มครองข้อมูลส่วนบุคคล (PDPA) ก่อนสมัคร';
     if (Object.keys(errors).length) { showFieldErrors(errors); return; }
+    closeDialog('signup-dialog');
     startCheckout({ type: isHotel ? 'hotel_saas' : 'saas', merchant });
   });
 
-  on('checkout:field-errors', showFieldErrors);
+  on('checkout:field-errors', (errors) => { openDialog('signup-dialog'); showFieldErrors(errors); });
   on('wallet:open', openWallet);
   on('vip:prompt', () => {
     openVipUpgradeModal();
@@ -709,6 +717,12 @@ function bindLanguagePicker() {
   });
   document.addEventListener('click', (e) => { if (!menu.hidden && !e.target.closest('.lang-picker')) close(false); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !menu.hidden) close(true); });
+}
+
+// Merchant sign-up lives in a dialog, opened from the header, the menu and the invitation on the tourist page.
+function openSignup() {
+  openDialog('signup-dialog');
+  document.getElementById('f-shop')?.focus();
 }
 
 function clearFieldErrors() {

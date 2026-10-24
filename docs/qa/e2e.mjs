@@ -223,8 +223,9 @@ await step('Wallet: coupons dialog opens and closes', async () => {
   await page.waitForSelector('#wallet-dialog[open]');
   await page.click('#wallet-body [data-close]');
 });
-await step('SaaS sign-up: empty form shows errors; valid form pays and pins the shop', async () => {
-  await page.evaluate(() => document.getElementById('saas-form').scrollIntoView());
+await step('SaaS sign-up: header button opens the form; empty form shows errors; valid form pays and pins the shop', async () => {
+  await page.click('#header-signup-btn');
+  await page.waitForSelector('#signup-dialog[open]');
   await page.evaluate(() => document.querySelector('#saas-form [type="submit"]').click());
   expect(((await page.textContent('#err-shopName')) || '').length > 0, 'no validation error');
   await page.fill('#f-shop', 'ร้านทดสอบระบบริมน่าน');

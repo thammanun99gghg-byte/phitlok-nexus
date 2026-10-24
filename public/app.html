@@ -41,6 +41,7 @@
         <button class="modeswitch__btn" type="button" data-role="admin" aria-pressed="false"><i data-lucide="bar-chart-3"></i><span data-i18n="mode.admin">ผู้บริหาร</span></button>
       </div>
       <div class="appbar__actions">
+        <button class="btn btn--outline btn--sm signup-btn" type="button" id="header-signup-btn" data-open-signup lang="th"><i data-lucide="store"></i> ลงทะเบียนร้านค้า</button>
         <button class="btn btn--vip-cta btn--sm" type="button" id="header-vip-btn" data-open-vip-modal>✨ อัปเกรด VIP (99฿)</button>
         <div class="lang-picker">
           <button class="icon-btn lang-btn" type="button" id="lang-btn" aria-haspopup="true" aria-expanded="false" aria-controls="lang-menu" aria-label="เปลี่ยนภาษา"><i data-lucide="languages"></i><span class="lang-btn__code" id="lang-btn-code">TH</span></button>
@@ -64,6 +65,7 @@
       <a href="/"><i data-lucide="house"></i> <span data-i18n="nav.home">หน้าแรก</span></a>
       <a href="/app" aria-current="page"><i data-lucide="layout-grid"></i> <span data-i18n="nav.app">แอป</span></a>
       <a href="/credits"><i data-lucide="book-open"></i> <span data-i18n="nav.credits">เครดิต</span></a>
+      <button class="menu-panel__item" type="button" data-open-signup lang="th"><i data-lucide="store"></i> <span>ลงทะเบียนร้านค้า / โรงแรม</span></button>
       <button class="menu-panel__item show-mobile" type="button" data-open-vip-modal><i data-lucide="crown"></i> <span data-i18n="menu.vip">อัปเกรด VIP Pass (99฿)</span></button>
       <button class="menu-panel__item show-mobile" type="button" data-open-wallet-menu><i data-lucide="ticket"></i> <span data-i18n="menu.wallet">คูปองของฉัน</span></button>
       <button class="menu-panel__item show-mobile" type="button" data-theme-toggle aria-pressed="false"><i data-lucide="moon" class="ico-moon"></i><i data-lucide="sun" class="ico-sun"></i> <span data-i18n="menu.theme">สลับธีมสว่าง/มืด</span></button>
@@ -269,72 +271,16 @@
         </div>
       </section>
 
-      <section class="section" id="for-merchants" aria-labelledby="saas-title" lang="th">
-        <div class="container saas-grid">
-          <div>
-            <p class="eyebrow"><i data-lucide="building"></i> ช่องทางทำเงินที่ 1 &amp; 2 · SaaS ร้านอาหาร (199฿) และ SaaS โรงแรม (499฿)</p>
-            <h2 id="saas-title">ลงทะเบียนพาร์ทเนอร์ร้านอาหาร &amp; โรงแรมขึ้นแผนที่ 3D</h2>
-            <p class="section__lead">แพ็กเกจ <b>SaaS ร้านอาหาร 199฿/เดือน</b> (ค่าธรรมเนียมออเดอร์ 3%) และ <b>SaaS โรงแรมที่พัก 499฿/เดือน</b> (ค่าธรรมเนียมจองห้องพัก 5%) พร้อมระบบแปล 6 ภาษาอัตโนมัติ</p>
-            <div class="card note">
-              <h3>ทำไมร้านค้าและโรงแรมในพิษณุโลกจึงคุ้มค่าตั้งแต่วันแรก?</h3>
-              <p>เพียงรับออเดอร์นักท่องเที่ยวต่างชาติ 2–3 โต๊ะต่อเดือน หรือรับจองห้องพักเพียง 1 คืน ก็คุ้มค่าสมาชิกรายเดือนทันที เงินค่าอาหารและค่าห้องพักโอนเข้าบัญชีพร้อมเพย์ของร้านโดยตรง</p>
+      <section class="section section--tight" id="for-merchants" aria-labelledby="saas-title" lang="th">
+        <div class="container">
+          <div class="signup-cta">
+            <div>
+              <p class="eyebrow"><i data-lucide="building"></i> สำหรับเจ้าของร้านและโรงแรม</p>
+              <h2 id="saas-title">ลงทะเบียนร้านค้าขึ้นแผนที่ 3D</h2>
+              <p class="signup-cta__lead">ร้านอาหาร ของฝาก คาเฟ่ 199฿/เดือน · โรงแรม 499฿/เดือน · เงินค่าอาหารและค่าห้องเข้าพร้อมเพย์ของร้านโดยตรง</p>
             </div>
+            <button class="btn btn--primary btn--lg" type="button" data-open-signup><i data-lucide="store"></i> ลงทะเบียนร้านค้า</button>
           </div>
-          <form class="card form" id="saas-form" novalidate>
-            <h3>สมัครสมาชิกพาร์ทเนอร์ SaaS</h3>
-            <div class="field">
-              <label for="f-shop">ชื่อร้านอาหาร / โรงแรมที่พัก <span class="req" aria-hidden="true">*</span></label>
-              <input id="f-shop" name="shopName" required maxlength="80" autocomplete="organization" placeholder="เช่น บ้านก๋วยเตี๋ยวริมน่าน หรือ โรงแรมพิษณุโลกบูติค">
-              <p class="field__error" id="err-shopName"></p>
-            </div>
-            <div class="field">
-              <label for="f-owner">ชื่อผู้ติดต่อ / ผู้จัดการ <span class="req" aria-hidden="true">*</span></label>
-              <input id="f-owner" name="ownerName" required maxlength="80" autocomplete="name">
-              <p class="field__error" id="err-ownerName"></p>
-            </div>
-            <div class="field">
-              <label for="f-phone">เบอร์โทรศัพท์ (ผูกพร้อมเพย์รับเงินลูกค้า) <span class="req" aria-hidden="true">*</span></label>
-              <input id="f-phone" name="phone" required inputmode="tel" maxlength="12" autocomplete="tel" placeholder="08xxxxxxxx">
-              <p class="field__error" id="err-phone"></p>
-            </div>
-            <div class="field-row">
-              <div class="field">
-                <label for="f-category">ประเภทธุรกิจ &amp; แพ็กเกจ SaaS</label>
-                <select id="f-category" name="category">
-                  <option value="food">ร้านอาหาร (SaaS 199฿/เดือน)</option>
-                  <option value="souvenir">ของฝาก / OTOP (SaaS 199฿/เดือน)</option>
-                  <option value="cafe">คาเฟ่ / เครื่องดื่ม (SaaS 199฿/เดือน)</option>
-                  <option value="stay">โรงแรมที่พัก (Hotel SaaS 499฿/เดือน)</option>
-                </select>
-                <p class="field__error" id="err-category"></p>
-              </div>
-              <div class="field">
-                <label for="f-nearest">ใกล้โบราณสถาน</label>
-                <select id="f-nearest" name="nearest">
-                  <option value="wat-yai">วัดพระศรีรัตนมหาธาตุ (วัดใหญ่)</option>
-                  <option value="chan-palace">พระราชวังจันทน์</option>
-                  <option value="wat-nang-phaya">วัดนางพญา</option>
-                  <option value="wat-ratchaburana">วัดราชบูรณะ</option>
-                  <option value="city-pillar">ศาลหลักเมืองพิษณุโลก</option>
-                </select>
-                <p class="field__error" id="err-nearest"></p>
-              </div>
-            </div>
-            <div class="pdpa" role="note" aria-labelledby="pdpa-title">
-              <p class="pdpa__title" id="pdpa-title">ประกาศคุ้มครองข้อมูลส่วนบุคคล (PDPA)</p>
-              <p>ระบบจัดเก็บเฉพาะชื่อสถานประกอบการ ชื่อผู้ติดต่อ และเบอร์โทรศัพท์เพื่อปักหมุดพิกัดบนแผนที่ 3D และสร้าง QR พร้อมเพย์รับชำระเงิน เบอร์โทรไม่ถูกเปิดเผยต่อสาธารณะ</p>
-              <label class="check">
-                <input type="checkbox" id="f-pdpa" name="pdpaConsent" required>
-                <span>ข้าพเจ้ายอมรับนโยบายคุ้มครองข้อมูลส่วนบุคคล (PDPA) <span class="req" aria-hidden="true">*</span></span>
-              </label>
-              <p class="field__error" id="err-pdpaConsent"></p>
-              <label class="check">
-                <input type="checkbox" id="f-marketing" name="marketingConsent">
-                <span>ยินยอมเข้าร่วมแคมเปญคูปองนักท่องเที่ยว (ไม่บังคับ)</span>
-              </label>
-            </div>
-            <button class="btn btn--primary btn--block" type="submit">สมัครและชำระ <span id="saas-price-btn">199</span> บาท ด้วย QR PromptPay</button>
-          </form>
         </div>
       </section>
     </div>
@@ -559,6 +505,80 @@
   </dialog>
   <dialog class="dialog" id="wallet-dialog" aria-labelledby="wallet-title">
     <div class="dialog__body" id="wallet-body"></div>
+  </dialog>
+  <dialog class="dialog dialog--signup" id="signup-dialog" aria-labelledby="signup-title" lang="th">
+    <div class="dialog__body">
+      <div class="dialog__head">
+        <div>
+          <p class="eyebrow"><i data-lucide="store"></i> พาร์ทเนอร์ SaaS · PHITLOK NEXUS</p>
+          <h2 id="signup-title"><span class="nobreak">ลงทะเบียนร้านค้า</span> / <span class="nobreak">โรงแรม</span></h2>
+        </div>
+        <button class="btn btn--icon btn--ghost" type="button" data-close-signup aria-label="ปิด">✕</button>
+      </div>
+      <ol class="signup-steps" aria-label="ขั้นตอนการสมัคร">
+        <li><b>1</b> กรอกข้อมูลร้าน</li>
+        <li><b>2</b> ชำระด้วย QR พร้อมเพย์</li>
+        <li><b>3</b> หมุดร้านขึ้นแผนที่ทันที</li>
+      </ol>
+      <div class="signup-plans">
+        <p><b>ร้านอาหาร · ของฝาก · คาเฟ่</b><span>199฿/เดือน · ค่าธรรมเนียมออเดอร์ 3%</span></p>
+        <p><b>โรงแรมที่พัก</b><span>499฿/เดือน · ค่าธรรมเนียมจองห้อง 5%</span></p>
+      </div>
+      <form class="form" id="saas-form" novalidate>
+        <div class="field">
+          <label for="f-shop">ชื่อร้านอาหาร / โรงแรมที่พัก <span class="req" aria-hidden="true">*</span></label>
+          <input id="f-shop" name="shopName" required maxlength="80" autocomplete="organization" placeholder="เช่น บ้านก๋วยเตี๋ยวริมน่าน หรือ โรงแรมพิษณุโลกบูติค">
+          <p class="field__error" id="err-shopName"></p>
+        </div>
+        <div class="field">
+          <label for="f-owner">ชื่อผู้ติดต่อ / ผู้จัดการ <span class="req" aria-hidden="true">*</span></label>
+          <input id="f-owner" name="ownerName" required maxlength="80" autocomplete="name">
+          <p class="field__error" id="err-ownerName"></p>
+        </div>
+        <div class="field">
+          <label for="f-phone">เบอร์โทรศัพท์ (ผูกพร้อมเพย์รับเงินลูกค้า) <span class="req" aria-hidden="true">*</span></label>
+          <input id="f-phone" name="phone" required inputmode="tel" maxlength="12" autocomplete="tel" placeholder="08xxxxxxxx">
+          <p class="field__error" id="err-phone"></p>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="f-category">ประเภทธุรกิจ &amp; แพ็กเกจ SaaS</label>
+            <select id="f-category" name="category">
+              <option value="food">ร้านอาหาร (SaaS 199฿/เดือน)</option>
+              <option value="souvenir">ของฝาก / OTOP (SaaS 199฿/เดือน)</option>
+              <option value="cafe">คาเฟ่ / เครื่องดื่ม (SaaS 199฿/เดือน)</option>
+              <option value="stay">โรงแรมที่พัก (Hotel SaaS 499฿/เดือน)</option>
+            </select>
+            <p class="field__error" id="err-category"></p>
+          </div>
+          <div class="field">
+            <label for="f-nearest">ใกล้โบราณสถาน</label>
+            <select id="f-nearest" name="nearest">
+              <option value="wat-yai">วัดพระศรีรัตนมหาธาตุ (วัดใหญ่)</option>
+              <option value="chan-palace">พระราชวังจันทน์</option>
+              <option value="wat-nang-phaya">วัดนางพญา</option>
+              <option value="wat-ratchaburana">วัดราชบูรณะ</option>
+              <option value="city-pillar">ศาลหลักเมืองพิษณุโลก</option>
+            </select>
+            <p class="field__error" id="err-nearest"></p>
+          </div>
+        </div>
+        <div class="pdpa" role="note" aria-labelledby="pdpa-title">
+          <p class="pdpa__title" id="pdpa-title">ประกาศคุ้มครองข้อมูลส่วนบุคคล (PDPA)</p>
+          <p>ระบบจัดเก็บเฉพาะชื่อสถานประกอบการ ชื่อผู้ติดต่อ และเบอร์โทรศัพท์เพื่อปักหมุดพิกัดบนแผนที่ 3D และสร้าง QR พร้อมเพย์รับชำระเงิน เบอร์โทรไม่ถูกเปิดเผยต่อสาธารณะ</p>
+          <label class="check">
+            <input type="checkbox" id="f-pdpa" name="pdpaConsent" required>
+            <span>ข้าพเจ้ายอมรับนโยบายคุ้มครองข้อมูลส่วนบุคคล (PDPA) <span class="req" aria-hidden="true">*</span></span>
+          </label>
+          <p class="field__error" id="err-pdpaConsent"></p>
+          <label class="check">
+            <input type="checkbox" id="f-marketing" name="marketingConsent">
+            <span>ยินยอมเข้าร่วมแคมเปญคูปองนักท่องเที่ยว (ไม่บังคับ)</span>
+          </label>
+        </div>
+        <button class="btn btn--primary btn--block" type="submit">สมัครและชำระ <span id="saas-price-btn">199</span> บาท ด้วย QR PromptPay</button>
+      </form>
+    </div>
   </dialog>
 
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
